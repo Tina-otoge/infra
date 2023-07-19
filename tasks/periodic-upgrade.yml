@@ -1,0 +1,33 @@
+- name: Ensure local systemd folder exists
+  file:
+    path: "/usr/local/lib/systemd/system"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwX,g=rX,o=rX
+
+- name: "Create {{ upgrade_service_name }} service"
+  template:
+    src: periodic-upgrade/systemd.service.j2
+    dest: "/usr/local/lib/systemd/system/{{ upgrade_service_name }}.service"
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+  notify:
+    - systemd reload
+
+- meta: flush_handlers
+
+- name: Create timer for {{ upgrade_service_name }}
+  template:
+    src: periodic-upgrade/systemd.timer.j2
+    dest: "/usr/local/lib/systemd/system/{{ upgrade_service_name }}.timer"
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+
+- name: Enable {{ upgrade_service_name }} timer
+  systemd:
+    name: "{{ upgrade_service_name }}.timer"
+    enabled: true
+    state: started

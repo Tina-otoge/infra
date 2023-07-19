@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+[Unit]
+Description=Upgrade and restart
+[Timer]
+OnCalendar={{ upgrade_schedule }}
+Persistent=true
+[Install]
+WantedBy=timers.target

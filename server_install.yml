@@ -1,0 +1,12 @@
+- hosts: all
+  become: true
+
+  tasks:
+    - include_tasks: tasks/packages.yml
+    - include_tasks: tasks/pkg-mgr-conf.yml
+    - include_tasks: tasks/periodic-upgrade.yml
+
+  handlers:
+    - name: systemd reload
+      systemd:
+        daemon_reload: true

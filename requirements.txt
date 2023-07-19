@@ -1,0 +1,5 @@
+ansible
+ansible-lint
+docker
+molecule
+molecule-plugins[vagrant]@git+https://github.com/ansible-community/molecule-plugins.git

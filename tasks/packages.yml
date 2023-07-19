@@ -1,0 +1,59 @@
+- set_fact:
+    packages_distro: |
+      {{
+        packages_by_distro
+        [ansible_distribution]
+        [ansible_distribution_major_version]
+        | default([])
+      }}
+
+- when:
+    - ansible_os_family == "RedHat"
+    - ansible_pkg_mgr == "dnf"
+  block:
+    - name: Checks for already installed packages
+      command: "rpm -q {{ item.name | default(item) }}"
+      loop: "{{ packages_distro }}"
+      register: _packages_check
+      ignore_errors: true
+      changed_when: false
+
+    - set_fact:
+        _packages_to_install: |
+          {{ _packages_to_install | default([]) + [item.item] }}
+      loop: "{{ _packages_check.results }}"
+      when: item.failed
+
+    - community.general.copr:
+        name: "{{ item.copr }}"
+        chroot: |
+          {{
+            [
+              'epel',
+              ansible_distribution_major_version,
+              ansible_architecture,
+            ] | join('-')
+          }}
+      loop: "{{ _packages_to_install | default([]) }}"
+      when: item.copr
+
+    - set_fact:
+        _packages_to_install_flat: |
+          {{
+            _packages_to_install_flat | default([])
+            + [item.url | default(item.name) | default(item)]
+          }}
+      loop: "{{ _packages_to_install }}"
+      when: _packages_to_install is defined
+
+    # Using command instead of dnf/package module to avoid gpg check fail for
+    # direct URLs
+    - name: Install distro specific packages with dnf
+      command: |
+        dnf install -y {{ _packages_to_install_flat | default([]) | join }}
+      when: _packages_to_install is defined
+
+- name: Install common packages
+  package:
+    name: "{{ item }}"
+  loop: "{{ packages_base }}"

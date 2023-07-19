@@ -1,0 +1,9 @@
+skip_list:
+  - command-instead-of-module
+  - fqcn
+  - name
+  - no-changed-when
+  - package-latest
+
+exclude_paths:
+  - .venv/

@@ -1,0 +1,8 @@
+- name: Configure dnf
+  template:
+    src: pkg-mgr/dnf.conf.j2
+    dest: /etc/dnf/dnf.conf
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+  when: ansible_pkg_mgr == 'dnf'

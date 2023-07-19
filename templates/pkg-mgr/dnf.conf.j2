@@ -1,0 +1,11 @@
+# {{ ansible_managed }}
+[main]
+gpgcheck=1
+installonly_limit=3
+clean_requirements_on_remove=True
+best=True
+skip_if_unavailable=False
+
+defaultyes={{ pkgmgr_default_yes | capitalize }}
+install_weak_deps={{ pkgmgr_install_weak_deps | capitalize }}
+deltarpm={{ pkgmgr_dnf_deltarpm | capitalize }}

@@ -1,0 +1,9 @@
+# {{ ansible_managed }}
+[Service]
+Description=Upgrade the system
+ExecStart=bash -c "\
+    {{ upgrade_commands[ansible_pkg_mgr] | join(";") }}; \
+    {% if upgrade_then_reboot %}
+    reboot \
+    {% endif %}
+"

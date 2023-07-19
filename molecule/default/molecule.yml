@@ -1,0 +1,15 @@
+---
+driver:
+  name: vagrant
+platforms:
+  - name: laffey
+    box: generic/rocky9
+  - name: turbo
+    box: generic/rocky9
+
+provisioner:
+  name: ansible
+  env:
+    ANSIBLE_CONFIG: ../../ansible.cfg
+  playbooks:
+    converge: ../../server_install.yml

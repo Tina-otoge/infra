@@ -1,0 +1,25 @@
+packages_base:
+  - podman
+  - vim
+  - zsh
+
+packages_by_distro:
+  Rocky:
+    "9":
+      # Not in EPEL repos for RHEL 9 (yet?)
+      - name: zsh-syntax-highlighting
+        url: http://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/z/zsh-syntax-highlighting-0.7.1-1.el8.noarch.rpm
+      - name: caddy
+        copr: "@caddy/caddy"
+
+
+upgrade_commands:
+  dnf:
+    - dnf -y upgrade --refresh
+upgrade_schedule: "weekly"
+upgrade_then_reboot: true
+upgrade_service_name: upgrade-and-restart
+
+pkgmgr_default_yes: true
+pkgmgr_install_weak_deps: true
+pkgmgr_dnf_deltarpm: true

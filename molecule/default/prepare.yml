@@ -1,0 +1,8 @@
+- hosts: all
+  become: true
+  tasks:
+    - name: Upgrade packages to their latest version (dnf)
+      dnf:
+        name: "*"
+        state: latest
+      when: "ansible_pkg_mgr == 'dnf'"
