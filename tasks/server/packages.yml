@@ -11,7 +11,16 @@
     - ansible_os_family == "RedHat"
     - ansible_pkg_mgr == "dnf"
   block:
-    - name: Checks for already installed packages
+    - name: Check if CRB is enabled
+      command: dnf repolist crb
+      register: _crb_check
+      changed_when: false
+
+    - name: Enable CRB
+      command: dnf config-manager --set-enabled crb
+      when: not _crb_check.stdout.endswith("enabled")
+
+    - name: Check for already installed packages
       command: "rpm -q {{ item.name | default(item) }}"
       loop: "{{ packages_distro }}"
       register: _packages_check

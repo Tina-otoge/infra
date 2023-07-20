@@ -1,5 +1,7 @@
 packages_base:
+  - httpie
   - podman
+  - tree
   - vim
   - zsh
 
@@ -20,6 +22,24 @@ upgrade_schedule: "weekly"
 upgrade_then_reboot: true
 upgrade_service_name: upgrade-and-restart
 
+
 pkgmgr_default_yes: true
 pkgmgr_install_weak_deps: true
 pkgmgr_dnf_deltarpm: true
+
+
+skeleton_dirs: []
+
+
+users: []
+
+
+hostname: null
+
+
+http_domain: null
+
+
+caddy_auto_ssl: true
+caddy_email: null
+caddy_entries: []

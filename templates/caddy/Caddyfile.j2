@@ -1,0 +1,23 @@
+{
+	log {
+		format console
+	}
+
+	{% if not caddy_auto_ssl %}
+	auto_https off
+	{% endif %}
+
+	{% if caddy_email %}
+	email {{ caddy_email }}
+	{% endif %}
+}
+
+{% if http_domain %}
+:80 {
+	redir https://{{ http_domain }}
+}
+{% endif %}
+
+{% if caddy_entries %}
+import Caddyfile.d/*.conf
+{% endif %}

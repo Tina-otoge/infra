@@ -2,11 +2,30 @@
   become: true
 
   tasks:
-    - include_tasks: tasks/packages.yml
-    - include_tasks: tasks/pkg-mgr-conf.yml
-    - include_tasks: tasks/periodic-upgrade.yml
+    - include_tasks:
+        file: "tasks/server/{{ task }}.yml"
+        apply:
+          tags:
+            - server
+            - "{{ task }}"
+      loop:
+        - hostname
+        - pkg-mgr-conf
+        - packages
+        - periodic-upgrade
+        - skeleton
+        - users
+        - caddy
+      loop_control:
+        loop_var: task
+      tags:
+        - always
 
   handlers:
     - name: systemd reload
       systemd:
         daemon_reload: true
+    - name: caddy reload
+      systemd:
+        name: caddy
+        state: restarted

@@ -8,8 +8,11 @@ platforms:
     box: generic/rocky9
 
 provisioner:
-  name: ansible
+  inventory:
+    hosts:
+      dev:
+        hosts:
+          laffey:
+          turbo:
   env:
     ANSIBLE_CONFIG: ../../ansible.cfg
-  playbooks:
-    converge: ../../server_install.yml

@@ -1,3 +1,2 @@
-[all]
 laffey ansible_host=laffey.tina.moe
 turbo  ansible_host=turbo.tina.moe

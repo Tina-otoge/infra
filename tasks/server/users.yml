@@ -1,0 +1,5 @@
+- name: Create users
+  user:
+    name: "{{ item }}"
+    generate_ssh_key: true
+  loop: "{{ users }}"

@@ -1,0 +1,2 @@
+- import_playbook: ../../server_install.yml
+- import_playbook: ../../user_install.yml

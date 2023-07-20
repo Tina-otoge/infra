@@ -1,0 +1,30 @@
+- name: Install Caddy
+  package:
+    name: caddy
+    state: present
+
+- name: Enable Caddy service
+  service:
+    name: caddy
+    enabled: true
+    state: started
+
+- name: Create main Caddyfile
+  template:
+    src: caddy/Caddyfile.j2
+    dest: /etc/caddy/Caddyfile
+    mode: "u=rw,g=r,o=r"
+  notify: caddy reload
+
+- name: Create Caddyfile entries
+  blockinfile:
+    create: true
+    path: >-
+      {%- if item.file -%}
+      /etc/caddy/Caddyfile.d/{{ item.file }}.conf
+      {%- else -%}
+      /etc/caddy/Caddyfile
+      {%- endif -%}
+    block: "{{ lookup('template', 'caddy/entry.j2') }}"
+  loop: "{{ caddy_entries }}"
+  notify: caddy reload

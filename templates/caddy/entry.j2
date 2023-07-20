@@ -1,0 +1,7 @@
+{{ item.domain }} {
+	{% if item.root %}
+	root * {{ item.root }}
+	{% endif %}
+
+	{{ item.extra | default('') }}
+}

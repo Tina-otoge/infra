@@ -1,0 +1,33 @@
+skeleton_dirs:
+  - www
+  - wwws/example.com
+
+users:
+  - akeyro
+  - koneko
+  - noa
+  - platea
+  - reaxt
+  - sayaka
+  - test
+  - tina
+
+http_domain: laffey.tina.moe
+
+caddy_entries:
+  - domain: laffey.tina.moe
+    root: /home/tina/wwws/laffey
+    file: tina
+    reverses:
+      - path: /cockpit/
+        to: 9090
+      - path: /flood/
+        to: 3000
+    extra: |
+      @userdir {
+        path_regexp userdir ^/~(\w+)/
+      }
+      handle @userdir {
+        root * /home/{re.userdir.1}/www
+        file_server browse
+      }
