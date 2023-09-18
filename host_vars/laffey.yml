@@ -10,18 +10,18 @@ users:
   - reaxt
   - sayaka
   - test
+
+users_admins:
   - tina
 
-http_domain: laffey.tina.moe
-
 caddy_entries:
-  - domain: laffey.tina.moe
+  - domain: "{{ http_domain }}"
     root: /home/tina/wwws/laffey
     file: tina
     reverses:
-      - path: /cockpit/
+      - path: "{{ cockpit_url_root }}"
         to: 9090
-      - path: /flood/
+      - path: /flood
         to: 3000
     extra: |
       @userdir {
@@ -31,3 +31,23 @@ caddy_entries:
         root * /home/{re.userdir.1}/www
         file_server browse
       }
+
+paths:
+  /srv/media:
+    owner: tina
+
+containers:
+  jellyfin:
+    image: jellyfin/jellyfin
+    ports:
+      - 8096
+    volumes:
+      - /srv/media:/media
+    user: tina
+    labels:
+      - io.containers.autoupdate=registry
+  mc:
+    image: eclipse-temurin:17
+    ports:
+      - 25565
+    volumes:

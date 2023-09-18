@@ -1,9 +1,12 @@
 {
+	debug
+
 	log {
 		format console
+		level debug
 	}
 
-	{% if not caddy_auto_ssl %}
+	{% if not caddy_https %}
 	auto_https off
 	{% endif %}
 
@@ -12,11 +15,15 @@
 	{% endif %}
 }
 
-{% if http_domain %}
+{% if http_domain and caddy_https %}
 :80 {
 	redir https://{{ http_domain }}
 }
 {% endif %}
+
+(common) {
+	log
+}
 
 {% if caddy_entries %}
 import Caddyfile.d/*.conf

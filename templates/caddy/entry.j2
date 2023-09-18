@@ -1,7 +1,14 @@
-{{ item.domain }} {
-	{% if item.root %}
+{% if not caddy_https %}http://{% endif %}{{ item.domain }} {
+	import common
+
+{% if item.root %}
 	root * {{ item.root }}
-	{% endif %}
+{% endif %}
+
+{% for reverse_proxy in item.reverses | default([]) %}
+	reverse_proxy {{ reverse_proxy.path }}/* localhost:{{ reverse_proxy.to }}
+	redir {{ reverse_proxy.path }} {{ reverse_proxy.path }}/
+{% endfor %}
 
 	{{ item.extra | default('') }}
 }

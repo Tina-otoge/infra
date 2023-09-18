@@ -1,1 +1,6 @@
 hostname: TurboVM
+
+users_admins:
+  - tina
+
+http_domain: turbo.tina.moe

@@ -1,0 +1,4 @@
+- name: Copy static websites
+  copy:
+    src: "./{{ inventory_hostname_short }}/websites/"
+    dest: "{{ ansible_user_dir }}/wwws/"

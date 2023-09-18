@@ -1,0 +1,15 @@
+- name: Ensure local systemd user session config dir exists
+  file:
+    path: /usr/local/lib/systemd/system/user@.service.d
+    state: directory
+    mode: u=rwX,g=rX,o=rX
+
+# Adding the cpu cgroup to users allow for running rootless containers with cpu
+# limits
+- name: Delegate specific cgroup controllers to users
+  copy:
+    dest: /usr/local/lib/systemd/system/user@.service.d/local.conf
+    content: |
+      [Service]
+      Delegate=cpu io memory pids
+    mode: u=rw,g=r,o=r

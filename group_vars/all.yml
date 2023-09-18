@@ -1,18 +1,40 @@
+selinux_state: disabled
+
 packages_base:
+  - cockpit
+  - cockpit-navigator
+  - cockpit-podman
+  - cockpit-storaged
+  - fzf
+  - htop
   - httpie
+  - megatools
+  - net-tools
   - podman
+  - screen
   - tree
   - vim
   - zsh
+  - zsh-syntax-highlighting
 
+packages_remove:
+  - crontabs
+  - haveged
+  - udisks2-iscsi
+
+# Override how to install packages for a given distro
 packages_by_distro:
   Rocky:
     "9":
       # Not in EPEL repos for RHEL 9 (yet?)
       - name: zsh-syntax-highlighting
-        url: http://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/z/zsh-syntax-highlighting-0.7.1-1.el8.noarch.rpm
+        url: "http://rpmfind.net/linux/epel/8/Everything/{{ ansible_architecture }}/Packages/z/zsh-syntax-highlighting-0.7.1-1.el8.noarch.rpm"
+      - name: fzf
+        url: "https://www.rpmfind.net/linux/fedora/linux/updates/38/Everything/{{ ansible_architecture }}/Packages/f/fzf-0.42.0-1.fc38.{{ ansible_architecture }}.rpm"
       - name: caddy
         copr: "@caddy/caddy"
+      - name: megatools
+        url: https://www.rpmfind.net/linux/fedora/linux/releases/38/Everything/{{ ansible_architecture }}/os/Packages/m/megatools-1.11.1-1.fc38.{{ ansible_architecture }}.rpm
 
 
 upgrade_commands:
@@ -32,14 +54,25 @@ skeleton_dirs: []
 
 
 users: []
+users_admins: []
 
 
 hostname: null
 
+timezone: "Europe/Paris"
 
-http_domain: null
+
+http_domain: "{{ ansible_hostname }}"
 
 
-caddy_auto_ssl: true
+caddy_https: true
 caddy_email: null
 caddy_entries: []
+
+cockpit_url_root: /cockpit
+cockpit_allow_unencrypted: "{{ not caddy_https }}"
+cockpit_login_to: true
+
+containers: {}
+containers_registries:
+  - docker.io

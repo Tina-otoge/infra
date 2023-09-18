@@ -1,4 +1,18 @@
 - hosts: all
+  become: true
+  become_user: tina
+
   tasks:
-    - debug:
-        msg: Hello user
+    - include_tasks:
+        file: "tasks/user/{{ task }}.yml"
+        apply:
+          tags:
+            - user
+            - "{{ task }}"
+      loop:
+        - websites
+        - containers
+      loop_control:
+        loop_var: task
+      tags:
+        - always

@@ -9,13 +9,26 @@
             - server
             - "{{ task }}"
       loop:
+        # Core config
         - hostname
+        - selinux
+        - timezone
+
+        # Packages
         - pkg-mgr-conf
         - packages
         - periodic-upgrade
+
+        # Users
         - skeleton
+        - cgroups
+        - containers
         - users
+        - paths
+
+        # Services
         - caddy
+        - cockpit
       loop_control:
         loop_var: task
       tags:
@@ -26,6 +39,8 @@
       systemd:
         daemon_reload: true
     - name: caddy reload
+      include_tasks: tasks/server/caddy_reload.yml
+    - name: cockpit reload
       systemd:
-        name: caddy
+        name: cockpit.socket
         state: restarted

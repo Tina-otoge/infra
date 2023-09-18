@@ -1,0 +1,4 @@
+- command: caddy validate --config /etc/caddy/Caddyfile
+- systemd:
+    name: caddy
+    state: restarted

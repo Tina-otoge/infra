@@ -1,5 +1,27 @@
+- set_fact:
+    _users_all: "{{ users + users_admins }}"
+
 - name: Create users
   user:
     name: "{{ item }}"
+    groups: "{% if item in users_admins %} wheel {% endif %}"
+    append: true
     generate_ssh_key: true
-  loop: "{{ users }}"
+  loop: "{{ _users_all }}"
+
+- name: Check the lingering state of users
+  command: "loginctl user-status {{ item }}"
+  register: loginctl_user_status
+  loop: "{{ _users_all }}"
+  changed_when: false
+  failed_when: false
+
+- name: Enable lingering for users
+  command: "loginctl enable-linger {{ item }}"
+  loop: |
+    {{
+      loginctl_user_status.results
+      | rejectattr('rc', 'eq', 0)
+      | map(attribute='item')
+      | list
+    }}

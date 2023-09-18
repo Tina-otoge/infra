@@ -28,3 +28,25 @@
     block: "{{ lookup('template', 'caddy/entry.j2') }}"
   loop: "{{ caddy_entries }}"
   notify: caddy reload
+
+- name: Create symlink of Caddy certificates to ssl directory
+  file:
+    src: /var/lib/caddy/.local/share/caddy/certificates
+    dest: /etc/ssl/caddy
+    state: link
+    force: true
+
+- name: Check if Caddy completion file exists for zsh
+  stat:
+    path: /usr/local/share/zsh/site-functions/_caddy
+  register: _caddy_completion_check
+  changed_when: false
+
+- when: not _caddy_completion_check.stat.exists
+  block:
+    - name: Ensure zsh plugins directory exists
+      file:
+        path: /usr/local/share/zsh/site-functions
+        state: directory
+    - name: Install Caddy completion file for zsh
+      shell: caddy completion zsh > /usr/local/share/zsh/site-functions/_caddy

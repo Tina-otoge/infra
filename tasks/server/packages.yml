@@ -44,7 +44,7 @@
             ] | join('-')
           }}
       loop: "{{ _packages_to_install | default([]) }}"
-      when: item.copr
+      when: "'copr' in item"
 
     - set_fact:
         _packages_to_install_flat: |
@@ -66,3 +66,9 @@
   package:
     name: "{{ item }}"
   loop: "{{ packages_base }}"
+
+- name: Remove common packages
+  package:
+    name: "{{ item }}"
+    state: absent
+  loop: "{{ packages_remove }}"

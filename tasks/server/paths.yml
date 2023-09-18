@@ -1,0 +1,8 @@
+- name: Ensure paths exist
+  file:
+    path: "{{ item.key }}"
+    state: directory
+    owner: "{{ item.value.owner }}"
+    group: "{{ item.value.group | default(item.value.owner) }}"
+    mode: "{{ item.value.mode | default('u=rwX,g=rX,o=rX') }}"
+  loop: "{{ paths | dict2items }}"

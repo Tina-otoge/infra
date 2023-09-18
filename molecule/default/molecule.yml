@@ -13,6 +13,8 @@ provisioner:
       dev:
         hosts:
           laffey:
+            http_domain: laffey.local
           turbo:
+            http_domain: turbo.local
   env:
     ANSIBLE_CONFIG: ../../ansible.cfg

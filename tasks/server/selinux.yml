@@ -1,0 +1,3 @@
+- name: "Set SELinux state to {{ selinux_state }}"
+  selinux:
+    state: "{{ selinux_state }}"

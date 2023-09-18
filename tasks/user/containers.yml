@@ -1,0 +1,10 @@
+- name: Create containers
+  containers.podman.podman_container:
+    name: "{{ item.key }}"
+    image: "{{ item.value.image }}"
+    state: started
+    publish: "{{ item.value.ports | default([]) }}"
+    volumes: "{{ item.value.volumes | default([]) }}"
+    env: "{{ item.value.env | default({}) }}"
+    restart_policy: unless-stopped
+  loop: "{{ containers | dict2items }}"

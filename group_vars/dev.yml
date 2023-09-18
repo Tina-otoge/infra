@@ -1,1 +1,1 @@
-caddy_auto_ssl: false
+caddy_https: false

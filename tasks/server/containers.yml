@@ -1,0 +1,11 @@
+- name: Set short-name-mode value
+  lineinfile:
+    path: /etc/containers/registries.conf
+    regexp: '^short-name-mode ='
+    line: 'short-name-mode = "disabled"'
+
+- name: Set unqualified-search-registries value
+  lineinfile:
+    path: /etc/containers/registries.conf
+    regexp: '^unqualified-search-registries ='
+    line: "unqualified-search-registries = {{ containers_registries }}"
