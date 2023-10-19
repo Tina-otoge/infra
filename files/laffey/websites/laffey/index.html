@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Laffey on Ragondin Network</title>
+<link
+    rel="shortcut icon"
+    href="laffey-chibi.png"
+>
+<link
+    href="https://fonts.googleapis.com/css2?family=Quicksand&display=swap"
+    rel="stylesheet"
+>
+<style>
+    :root {
+        --darken: rgba(0, 0, 0, 0.5);
+        --darker: rgba(0, 0, 0, 0.777);
+    }
+
+    body {
+        margin: 1em;
+        background-color: blueviolet;
+        background:
+            url("azur-lane-elite-background.jpg") no-repeat center center fixed;
+        background-size: cover;
+        font-family: "Quicksand", sans-serif;
+        color: white;
+        text-align: center;
+        font-size: 1.4em;
+    }
+
+    body::before {
+        content: "";
+        width: 100vw;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        background-color: var(--darken);
+        z-index: -1;
+    }
+
+    a,
+    a:visited {
+        text-decoration: none;
+        color: lightblue;
+    }
+
+    a:hover,
+    a:active {
+        text-decoration: underline;
+    }
+
+    body,
+    h1,
+    #useful-links .content,
+    #need-an-access {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    h1 {
+        text-transform: uppercase;
+        margin-bottom: 0;
+    }
+
+    #subtitle {
+        margin: 0.5em 0 2em;
+    }
+
+    h2 {
+        margin: 2em 0 0.5em;
+    }
+
+    img,
+    .twitter-tweet-rendered {
+        border-radius: 3%;
+        box-shadow: 0 0 10px var(--darker);
+        max-width: 100%;
+    }
+
+    .twitter-tweet {
+        display: none;
+    }
+
+    .twitter-tweet-rendered {
+        display: initial;
+    }
+
+    #welcome-pic {
+        max-width: 400px;
+    }
+
+    #page {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 0 1em;
+    }
+
+    li::marker {
+        content: "🐰 ";
+        font-size: 0.75em;
+    }
+
+    li {
+        text-align: left;
+    }
+
+    #need-an-access p,
+    #need-an-access ul {
+        margin: 0.5em 0;
+    }
+</style>
+
+<img
+    src="azur-lane-laffey-sleeps.gif"
+    id="welcome-pic"
+/>
+
+<div id="page">
+    <h1>
+        Laffey
+        <small>
+            part of <a href="https://tina.moe">Tina</a>'s Ragondin Network
+        </small>
+    </h1>
+
+    <p id="subtitle">Local bunny fucking dies</p>
+
+    <p>
+        "Laffey" is one of the machines I manage. It hosts most of my personal
+        projects. It is named after the adorable bunny-like loli starter from
+        Azur Lane that you can contemplate in the
+        <a href="https://www.youtube.com/watch?v=Nrk8sqZfsgI">GIF</a> above.
+        <br>
+        It is also a server I rent to some friends, it helps me mitigate the
+        cost of it, and it is also better than leaving it underused.
+    </p>
+
+    <div id="useful-links">
+        <h2>Useful links</h2>
+        <div class="content">
+            <a href="https://tina.moe">Tina's homepage</a>
+            <a href="/flood">Torrents web UI (Flood)</a>
+            <a href="/cockpit">Cockpit</a>
+            <a href="https://paypal.me/skielred/5">
+                PayPal link to pay for the server
+            </a>
+        </div>
+    </div>
+
+    <div id="need-an-access">
+        <h2>Need an access?</h2>
+        <p>
+            Interested in renting an access to the server? For any amount
+            between
+            5 and 10€ / month (you name your own price), you get your own Linux
+            user on Laffey. There is no limit on the use cases available, most
+            common ones include:
+        </p>
+        <ul>
+            <li>Running bots</li>
+            <li>Running websites</li>
+            <li>Running game servers</li>
+            <li>Running torrent clients ("seedboxes")</li>
+            <li>Fiddling with Linux</li>
+            <li>Storing files</li>
+        </ul>
+        <p>
+            You also get 24h/24 assistance from me in case you need help setting
+            up anything on the server.
+            <br>
+            You have to run anything as your own user, but you can leverage
+            systemd's user services to run anything you want in the background,
+            and you can use podman to run containers as your own user.
+            <br>
+            You can also ping me if you need anything set up on the HTTP server,
+            such as a reverse proxy, or a static website.
+        </p>
+    </div>
+</div>
