@@ -13,6 +13,7 @@
         - hostname
         - selinux
         - timezone
+        - hosts
 
         # Packages
         - pkg-mgr-conf

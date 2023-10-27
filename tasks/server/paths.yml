@@ -5,4 +5,4 @@
     owner: "{{ item.value.owner }}"
     group: "{{ item.value.group | default(item.value.owner) }}"
     mode: "{{ item.value.mode | default('u=rwX,g=rX,o=rX') }}"
-  loop: "{{ paths | dict2items }}"
+  loop: "{{ paths | default({}) | dict2items }}"

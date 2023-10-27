@@ -10,7 +10,7 @@
             - user
             - "{{ task }}"
       loop:
-        - websites
+        # - websites
         - containers
       loop_control:
         loop_var: task

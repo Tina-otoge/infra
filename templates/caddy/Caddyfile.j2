@@ -15,9 +15,13 @@
 	{% endif %}
 }
 
-{% if http_domain and caddy_https %}
+{% if http_domain %}
 :80 {
+	{% if caddy_https %}
 	redir https://{{ http_domain }}
+	{% else %}
+	redir http://{{ http_domain }}
+	{% endif %}
 }
 {% endif %}
 

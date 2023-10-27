@@ -1,13 +1,38 @@
-{% if not caddy_https %}http://{% endif %}{{ item.domain }} {
-	import common
-
-{% if item.root %}
-	root * {{ item.root }}
+{% set entry = item.domain %}
+{% if not caddy_https %}
+{% set entry = 'http://' + entry %}
 {% endif %}
 
+{{ entry }} {
+	import common
+
+{% if 'root' in item %}
+	root * {{ item.root }}
+{% endif %}
+{% if item.get("browser") %}
+	file_server browse
+{% endif %}
+
+
+{% set ns = namespace() %}
 {% for reverse_proxy in item.reverses | default([]) %}
-	reverse_proxy {{ reverse_proxy.path }}/* localhost:{{ reverse_proxy.to }}
+	{% set ns.reverse = reverse_proxy.to | string %}
+	{% if ':' not in ns.reverse %}
+	{% set ns.reverse = ':' + ns.reverse %}
+	{% endif %}
+
+	{% if 'path' in reverse_proxy %}
+	{% if reverse_proxy.get("remove_path") %}
+	handle_path {{ reverse_proxy.path }}/* {
+		reverse_proxy {{ ns.reverse }}
+	}
+	{% else %}
+	reverse_proxy {{ reverse_proxy.path }}/* {{ ns.reverse }}
+	{% endif %}
 	redir {{ reverse_proxy.path }} {{ reverse_proxy.path }}/
+	{% else %}
+	reverse_proxy {{ ns.reverse }}
+	{% endif %}
 {% endfor %}
 
 	{{ item.extra | default('') }}

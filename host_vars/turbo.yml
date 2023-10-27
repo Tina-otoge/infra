@@ -4,3 +4,133 @@ users_admins:
   - tina
 
 http_domain: turbo.tina.moe
+
+hosts_map:
+  192.168.0.2: turbovm
+  192.168.0.14: ninox
+  192.168.0.16: switch
+  192.168.0.69: blandine
+
+caddy_service: caddy-root
+
+caddy_entries:
+  - domain: "{{ http_domain }}"
+    root: /home/tina/wwws/turbo
+    browser: true
+    file: turbo
+    reverses:
+      - path: "{{ cockpit_url_root }}"
+        to: "{{ cockpit_port }}"
+      - path: /flood
+        to: "{{ flood_port }}"
+  - domain: "ani.{{ http_domain }}"
+    file: turbo
+    reverses:
+      - to: 57401
+  - domain: maison.savatier.fr
+    root: /home/tina/wwws/maison
+    file: maison
+    reverses:
+      - to: "{{ uptimekuma_port }}"
+      - path: /prowlarr
+        to: "{{ prowlarr_port }}"
+      - path: /sonarr
+        to: "{{ sonarr_port }}"
+      - path: /radarr
+        to: "{{ radarr_port }}"
+      - path: /lidarr
+        to: "{{ lidarr_port }}"
+      - path: /readarr
+        to: "{{ readarr_port }}"
+      - path: /jellyfin
+        to: "ninox:{{ jellyfin_port }}"
+      - path: /torrents
+        remove_path: true
+        to: "{{ qbittorrent_webui_port }}"
+  - domain: seerr.maison.savatier.fr
+    file: maison
+    reverses:
+      - to: "{{ jellyseerr_port }}"
+
+containers:
+  jellyseerr:
+    image: fallenbagel/jellyseerr
+    tag: latest
+    ports:
+      - "{{ jellyseerr_port }}"
+    volumes:
+      - /home/tina/.config/jellyseerr:/app/config
+
+_no:
+  uptimekuma:
+    image: louislam/uptime-kuma
+    tag: 1
+    ports:
+      - "{{ uptimekuma_port }}"
+    volumes:
+      - /home/tina/.config/uptimekuma:/app/data
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent
+    tag: latest
+    ports:
+      - "{{ qbittorrent_webui_port }}"
+    env:
+      PUID: 0
+      PGID: 0
+    volumes:
+      - /home/tina/.config/qbittorrent:/config
+      - /mnt/Freebox:/mnt/Freebox
+  flaresolverr:
+    image: flaresolverr/flaresolverr
+    tag: latest
+    ports:
+      - "{{ flaresolverr_port }}"
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr
+    tag: nightly
+    ports:
+      - "{{ prowlarr_port }}"
+    volumes:
+      - /home/tina/.config/prowlarr:/config
+      - /mnt/Freebox:/mnt/Freebox
+    env:
+      PUID: 0
+      PGID: 0
+  sonarr:
+    image: lscr.io/linuxserver/sonarr
+    tag: latest
+    ports:
+      - "{{ sonarr_port }}"
+    volumes:
+      - /home/tina/.config/sonarr:/config
+      - /mnt/Freebox:/mnt/Freebox
+    env:
+      PUID: 0
+      PGID: 0
+  # radarr:
+  #   image: lscr.io/linuxserver/radarr
+  #   tag: latest
+  #   ports:
+  #     - "{{ radarr_port }}"
+  #   volumes:
+  #     - /home/tina/.config/radarr:/config
+  #     - /mnt/Freebox:/mnt/Freebox
+  #   user: tina
+  # lidarr:
+  #   image: lscr.io/linuxserver/lidarr
+  #   tag: latest
+  #   ports:
+  #     - "{{ lidarr_port }}"
+  #   volumes:
+  #     - /home/tina/.config/lidarr:/config
+  #     - /mnt/Freebox:/mnt/Freebox
+  #   user: tina
+  # readarr:
+  #   image: lscr.io/linuxserver/readarr
+  #   tag: latest
+  #   ports:
+  #     - "{{ readarr_port }}"
+  #   volumes:
+  #     - /home/tina/.config/readarr:/config
+  #     - /mnt/Freebox:/mnt/Freebox
+  #   user: tina

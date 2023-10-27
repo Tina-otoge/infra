@@ -1,3 +1,16 @@
+cockpit_port: 9090
+flaresolverr_port: 8191
+flood_port: 3000
+jellyfin_port: 8096
+jellyseerr_port: 5055
+lidarr_port: 8686
+prowlarr_port: 9696
+qbittorrent_webui_port: 8080
+radarr_port: 7878
+readarr_port: 8787
+sonarr_port: 8989
+uptimekuma_port: 3001
+
 selinux_state: disabled
 
 packages_base:
@@ -68,6 +81,7 @@ http_domain: "{{ ansible_hostname }}"
 caddy_https: true
 caddy_email: null
 caddy_entries: []
+caddy_service: caddy
 
 cockpit_url_root: /cockpit
 cockpit_allow_unencrypted: "{{ not caddy_https }}"

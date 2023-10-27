@@ -1,10 +1,33 @@
+- set_fact:
+    _containers_volumes: |
+      {% for container in containers | dict2items %}
+      {% for volume in container.value.volumes | default([]) %}
+      - {{ volume.split(':')[0] }}
+      {% endfor %}
+      {% endfor %}
+
+- name: Prepare volume mount points
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop: "{{ _containers_volumes | from_yaml }}"
+
 - name: Create containers
   containers.podman.podman_container:
     name: "{{ item.key }}"
     image: "{{ item.value.image }}"
     state: started
-    publish: "{{ item.value.ports | default([]) }}"
+    publish: >-
+      {%- for port in item.value.ports | default([]) -%}
+      {%- if not ':' in (port | string) -%}
+      "{{ port }}:{{ port }}"
+      {%- else -%}
+      "{{ port }}"
+      {%- endif -%}
+      {%- endfor -%}
     volumes: "{{ item.value.volumes | default([]) }}"
     env: "{{ item.value.env | default({}) }}"
     restart_policy: unless-stopped
+    label: "{{ item.value.labels | default ({}) }}"
+    user: "{{ item.value.user | default(omit) }}"
   loop: "{{ containers | dict2items }}"

@@ -64,11 +64,9 @@
 
 - name: Install common packages
   package:
-    name: "{{ item }}"
-  loop: "{{ packages_base }}"
+    name: "{{ packages_base }}"
 
 - name: Remove common packages
   package:
-    name: "{{ item }}"
+    name: "{{ packages_remove }}"
     state: absent
-  loop: "{{ packages_remove }}"

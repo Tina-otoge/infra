@@ -5,7 +5,7 @@
 
 - name: Enable Caddy service
   service:
-    name: caddy
+    name: "{{ caddy_service }}"
     enabled: true
     state: started
 
@@ -26,6 +26,7 @@
       /etc/caddy/Caddyfile
       {%- endif -%}
     block: "{{ lookup('template', 'caddy/entry.j2') }}"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.domain }}"
   loop: "{{ caddy_entries }}"
   notify: caddy reload
 
