@@ -11,6 +11,10 @@ readarr_port: 8787
 sonarr_port: 8989
 uptimekuma_port: 3001
 
+linuxserver_env:
+  PUID: 0
+  PGID: 0
+
 selinux_state: disabled
 
 packages_base:

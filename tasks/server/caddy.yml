@@ -1,7 +1,7 @@
 - name: Install Caddy
   package:
     name: caddy
-    state: present
+    state: latest
 
 - name: Enable Caddy service
   service:

@@ -1,3 +1,5 @@
+http_domain: laffey.tina.moe
+
 skeleton_dirs:
   - www
   - wwws/example.com
@@ -13,6 +15,14 @@ users:
 
 users_admins:
   - tina
+
+lo_ip: 127.0.0.1
+switch_ip: 198.27.82.171
+
+caddy_service: caddy-root
+
+caddy_extra: |
+  import users.d/*.conf
 
 caddy_entries:
   - domain: "{{ http_domain }}"
@@ -31,23 +41,112 @@ caddy_entries:
         root * /home/{re.userdir.1}/www
         file_server browse
       }
+  - domain: six.savatier.fr
+    root: /home/tina/wwws/six
+    file: tina_six
+    reverses:
+      - path: /ping
+        to: "{{ uptimekuma_port }}"
+      - path: /prowlarr
+        to: "{{ prowlarr_port }}"
+      - path: /sonarr
+        to: "{{ sonarr_port }}"
+      - path: /radarr
+        to: "{{ radarr_port }}"
+      - path: /lidarr
+        to: "{{ lidarr_port }}"
+      - path: /readarr
+        to: "{{ readarr_port }}"
+      - path: /jellyfin
+        to: "{{ jellyfin_port }}"
+      - path: /torrents
+        remove_path: true
+        to: "{{ qbittorrent_webui_port }}"
+  - domain: seerr.savatier.fr
+    file: tina_six
+    reverses:
+      - to: "{{ jellyseerr_port }}"
 
 paths:
   /srv/media:
     owner: tina
 
 containers:
-  jellyfin:
-    image: jellyfin/jellyfin
+  # Savatier Studio 6
+  six-jellyfin:
+    image: lscr.io/linuxserver/jellyfin
     ports:
-      - 8096
+      - "{{ lo_ip }}:{{ jellyfin_port }}:{{ jellyfin_port }}"
     volumes:
-      - /srv/media:/media
-    user: tina
-    labels:
-      - io.containers.autoupdate=registry
-  mc:
-    image: eclipse-temurin:17
+      - "{{ ansible_user_dir }}/mnt/freebox:/mnt/Freebox"
+      - "{{ ansible_user_dir }}/.config/jellyfin:/config"
+      - "{{ ansible_user_dir }}/.cache/jellyfin:/cache"
+    env: "{{ linuxserver_env }}"
+    network: six
+    # pod: six
+  six-jellyseerr:
+    image: fallenbagel/jellyseerr
+    tag: latest
     ports:
-      - 25565
+      - "{{ lo_ip }}:{{ jellyseerr_port }}:{{ jellyseerr_port }}"
     volumes:
+      - "{{ ansible_user_dir }}/.config/jellyseerr:/app/config"
+    network: six
+    # pod: six
+  six-sonarr:
+    image: lscr.io/linuxserver/sonarr
+    tag: latest
+    ports:
+      - "{{ lo_ip }}:{{ sonarr_port }}:{{ sonarr_port }}"
+    volumes:
+      - "{{ ansible_user_dir }}/.config/sonarr:/config"
+      - "{{ ansible_user_dir }}/mnt/freebox:/mnt/Freebox"
+    env: "{{ linuxserver_env }}"
+    network: six
+    # pod: six
+  six-radarr:
+    image: lscr.io/linuxserver/radarr
+    tag: latest
+    ports:
+      - "{{ lo_ip }}:{{ radarr_port }}:{{ radarr_port }}"
+    volumes:
+      - "{{ ansible_user_dir }}/.config/radarr:/config"
+      - "{{ ansible_user_dir }}/mnt/freebox:/mnt/Freebox"
+    env: "{{ linuxserver_env }}"
+    network: six
+    # pod: six
+  six-prowlarr:
+    image: lscr.io/linuxserver/prowlarr
+    tag: latest
+    ports:
+      - "{{ lo_ip }}:{{ prowlarr_port }}:{{ prowlarr_port }}"
+    volumes:
+      - "{{ ansible_user_dir }}/.config/prowlarr:/config"
+      - "{{ ansible_user_dir }}/mnt/freebox:/mnt/Freebox"
+    env: "{{ linuxserver_env }}"
+    network: six
+    # pod: six
+  six-flaresolverr:
+    image: flaresolverr/flaresolverr
+    tag: latest
+    ports:
+      - "{{ switch_ip }}:{{ flaresolverr_port }}:{{ flaresolverr_port }}"
+    network: six
+    # pod: six
+  six-qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent
+    tag: latest
+    ports:
+      - "{{ lo_ip }}:{{ qbittorrent_webui_port }}:{{ qbittorrent_webui_port }}"
+    volumes:
+      - "{{ ansible_user_dir }}/.config/qbittorrent:/config"
+      - "{{ ansible_user_dir }}/mnt/freebox:/mnt/Freebox"
+    env: "{{ linuxserver_env }}"
+    network: six
+    # pod: six
+
+  # mc:
+  #   image: eclipse-temurin:17
+  #   ports:
+  #     - 25565
+  #   volumes:
