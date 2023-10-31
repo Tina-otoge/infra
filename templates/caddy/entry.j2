@@ -21,17 +21,28 @@
 	{% set ns.reverse = ':' + ns.reverse %}
 	{% endif %}
 
-	{% if 'path' in reverse_proxy %}
+	{% if not 'path' in reverse_proxy %}
+	reverse_proxy {{ ns.reverse }}
+	{% else %}
+
+	{% if reverse_proxy.get('redir_slash', true) %}
+	{% set ns.match = reverse_proxy.path + '/*' %}
+	{% else %}
+	{% set ns.match = reverse_proxy.path %}
+	{% endif %}
+
 	{% if reverse_proxy.get("remove_path") %}
-	handle_path {{ reverse_proxy.path }}/* {
+	handle_path {{ ns.match }} {
 		reverse_proxy {{ ns.reverse }}
 	}
 	{% else %}
-	reverse_proxy {{ reverse_proxy.path }}/* {{ ns.reverse }}
+	reverse_proxy {{ ns.match }} {{ ns.reverse }}
 	{% endif %}
+
+	{% if reverse_proxy.get("redir_slash", true) %}
 	redir {{ reverse_proxy.path }} {{ reverse_proxy.path }}/
-	{% else %}
-	reverse_proxy {{ ns.reverse }}
+	{% endif %}
+
 	{% endif %}
 {% endfor %}
 

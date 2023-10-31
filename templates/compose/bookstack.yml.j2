@@ -1,0 +1,45 @@
+version: '2'
+services:
+  db:
+    image: mysql:8.1
+    environment:
+    - MYSQL_ROOT_PASSWORD=secret
+    - MYSQL_DATABASE=bookstack
+    - MYSQL_USER=bookstack
+    - MYSQL_PASSWORD=secret
+    volumes:
+    - bookstack-mysql-data:/var/lib/mysql
+    networks:
+    - bookstack
+
+  bookstack:
+    image: solidnerd/bookstack:23.10.0
+    depends_on:
+    - db
+    env_file: ./docker.env
+    environment:
+    - DB_HOST=db:3306
+    - DB_DATABASE=bookstack
+    - DB_USERNAME=bookstack
+    - DB_PASSWORD=secret
+    #set the APP_ to the URL of bookstack without without a trailing slash APP_URL=https://example.com
+    - APP_URL={{ bookstack_url }}
+    # APP_KEY is used for encryption where needed, so needs to be persisted to
+    # preserve decryption abilities.
+    # Can run `php artisan key:generate` to generate a key
+    # - APP_KEY=SomeRandomStringWith32Characters
+    volumes:
+    - bookstack-uploads:/var/www/bookstack/public/uploads
+    - bookstack-storage-uploads:/var/www/bookstack/storage/uploads
+    ports:
+    - "{{ loopback_ip }}:{{ bookstack_port }}:8080"
+    networks:
+    - bookstack
+
+volumes:
+  bookstack-mysql-data:
+  bookstack-uploads:
+  bookstack-storage-uploads:
+
+networks:
+  bookstack:

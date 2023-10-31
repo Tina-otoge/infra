@@ -1,23 +1,25 @@
-- set_fact:
-    _containers_pods: |
-      {% for container in containers | dict2items %}
-      {% if container.value.pod | default([]) %}
-      - {{ container.value.pod }}
-      {% endif %}
-      {% endfor %}
+# - set_fact:
+#     _containers_pods: |
+#       {% for container in containers | dict2items %}
+#       {% if container.value.pod | default([]) %}
+#       - {{ container.value.pod }}
+#       {% endif %}
+#       {% endfor %}
 
-- name: Prepare pods
-  containers.podman.podman_pod:
-    name: "{{ item }}"
-    state: created
-  loop: "{{ _containers_pods | from_yaml | default([]) | unique | list }}"
-  when: _containers_pods | from_yaml
+# - name: Prepare pods
+#   containers.podman.podman_pod:
+#     name: "{{ item }}"
+#     state: created
+#   loop: "{{ _containers_pods | from_yaml | default([]) | unique | list }}"
+#   when: _containers_pods | from_yaml
 
 - set_fact:
     _containers_volumes: |
       {% for container in containers | dict2items %}
       {% for volume in container.value.volumes | default([]) %}
+      {% if ':' in volume and '/' in volume.split(':')[0] %}
       - {{ volume.split(':')[0] }}
+      {% endif %}
       {% endfor %}
       {% endfor %}
 
@@ -61,4 +63,5 @@
     user: "{{ item.value.user | default(omit) }}"
     network: "{{ item.value.network | default(omit) }}"
     pod: "{{ item.value.pod | default(omit) }}"
+    command: "{{ item.value.command | default(omit) }}"
   loop: "{{ containers | dict2items }}"

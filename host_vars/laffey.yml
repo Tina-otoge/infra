@@ -16,7 +16,6 @@ users:
 users_admins:
   - tina
 
-lo_ip: 127.0.0.1
 switch_ip: 198.27.82.171
 
 caddy_service: caddy-root
@@ -41,6 +40,17 @@ caddy_entries:
         root * /home/{re.userdir.1}/www
         file_server browse
       }
+  - domain: tina.moe
+    root: /home/tina/wwws/tina
+    file: tina
+  - domain: "{{ keycloak_url }}"
+    file: tina
+    reverses:
+      - to: "{{ keycloak_port }}"
+  - domain: "{{ outline_url }}"
+    file: tina
+    reverses:
+      - to: "{{ outline_port }}"
   - domain: six.savatier.fr
     root: /home/tina/wwws/six
     file: tina_six
@@ -72,11 +82,32 @@ paths:
     owner: tina
 
 containers:
+  # affine:
+  #   image: ghcr.io/toeverything/affine-self-hosted
+  #   tag: latest
+  #   ports:
+  #     - "{{ loopback_ip }}:{{ affine_port }}:3000"
+  #   volumes:
+  #     - "{{ ansible_user_dir }}/.local/share/affine:/app/data"
+  keycloak:
+    image: quay.io/keycloak/keycloak
+    tag: 22.0.5
+    ports:
+      - "{{ loopback_ip }}:{{ keycloak_port }}:8080"
+    user: root
+    env:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HOSTNAME_STRICT: "false"
+      KC_PROXY: "edge"
+    volumes:
+      - "keycloak:/opt/keycloak/data"
+    command: start-dev
   # Savatier Studio 6
   six-jellyfin:
     image: lscr.io/linuxserver/jellyfin
     ports:
-      - "{{ lo_ip }}:{{ jellyfin_port }}:{{ jellyfin_port }}"
+      - "{{ loopback_ip }}:{{ jellyfin_port }}:{{ jellyfin_port }}"
     volumes:
       - "{{ ansible_user_dir }}/mnt/freebox:/mnt/Freebox"
       - "{{ ansible_user_dir }}/.config/jellyfin:/config"
@@ -88,7 +119,7 @@ containers:
     image: fallenbagel/jellyseerr
     tag: latest
     ports:
-      - "{{ lo_ip }}:{{ jellyseerr_port }}:{{ jellyseerr_port }}"
+      - "{{ loopback_ip }}:{{ jellyseerr_port }}:{{ jellyseerr_port }}"
     volumes:
       - "{{ ansible_user_dir }}/.config/jellyseerr:/app/config"
     network: six
@@ -97,7 +128,7 @@ containers:
     image: lscr.io/linuxserver/sonarr
     tag: latest
     ports:
-      - "{{ lo_ip }}:{{ sonarr_port }}:{{ sonarr_port }}"
+      - "{{ loopback_ip }}:{{ sonarr_port }}:{{ sonarr_port }}"
     volumes:
       - "{{ ansible_user_dir }}/.config/sonarr:/config"
       - "{{ ansible_user_dir }}/mnt/freebox:/mnt/Freebox"
@@ -108,7 +139,7 @@ containers:
     image: lscr.io/linuxserver/radarr
     tag: latest
     ports:
-      - "{{ lo_ip }}:{{ radarr_port }}:{{ radarr_port }}"
+      - "{{ loopback_ip }}:{{ radarr_port }}:{{ radarr_port }}"
     volumes:
       - "{{ ansible_user_dir }}/.config/radarr:/config"
       - "{{ ansible_user_dir }}/mnt/freebox:/mnt/Freebox"
@@ -119,7 +150,7 @@ containers:
     image: lscr.io/linuxserver/prowlarr
     tag: latest
     ports:
-      - "{{ lo_ip }}:{{ prowlarr_port }}:{{ prowlarr_port }}"
+      - "{{ loopback_ip }}:{{ prowlarr_port }}:{{ prowlarr_port }}"
     volumes:
       - "{{ ansible_user_dir }}/.config/prowlarr:/config"
       - "{{ ansible_user_dir }}/mnt/freebox:/mnt/Freebox"
@@ -137,7 +168,7 @@ containers:
     image: lscr.io/linuxserver/qbittorrent
     tag: latest
     ports:
-      - "{{ lo_ip }}:{{ qbittorrent_webui_port }}:{{ qbittorrent_webui_port }}"
+      - "{{ loopback_ip }}:{{ qbittorrent_webui_port }}:{{ qbittorrent_webui_port }}"
     volumes:
       - "{{ ansible_user_dir }}/.config/qbittorrent:/config"
       - "{{ ansible_user_dir }}/mnt/freebox:/mnt/Freebox"
@@ -150,3 +181,13 @@ containers:
   #   ports:
   #     - 25565
   #   volumes:
+
+outline_url: https://notes.tina.moe
+bookstack_url: https://books.tina.moe
+affine_url: https://notes.tina.moe
+keycloak_url: https://auth.tina.moe
+
+compose_services:
+  # - bookstack
+  - outline
+  # - authentik

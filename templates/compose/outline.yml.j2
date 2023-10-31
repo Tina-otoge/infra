@@ -1,0 +1,73 @@
+version: "3.2"
+services:
+
+  outline:
+    image: outlinewiki/outline:latest
+    env_file: ./docker.env
+    environment:
+        NODE_ENV: production
+        DATABASE_URL: postgres://user:pass@postgres:5432/outline
+        # DATABASE_URL_TEST: postgres://user:pass@localhost:5432/outline-test
+        REDIS_URL: redis://redis:6379
+        PGSSLMODE: disable
+        URL: {{ outline_url | default('https://' + http_domain + '/notes') }}
+        OIDC_CLIENT_ID: outline
+        OIDC_AUTH_URI: "{{ keycloak_url }}/realms/outline/protocol/openid-connect/auth"
+        OIDC_TOKEN_URI: "{{ keycloak_url }}/realms/outline/protocol/openid-connect/token"
+        OIDC_USERINFO_URI: "{{ keycloak_url }}/realms/outline/protocol/openid-connect/userinfo"
+        # PORT: 3000
+        # FILE_STORAGE: local
+        # FILE_STORAGE_LOCAL_ROOT_DIR: /var/lib/outline/data
+        # FILE_STORAGE_UPLOAD_MAX_SIZE: 26214400
+        # DEFAULT_LANGUAGE: en_US
+        # RATE_LIMITER_ENABLED: true
+        # RATE_LIMITER_REQUESTS: 1000
+        # RATE_LIMITER_DURATION_WINDOW: 60
+    ports:
+      - "{{ loopback_ip }}:{{ outline_port }}:3000"
+    volumes:
+      - outline-storage-data:/var/lib/outline/data
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - outline
+
+  redis:
+    image: redis
+    env_file: ./docker.env
+    volumes:
+      - ./redis.conf:/redis.conf
+    command: ["redis-server", "/redis.conf"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 30s
+      retries: 3
+    networks:
+      - outline
+
+  postgres:
+    image: postgres
+    env_file: ./docker.env
+    volumes:
+      - outline-database-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    environment:
+      POSTGRES_USER: 'user'
+      POSTGRES_PASSWORD: 'pass'
+      POSTGRES_DB: 'outline'
+    networks:
+      - outline
+
+volumes:
+  outline-storage-data:
+  outline-database-data:
+
+networks:
+  outline:
+    driver: bridge

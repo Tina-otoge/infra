@@ -12,6 +12,7 @@
       loop:
         # - websites
         - containers
+        - compose_services
       loop_control:
         loop_var: task
       tags:
