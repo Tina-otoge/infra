@@ -37,8 +37,10 @@ caddy_entries:
         path_regexp userdir ^/~(\w+)/
       }
       handle @userdir {
-        root * /home/{re.userdir.1}/www
-        file_server browse
+        uri strip_prefix /~{re.userdir.1}/
+        file_server browse {
+          root /home/{re.userdir.1}/www/
+        }
       }
   - domain: tina.moe
     root: /home/tina/wwws/tina
@@ -51,6 +53,12 @@ caddy_entries:
     file: tina
     reverses:
       - to: "{{ outline_port }}"
+  - domain: couscous.tina.moe
+    file: tina
+    reverses:
+      - path: /git
+        remove_path: true
+        to: 57351
   - domain: six.savatier.fr
     root: /home/tina/wwws/six
     file: tina_six
