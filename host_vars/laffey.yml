@@ -43,6 +43,16 @@ caddy_entries:
   - domain: tina.moe
     root: /home/tina/wwws/tina
     file: tina
+    reverses:
+      - path: /infra
+        to: "{{ infra_webui_port }}"
+        remove_path: true
+    extra: |
+      handle_path /private/* {
+        root * /home/tina/wwws/private
+        file_server
+      }
+      redir /private /private/
   - domain: "{{ keycloak_url }}"
     file: tina
     reverses:
@@ -80,6 +90,17 @@ caddy_entries:
 paths:
   /srv/media:
     owner: tina
+
+repositories:
+  - src: https://github.com/Tina-otoge/infra-webui
+
+user_services:
+  infra_webui:
+    workdir: "{{ repositories_dir }}/infra-webui"
+    cmd: |
+      {{ python_setup }}
+      pip install gunicorn
+      gunicorn src:app -b {{ loopback_ip }}:{{ infra_webui_port }}
 
 containers:
   # affine:

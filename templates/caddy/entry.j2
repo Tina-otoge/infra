@@ -8,9 +8,11 @@
 
 {% if 'root' in item %}
 	root * {{ item.root }}
-{% endif %}
 {% if item.get("browser") %}
 	file_server browse
+{% else %}
+	file_server
+{% endif %}
 {% endif %}
 
 

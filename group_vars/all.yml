@@ -4,6 +4,7 @@ bookstack_port: 6875
 cockpit_port: 9090
 flaresolverr_port: 8191
 flood_port: 3000
+infra_webui_port: 10001
 jellyfin_port: 8096
 jellyseerr_port: 5055
 keycloak_port: 3004
@@ -71,6 +72,7 @@ upgrade_service_name: upgrade-and-restart
 pkgmgr_default_yes: true
 pkgmgr_install_weak_deps: true
 pkgmgr_dnf_deltarpm: true
+pkgmgr_dnf_metadata_expire: 604800 # 1 week
 
 
 skeleton_dirs: []
@@ -100,3 +102,10 @@ cockpit_login_to: true
 containers: {}
 containers_registries:
   - docker.io
+
+repositories_dir: "{{ ansible_user_dir }}/.local/opt"
+
+python_setup: |-
+  python -m venv .venv
+  source .venv/bin/activate
+  pip install -r requirements.txt

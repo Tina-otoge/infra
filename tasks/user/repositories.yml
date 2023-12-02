@@ -1,0 +1,6 @@
+- name: Ensure all repositories are present
+  git:
+    repo: "{{ item.src }}"
+    dest: "{{ repositories_dir }}/{{ item.name | default(item.src | basename | replace('.git', '')) }}"
+    version: "{{ item.version | default('master') }}"
+  loop: "{{ repositories }}"

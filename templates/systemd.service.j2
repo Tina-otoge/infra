@@ -1,0 +1,18 @@
+[Unit]
+{% if item.value.name is defined %}
+Description={{ item.value.name}}
+{% endif %}
+
+{% if item.value.after is defined %}
+After={{ item.value.after }}.target
+{% endif %}
+
+[Service]
+ExecStart=/bin/bash -c "{{ item.value.cmd.strip().replace('\n', ' && \\\n') }}"
+
+{% if item.value.workdir is defined %}
+WorkingDirectory={{ item.value.workdir }}
+{% endif %}
+
+[Install]
+WantedBy=default.target
