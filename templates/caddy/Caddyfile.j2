@@ -33,4 +33,6 @@
 import Caddyfile.d/*.conf
 {% endif %}
 
+{% if caddy_extra is defined %}
 {{ caddy_extra }}
+{% endif %}

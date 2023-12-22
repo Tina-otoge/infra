@@ -5,6 +5,8 @@ users_admins:
 
 http_domain: turbo.tina.moe
 
+photon_port: 7100
+
 hosts_map:
   192.168.0.2: turbovm
   192.168.0.14: ninox
@@ -51,8 +53,23 @@ caddy_entries:
     file: maison
     reverses:
       - to: "{{ jellyseerr_port }}"
+  - domain: arcade.tina.moe
+    file: arcade
+    paths:
+      /photon:
+        reverse: "{{ photon_port }}"
+      /replays:
+        root: /home/tina/Replays/Tinarcade
+        browser: true
+    redir: /photon
+    extra: |
+      @public not client_ip private_ranges
+      handle @public {
+        root * /home/tina/wwws/arcade/public
+      }
 
-containers:
+containers: {}
+_containers_no:
   jellyseerr:
     image: fallenbagel/jellyseerr
     tag: latest
@@ -60,6 +77,16 @@ containers:
       - "{{ jellyseerr_port }}"
     volumes:
       - /home/tina/.config/jellyseerr:/app/config
+
+repositories:
+  - src: https://github.com/Tina-otoge/photongenic
+
+user_services:
+  photon:
+    workdir: "{{ repositories_dir }}/photongenic"
+    cmd: |
+      {{ python_setup}}
+      FLASK_APP=webui.app flask run --port {{ photon_port }} --host {{ loopback_ip }}
 
 _no:
   uptimekuma:

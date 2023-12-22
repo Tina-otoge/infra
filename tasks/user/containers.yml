@@ -13,35 +13,36 @@
 #   loop: "{{ _containers_pods | from_yaml | default([]) | unique | list }}"
 #   when: _containers_pods | from_yaml
 
-- set_fact:
-    _containers_volumes: |
-      {% for container in containers | dict2items %}
-      {% for volume in container.value.volumes | default([]) %}
-      {% if ':' in volume and '/' in volume.split(':')[0] %}
-      - {{ volume.split(':')[0] }}
-      {% endif %}
-      {% endfor %}
-      {% endfor %}
+# - set_fact:
+#     _containers_volumes: |
+#       {% for container in containers | dict2items %}
+#       {% for volume in container.value.volumes | default([]) %}
+#       {% if ':' in volume and '/' in volume.split(':')[0] %}
+#       - {{ volume.split(':')[0] }}
+#       {% endif %}
+#       {% endfor %}
+#       {% endfor %}
 
-- name: Prepare volume mount points
-  file:
-    path: "{{ item }}"
-    state: directory
-  loop: "{{ _containers_volumes | from_yaml | default([]) | unique }}"
+# - name: Prepare volume mount points
+#   file:
+#     path: "{{ item }}"
+#     state: directory
+#   loop: "{{ _containers_volumes | from_yaml | default([]) | unique }}"
 
-- set_fact:
-    _containers_networks: |
-      {% for container in containers | dict2items %}
-      {% if container.value.network | default([]) %}
-      - {{ container.value.network }}
-      {% endif %}
-      {% endfor %}
+# - set_fact:
+#     _containers_networks: |
+#       {% for container in containers | dict2items %}
+#       {% if container.value.network | default([]) %}
+#       - {{ container.value.network }}
+#       {% endif %}
+#       {% endfor %}
 
-- name: Prepare networks
-  containers.podman.podman_network:
-    name: "{{ item }}"
-    state: present
-  loop: "{{ _containers_networks | from_yaml | default([]) | unique | list }}"
+# - name: Prepare networks
+#   containers.podman.podman_network:
+#     name: "{{ item }}"
+#     state: present
+#   loop: "{{ _containers_networks | from_yaml | default([]) | unique }}"
+#   when: _containers_networks | from_yaml
 
 - name: Create containers
   containers.podman.podman_container:

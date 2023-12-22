@@ -20,6 +20,11 @@
       command: dnf config-manager --set-enabled crb
       when: not _crb_check.stdout.endswith("enabled")
 
+    - name: Ensure EPEL repositories are installed
+      package:
+        name: "epel-release"
+        state: present
+
     - name: Check for already installed packages
       command: "rpm -q {{ item.name | default(item) }}"
       loop: "{{ packages_distro }}"
@@ -59,7 +64,7 @@
     # direct URLs
     - name: Install distro specific packages with dnf
       command: |
-        dnf install -y {{ _packages_to_install_flat | default([]) | join }}
+        dnf install -y {{ _packages_to_install_flat | default([]) | join(" ") }}
       when: _packages_to_install is defined
 
 - name: Install common packages

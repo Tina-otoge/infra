@@ -1,0 +1,45 @@
+{{ entry }} {
+	import common
+
+	{% if item.get("root") %}
+	root * {{ item.root }}
+	{% endif %}
+
+	{% if item.get("browser") %}
+	file_server browse
+	{% endif %}
+
+	{% for path in item.get("paths", {}) | dict2items %}
+	handle_path {{ path.key }}/* {
+		{% if path.value.get("root") %}
+		root * {{ path.value.root }}
+		{% endif %}
+
+		{% if path.value.get("reverse") %}
+		{% if ':' in (path.value.reverse | string) %}
+		reverse_proxy {{ path.value.reverse }}
+		{% else %}
+		reverse_proxy :{{ path.value.reverse }}
+		{% endif %}
+		{% endif %}
+
+		{% if path.value.get("browser") %}
+		file_server browse
+		{% endif %}
+
+		{% if path.value.get("redir") %}
+		redir {{ path.value.redir }}
+		{% endif %}
+	}
+	{% if path.key != '/' %}
+	redir {{ path.key }} {{ path.key }}/
+	{% endif %}
+
+	{% if item.get("redir") %}
+	redir / {{ item.redir }}
+	{% endif %}
+
+	{% endfor %}
+
+	{{ item.get("extra", "") }}
+}
