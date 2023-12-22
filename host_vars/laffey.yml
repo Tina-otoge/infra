@@ -66,9 +66,7 @@ caddy_entries:
   - domain: couscous.tina.moe
     file: tina
     reverses:
-      - path: /git
-        remove_path: true
-        to: 57351
+      - to: 57348
     extra: |
       basicauth {
         couscous $2a$14$lLxdaBVVWv9Z9dZ3Lkwy2.j6P1rKhBUMKMSOHqWkSrilg8lTBZ806 # DONTCHANGEME: COUSCOUS-BASIC-AUTH
@@ -113,8 +111,13 @@ user_services:
       {{ python_setup }}
       pip install gunicorn
       gunicorn src:app -b {{ loopback_ip }}:{{ infra_webui_port }}
+  couscous_infra:
+    workdir: "{{ repositories_dir }}/couscous"
+    cmd: |
+      {{ bash_setup }}
+      podman-compose up
 
-containers:
+containers: {}
   # affine:
   #   image: ghcr.io/toeverything/affine-self-hosted
   #   tag: latest
@@ -122,6 +125,7 @@ containers:
   #     - "{{ loopback_ip }}:{{ affine_port }}:3000"
   #   volumes:
   #     - "{{ ansible_user_dir }}/.local/share/affine:/app/data"
+_no:
   keycloak:
     image: quay.io/keycloak/keycloak
     tag: 22.0.5
