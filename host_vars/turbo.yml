@@ -1,5 +1,8 @@
 hostname: TurboVM
 
+tasks_list:
+  - dnsmasq
+
 users_admins:
   - tina
 
@@ -8,9 +11,14 @@ http_domain: turbo.tina.moe
 hosts_map:
   192.168.0.2: turbovm.lan turbo.tina.moe
   192.168.0.6: nagato.lan
+  192.168.0.13: jubeat.lan
   192.168.0.14: ninox.lan
   192.168.0.16: dragoon.lan
+  192.168.0.20: rootage.lan
+  192.168.0.23: copula.lan
   192.168.0.69: blandine.lan
+  # 192.168.0.XX: tricoro.lan
+
 
 caddy_service: caddy-root
 

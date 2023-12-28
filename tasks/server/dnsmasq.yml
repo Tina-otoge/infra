@@ -1,0 +1,5 @@
+- name: Disable Firefox doh
+  copy:
+    content: address=/use-application-dns.net/
+    dest: /etc/dnsmasq.d/disable-firefox-doh.conf
+  notify: dnsmasq restart
