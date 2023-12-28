@@ -10,9 +10,10 @@
             - user
             - "{{ task }}"
       loop:
+        - dotfiles
         # - websites
-        - containers
-        - compose_services
+        # - containers
+        # - compose_services
         - repositories
         - services
       loop_control:

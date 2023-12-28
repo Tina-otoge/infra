@@ -1,3 +1,28 @@
+tasks_list_base:
+  # Core config
+  - hostname
+  - selinux
+  - timezone
+  - hosts
+
+  # Packages
+  - pkg-mgr-conf
+  - packages
+  - periodic-upgrade
+
+  # Users
+  - skeleton
+  - cgroups
+  - containers
+  - users
+  - paths
+
+  # Services
+  - caddy
+  - cockpit
+
+tasks_list: []
+
 affine_port: 3003
 authentik_port: 9000
 bookstack_port: 6875
@@ -30,16 +55,21 @@ packages_base:
   - cockpit-podman
   - cockpit-storaged
   - fzf
+  - git
   - htop
   - httpie
   - megatools
   - net-tools
   - podman
   - screen
+  - sqlite
   - tree
+  - util-linux-user
   - vim
   - zsh
   - zsh-syntax-highlighting
+
+packages: []
 
 packages_remove:
   - crontabs
@@ -51,14 +81,16 @@ packages_by_distro:
   Rocky:
     "9":
       # Not in EPEL repos for RHEL 9 (yet?)
-      - name: zsh-syntax-highlighting
-        url: "http://rpmfind.net/linux/epel/8/Everything/{{ ansible_architecture }}/Packages/z/zsh-syntax-highlighting-0.7.1-1.el8.noarch.rpm"
+      # - name: zsh-syntax-highlighting
+      #   url: "http://rpmfind.net/linux/epel/8/Everything/{{ ansible_architecture }}/Packages/z/zsh-syntax-highlighting-0.7.1-1.el8.noarch.rpm"
       - name: fzf
         url: "https://www.rpmfind.net/linux/fedora/linux/updates/38/Everything/{{ ansible_architecture }}/Packages/f/fzf-0.42.0-1.fc38.{{ ansible_architecture }}.rpm"
       - name: caddy
         copr: "@caddy/caddy"
       - name: megatools
         url: https://www.rpmfind.net/linux/fedora/linux/releases/38/Everything/{{ ansible_architecture }}/os/Packages/m/megatools-1.11.1-1.fc38.{{ ansible_architecture }}.rpm
+      # - name: centos-release-kmods
+      #   url: https://cbs.centos.org/kojifiles/packages/centos-release-kmods/9/3.el9s/noarch/centos-release-kmods-9-3.el9s.noarch.rpm
 
 
 upgrade_commands:
@@ -87,7 +119,7 @@ hostname: null
 timezone: "Europe/Paris"
 
 
-http_domain: "{{ ansible_hostname }}"
+http_domain: "{{ ansible_host }}"
 
 
 caddy_https: true
@@ -103,7 +135,11 @@ containers: {}
 containers_registries:
   - docker.io
 
+repositories: []
+
 repositories_dir: "{{ ansible_user_dir }}/.local/opt"
+
+user_services: {}
 
 python_setup: |-
   python -m venv .venv

@@ -6,10 +6,11 @@ users_admins:
 http_domain: turbo.tina.moe
 
 hosts_map:
-  192.168.0.2: turbovm
-  192.168.0.14: ninox
-  192.168.0.16: switch
-  192.168.0.69: blandine
+  192.168.0.2: turbovm.lan turbo.tina.moe
+  192.168.0.6: nagato.lan
+  192.168.0.14: ninox.lan
+  192.168.0.16: dragoon.lan
+  192.168.0.69: blandine.lan
 
 caddy_service: caddy-root
 

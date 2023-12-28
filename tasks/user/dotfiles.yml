@@ -1,0 +1,65 @@
+- set_fact:
+    dotfiles_dir: "{{ ansible_user_dir }}/Repositories/Tina/Dotfiles"
+    dotfiles_repo: https://github.com/Tina-otoge/Dotfiles.git
+
+- name: Clone Dotfiles repo
+  git:
+    repo: "{{ dotfiles_repo }}"
+    dest: "{{ dotfiles_dir }}"
+    version: master
+
+- name: Ensure base config directory exists
+  file:
+    path: "{{ ansible_user_dir }}/.config"
+    state: directory
+
+- set_fact:
+    dotfiles:
+      - bash
+      - git
+      - mpv
+      - neofetch
+      - nvim
+      - pycodestyle
+      - ranger
+      - screen
+      - user-dirs.dirs
+      - vim
+      - zsh
+
+
+- name: Create symlinks from Dotfiles repo
+  file:
+    src: "{{ dotfiles_dir }}/{{ item }}"
+    dest: "{{ ansible_user_dir }}/.config/{{ item }}"
+    state: link
+  loop: "{{ dotfiles | default([]) }}"
+
+- set_fact:
+    config_symlinks:
+      bash/bashrc: .bashrc
+      vim: .vim
+      zsh/zshrc: .zshrc
+
+- name: Remove default bashrc
+  block:
+    - name: Get local bashrc stats
+      stat:
+        path: "{{ ansible_user_dir }}/.bashrc"
+      register: local
+    - name: Get skel bashrc stats
+      stat:
+        path: /etc/skel/.bashrc
+      register: skel
+    - name: Remove default bashrc
+      when: not local.stat.islnk and local.stat.checksum == skel.stat.checksum
+      file:
+        path: "{{ ansible_user_dir }}/.bashrc"
+        state: absent
+
+- name: Create symlinks from config directory
+  file:
+    src: "{{ ansible_user_dir }}/.config/{{ item.key }}"
+    dest: "{{ ansible_user_dir }}/{{ item.value }}"
+    state: link
+  loop: "{{ config_symlinks | default([]) | dict2items }}"

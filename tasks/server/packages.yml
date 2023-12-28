@@ -20,6 +20,20 @@
       command: dnf config-manager --set-enabled crb
       when: not _crb_check.stdout.endswith("enabled")
 
+    # - name: Check if ELRepo is enabled
+    #   command: dnf repolist elrepo
+    #   register: _elrepo_check
+    #   changed_when: false
+
+    # - block:
+    #   - name: Import ELRepo GPG key
+    #     rpm_key:
+    #       key: https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
+    #       state: present
+    #   - name: Enable ELRepo
+    #     command: dnf install -y https://www.elrepo.org/elrepo-release-{{ ansible_distribution_major_version }}.el{{ ansible_distribution_major_version }}.elrepo.noarch.rpm
+    #   when: not _elrepo_check.stdout.endswith("enabled")
+
     - name: Check for already installed packages
       command: "rpm -q {{ item.name | default(item) }}"
       loop: "{{ packages_distro }}"
@@ -62,11 +76,11 @@
         dnf install -y {{ _packages_to_install_flat | default([]) | join }}
       when: _packages_to_install is defined
 
-- name: Install common packages
+- name: Install packages
   package:
-    name: "{{ packages_base }}"
+    name: "{{ packages_base + packages }}"
 
-- name: Remove common packages
+- name: Remove packages
   package:
     name: "{{ packages_remove }}"
     state: absent

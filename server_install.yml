@@ -8,28 +8,7 @@
           tags:
             - server
             - "{{ task }}"
-      loop:
-        # Core config
-        - hostname
-        - selinux
-        - timezone
-        - hosts
-
-        # Packages
-        - pkg-mgr-conf
-        - packages
-        - periodic-upgrade
-
-        # Users
-        - skeleton
-        - cgroups
-        - containers
-        - users
-        - paths
-
-        # Services
-        - caddy
-        - cockpit
+      loop: "{{ tasks_list_base + tasks_list }}"
       loop_control:
         loop_var: task
       tags:
@@ -44,4 +23,8 @@
     - name: cockpit reload
       systemd:
         name: cockpit.socket
+        state: restarted
+    - name: wsdd restart
+      systemd:
+        name: wsdd
         state: restarted

@@ -1,0 +1,25 @@
+tasks_list:
+  - samba
+
+users_admins:
+  - tina
+
+caddy_https: false
+
+caddy_entries:
+  - domain: "{{ http_domain }}"
+    root: /srv/www/nagato
+    browser: true
+    file: nagato
+    reverses:
+      - path: "{{ cockpit_url_root }}"
+        to: "{{ cockpit_port }}"
+
+packages:
+  - cifs-utils
+  - cockpit-file-sharing
+  - nfs-utils
+  - samba
+  - samba-common
+  - samba-client
+  - wsdd

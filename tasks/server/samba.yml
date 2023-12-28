@@ -1,0 +1,31 @@
+- name: Create share user
+  user:
+    name: share
+    password: "*"
+
+
+- name: Enable registry for samba
+  ini_file:
+    path: /etc/samba/smb.conf
+    section: "{{ item.section | default('global') }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+  loop:
+    - option: include
+      value: registry
+    - option: workgroup
+      value: "{{ ansible_hostname | upper }}"
+    - option: map to guest
+      value: Bad User
+    - option: force user
+      value: share
+    - section: homes
+      option: available
+      value: no
+
+- name: Set Windows Discovery workgroup to address
+  copy:
+    dest: /etc/default/wsdd
+    content: |
+      WSDD_PARAMS="-n {{ http_domain }}"
+  notify: wsdd restart
