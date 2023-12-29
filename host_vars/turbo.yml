@@ -9,7 +9,7 @@ users_admins:
 http_domain: turbo.tina.moe
 
 hosts_map:
-  192.168.0.2: turbovm.lan turbo.tina.moe
+  192.168.0.2: turbovm.lan turbo.tina.moe arcade.tina.moe
   192.168.0.6: nagato.lan
   192.168.0.13: jubeat.lan
   192.168.0.14: ninox.lan
