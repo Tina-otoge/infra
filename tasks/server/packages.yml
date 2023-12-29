@@ -20,6 +20,28 @@
       command: dnf config-manager --set-enabled crb
       when: not _crb_check.stdout.endswith("enabled")
 
+    - name: Check if RPM Fusion is enabled
+      command: dnf repolist rpmfusion-free-updates
+      register: _rpmfusionfree_check
+      changed_when: false
+
+    - name: Enable RPM Fusion Free
+      command: dnf install --nogpgcheck https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-{{ ansible_distribution_major_version }}.noarch.rpm -y
+      when: not _rpmfusionfree_check.stdout.endswith("enabled")
+
+    - name: Check if RPM Fusion Nonfree is enabled
+      command: dnf repolist rpmfusion-nonfree-updates
+      register: _rpmfusionnonfree_check
+      changed_when: false
+
+    - name: Enable RPM Fusion Nonfree
+      command: dnf install --nogpgcheck https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-{{ ansible_distribution_major_version }}.noarch.rpm -y
+      when: not _rpmfusionnonfree_check.stdout.endswith("enabled")
+
+    - name: Enable CRB
+      command: dnf config-manager --set-enabled crb
+      when: not _crb_check.stdout.endswith("enabled")
+
     # - name: Check if ELRepo is enabled
     #   command: dnf repolist elrepo
     #   register: _elrepo_check

@@ -54,6 +54,7 @@ packages_base:
   - cockpit-navigator
   - cockpit-podman
   - cockpit-storaged
+  - ffmpeg
   - fzf
   - git
   - htop
