@@ -61,6 +61,7 @@ packages_base:
   - httpie
   - megatools
   - net-tools
+  - nfs-utils
   - podman
   - screen
   - sqlite

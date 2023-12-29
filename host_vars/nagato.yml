@@ -18,7 +18,6 @@ caddy_entries:
 packages:
   - cifs-utils
   - cockpit-file-sharing
-  - nfs-utils
   - samba
   - samba-common
   - samba-client
