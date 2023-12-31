@@ -5,6 +5,11 @@
 
 {{ entry }} {
 	import common
+	{% if item.get('robots', True) %}
+	import robots_on
+	{% else %}
+	import robots_off
+	{% endif %}
 
 {% if 'root' in item %}
 	root * {{ item.root }}

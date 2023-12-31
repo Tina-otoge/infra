@@ -77,6 +77,7 @@ caddy_entries:
   #   reverses:
   #     - to: "{{ outline_port }}"
   - domain: couscous.tina.moe
+    robots: false
     file: tina
     reverses:
       - to: 57348

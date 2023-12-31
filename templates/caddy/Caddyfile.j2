@@ -41,6 +41,26 @@
 	{% endfor %}
 }
 
+(robots_on) {
+	respond /robots.txt 200 {
+		body "
+			User-agent: AdsBot-Google
+			User-agent: *
+			Allow: /
+		"
+	}
+}
+
+(robots_off) {
+	respond /robots.txt 200 {
+		body "
+			User-agent: AdsBot-Google
+			User-agent: *
+			Disallow: /
+		"
+	}
+}
+
 {% if caddy_entries %}
 import Caddyfile.d/*.conf
 {% endif %}
