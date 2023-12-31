@@ -1,5 +1,11 @@
 http_domain: laffey.tina.moe
 
+tasks_list:
+  - filebeat
+
+packages:
+  - filebeat
+
 skeleton_dirs:
   - www
   - wwws/example.com
@@ -20,6 +26,9 @@ switch_ip: 198.27.82.171
 
 caddy_service: caddy-root
 
+caddy_logs_outputs:
+  graylog: net localhost:5555
+
 caddy_extra: |
   import users.d/*.conf
 
@@ -32,6 +41,8 @@ caddy_entries:
         to: 9090
       - path: /flood
         to: 3000
+        extra: |
+          header_up X-Graylog-Server-URL {{ graylog_url }}
     extra: |
       @userdir {
         path_regexp userdir ^/~(\w+)/
@@ -49,53 +60,51 @@ caddy_entries:
       - path: /infra
         to: "{{ infra_webui_port }}"
         remove_path: true
+      - path: /graylog
+        to: "{{ graylog_port }}"
     extra: |
       handle_path /private/* {
         root * /home/tina/wwws/private
         file_server
       }
       redir /private /private/
-  - domain: "{{ keycloak_url }}"
-    file: tina
-    reverses:
-      - to: "{{ keycloak_port }}"
-  - domain: "{{ outline_url }}"
-    file: tina
-    reverses:
-      - to: "{{ outline_port }}"
+  # - domain: "{{ keycloak_url }}"
+  #   file: tina
+  #   reverses:
+  #     - to: "{{ keycloak_port }}"
+  # - domain: "{{ outline_url }}"
+  #   file: tina
+  #   reverses:
+  #     - to: "{{ outline_port }}"
   - domain: couscous.tina.moe
     file: tina
     reverses:
       - to: 57348
-    extra: |
-      basicauth {
-        couscous $2a$14$lLxdaBVVWv9Z9dZ3Lkwy2.j6P1rKhBUMKMSOHqWkSrilg8lTBZ806 # DONTCHANGEME: COUSCOUS-BASIC-AUTH
-      }
-  - domain: six.savatier.fr
-    root: /home/tina/wwws/six
-    file: tina_six
-    reverses:
-      - path: /ping
-        to: "{{ uptimekuma_port }}"
-      - path: /prowlarr
-        to: "{{ prowlarr_port }}"
-      - path: /sonarr
-        to: "{{ sonarr_port }}"
-      - path: /radarr
-        to: "{{ radarr_port }}"
-      - path: /lidarr
-        to: "{{ lidarr_port }}"
-      - path: /readarr
-        to: "{{ readarr_port }}"
-      - path: /jellyfin
-        to: "{{ jellyfin_port }}"
-      - path: /torrents
-        remove_path: true
-        to: "{{ qbittorrent_webui_port }}"
-  - domain: seerr.savatier.fr
-    file: tina_six
-    reverses:
-      - to: "{{ jellyseerr_port }}"
+  # - domain: six.savatier.fr
+  #   root: /home/tina/wwws/six
+  #   file: tina_six
+  #   reverses:
+  #     - path: /ping
+  #       to: "{{ uptimekuma_port }}"
+  #     - path: /prowlarr
+  #       to: "{{ prowlarr_port }}"
+  #     - path: /sonarr
+  #       to: "{{ sonarr_port }}"
+  #     - path: /radarr
+  #       to: "{{ radarr_port }}"
+  #     - path: /lidarr
+  #       to: "{{ lidarr_port }}"
+  #     - path: /readarr
+  #       to: "{{ readarr_port }}"
+  #     - path: /jellyfin
+  #       to: "{{ jellyfin_port }}"
+  #     - path: /torrents
+  #       remove_path: true
+  #       to: "{{ qbittorrent_webui_port }}"
+  # - domain: seerr.savatier.fr
+  #   file: tina_six
+  #   reverses:
+  #     - to: "{{ jellyseerr_port }}"
 
 paths:
   /srv/media:
@@ -113,9 +122,11 @@ user_services:
       gunicorn src:app -b {{ loopback_ip }}:{{ infra_webui_port }}
   couscous_infra:
     workdir: "{{ repositories_dir }}/couscous"
-    cmd: |
-      {{ bash_setup }}
-      podman-compose up
+    cmd: "{{ compose_setup }}"
+
+  graylog:
+    workdir: "{{ compose_dir }}/graylog"
+    cmd: "{{ compose_setup }}"
 
 containers: {}
   # affine:
@@ -223,8 +234,10 @@ outline_url: https://notes.tina.moe
 bookstack_url: https://books.tina.moe
 affine_url: https://notes.tina.moe
 keycloak_url: https://auth.tina.moe
+graylog_url: https://tina.moe/graylog/
 
 compose_services:
   # - bookstack
-  - outline
+  # - outline
   # - authentik
+  - graylog

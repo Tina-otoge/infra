@@ -1,0 +1,5 @@
+- name: Enable and start filebeat service
+  service:
+    name: filebeat
+    enabled: true
+    state: started

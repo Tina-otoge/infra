@@ -1,10 +1,19 @@
 {
 	debug
 
-	log {
+	log stdout {
+		output stdout
 		format console
 		level debug
 	}
+	{% for name, output in caddy_logs_outputs.items() | default({}) %}
+	log {{ name }} {
+		output {{ output }}
+		format json
+		level info
+	}
+	{% endfor %}
+
 
 	{% if not caddy_https %}
 	auto_https off
@@ -26,7 +35,10 @@
 {% endif %}
 
 (common) {
-	log
+	log stdout
+	{% for output in caddy_logs_outputs | default({}) %}
+	log {{ output }}
+	{% endfor %}
 }
 
 {% if caddy_entries %}

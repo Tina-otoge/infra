@@ -38,7 +38,9 @@
 		reverse_proxy {{ ns.reverse }}
 	}
 	{% else %}
-	reverse_proxy {{ ns.match }} {{ ns.reverse }}
+	reverse_proxy {{ ns.match }} {{ ns.reverse }} {
+		{{ reverse_proxy.extra | default('') }}
+	}
 	{% endif %}
 
 	{% if reverse_proxy.get("redir_slash", true) %}

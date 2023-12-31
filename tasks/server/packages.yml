@@ -6,6 +6,7 @@
         [ansible_distribution_major_version]
         | default([])
       }}
+    _packages: "{{ packages_base + packages }}"
 
 - when:
     - ansible_os_family == "RedHat"
@@ -62,12 +63,15 @@
       register: _packages_check
       ignore_errors: true
       changed_when: false
+      when: "item.name in _packages"
+
+    - debug: var=_packages_check
 
     - set_fact:
         _packages_to_install: |
           {{ _packages_to_install | default([]) + [item.item] }}
       loop: "{{ _packages_check.results }}"
-      when: item.failed
+      when: "'failed' in item and item.failed"
 
     - community.general.copr:
         name: "{{ item.copr }}"
@@ -100,7 +104,7 @@
 
 - name: Install packages
   package:
-    name: "{{ packages_base + packages }}"
+    name: "{{ _packages }}"
 
 - name: Remove packages
   package:

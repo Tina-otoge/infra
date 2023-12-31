@@ -1,6 +1,6 @@
 - name: "Prepare directories for compose services"
   file:
-    path: "{{ ansible_user_dir }}/.local/opt/{{ item }}"
+    path: "{{ compose_dir }}/{{ item }}"
     state: directory
     mode: "u=rwx,g=rx,o="
   loop: "{{ compose_services }}"
@@ -8,6 +8,6 @@
 - name: "Create compose file for compose services"
   template:
     src: compose/{{ item }}.yml.j2
-    dest: "{{ ansible_user_dir }}/.local/opt/{{ item }}/docker-compose.yml"
+    dest: "{{ compose_dir }}/{{ item }}/docker-compose.yml"
     mode: "u=rw,g=r,o=r"
   loop: "{{ compose_services }}"

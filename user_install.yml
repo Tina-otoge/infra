@@ -13,7 +13,7 @@
         - dotfiles
         # - websites
         # - containers
-        # - compose_services
+        - compose_services
         - repositories
         - services
       loop_control:

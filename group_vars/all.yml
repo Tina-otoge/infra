@@ -29,6 +29,7 @@ bookstack_port: 6875
 cockpit_port: 9090
 flaresolverr_port: 8191
 flood_port: 3000
+graylog_port: 9000
 infra_webui_port: 10001
 jellyfin_port: 8096
 jellyseerr_port: 5055
@@ -43,6 +44,8 @@ readarr_port: 8787
 sonarr_port: 8989
 uptimekuma_port: 3001
 
+graylog_version: 5.2.2
+
 linuxserver_env:
   PUID: 0
   PGID: 0
@@ -55,11 +58,11 @@ packages_base:
   - cockpit-podman
   - cockpit-storaged
   - ffmpeg
-  - fzf
+  # - fzf
   - git
   - htop
   - httpie
-  - megatools
+  # - megatools
   - net-tools
   - nfs-utils
   - podman
@@ -91,6 +94,8 @@ packages_by_distro:
         copr: "@caddy/caddy"
       - name: megatools
         url: https://www.rpmfind.net/linux/fedora/linux/releases/38/Everything/{{ ansible_architecture }}/os/Packages/m/megatools-1.11.1-1.fc38.{{ ansible_architecture }}.rpm
+      - name: filebeat
+        url: https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.11.3-x86_64.rpm
       # - name: centos-release-kmods
       #   url: https://cbs.centos.org/kojifiles/packages/centos-release-kmods/9/3.el9s/noarch/centos-release-kmods-9-3.el9s.noarch.rpm
 
@@ -140,6 +145,7 @@ containers_registries:
 repositories: []
 
 repositories_dir: "{{ ansible_user_dir }}/.local/opt"
+compose_dir: "{{ ansible_user_dir }}/.local/opt"
 
 user_services: {}
 
@@ -150,3 +156,8 @@ python_setup: |-
 
 bash_setup: |-
   export PATH={{ ansible_user_dir}}/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin
+
+compose_setup: |-
+  {{ bash_setup }}
+  podman-compose down --remove-orphans
+  podman-compose up
