@@ -53,6 +53,10 @@ caddy_entries:
           root /home/{re.userdir.1}/www/
         }
       }
+  - domain: graylog.tina.moe
+    file: tina
+    reverses:
+      - to: "{{ graylog_port }}"
   - domain: tina.moe
     root: /home/tina/wwws/tina
     file: tina
@@ -60,8 +64,6 @@ caddy_entries:
       - path: /infra
         to: "{{ infra_webui_port }}"
         remove_path: true
-      - path: /graylog
-        to: "{{ graylog_port }}"
     extra: |
       handle_path /private/* {
         root * /home/tina/wwws/private
@@ -235,7 +237,7 @@ outline_url: https://notes.tina.moe
 bookstack_url: https://books.tina.moe
 affine_url: https://notes.tina.moe
 keycloak_url: https://auth.tina.moe
-graylog_url: https://tina.moe/graylog/
+graylog_url: https://graylog.tina.moe/
 
 compose_services:
   # - bookstack

@@ -54,7 +54,9 @@ selinux_state: disabled
 
 packages_base:
   - cockpit
+  - cockpit-file-sharing
   - cockpit-navigator
+  - cockpit-pcp
   - cockpit-podman
   - cockpit-storaged
   - ffmpeg
