@@ -83,27 +83,27 @@ caddy_entries:
     file: tina
     reverses:
       - to: 57348
-  # - domain: six.savatier.fr
-  #   root: /home/tina/wwws/six
-  #   file: tina_six
-  #   reverses:
-  #     - path: /ping
-  #       to: "{{ uptimekuma_port }}"
-  #     - path: /prowlarr
-  #       to: "{{ prowlarr_port }}"
-  #     - path: /sonarr
-  #       to: "{{ sonarr_port }}"
-  #     - path: /radarr
-  #       to: "{{ radarr_port }}"
-  #     - path: /lidarr
-  #       to: "{{ lidarr_port }}"
-  #     - path: /readarr
-  #       to: "{{ readarr_port }}"
-  #     - path: /jellyfin
-  #       to: "{{ jellyfin_port }}"
-  #     - path: /torrents
-  #       remove_path: true
-  #       to: "{{ qbittorrent_webui_port }}"
+  - domain: six.savatier.fr
+    root: /home/tina/wwws/six
+    file: tina_six
+    reverses:
+      # - path: /ping
+      #   to: "{{ uptimekuma_port }}"
+      # - path: /prowlarr
+      #   to: "{{ prowlarr_port }}"
+      # - path: /sonarr
+      #   to: "{{ sonarr_port }}"
+      # - path: /radarr
+      #   to: "{{ radarr_port }}"
+      # - path: /lidarr
+      #   to: "{{ lidarr_port }}"
+      # - path: /readarr
+      #   to: "{{ readarr_port }}"
+      - path: /jellyfin
+        to: "{{ jellyfin_port }}"
+      # - path: /torrents
+      #   remove_path: true
+      #   to: "{{ qbittorrent_webui_port }}"
   # - domain: seerr.savatier.fr
   #   file: tina_six
   #   reverses:
@@ -126,9 +126,11 @@ user_services:
   couscous_infra:
     workdir: "{{ repositories_dir }}/couscous"
     cmd: "{{ compose_setup }}"
-
   graylog:
     workdir: "{{ compose_dir }}/graylog"
+    cmd: "{{ compose_setup }}"
+  six:
+    workdir: "{{ compose_dir }}/six"
     cmd: "{{ compose_setup }}"
 
 containers: {}
@@ -244,3 +246,4 @@ compose_services:
   # - outline
   # - authentik
   - graylog
+  - six

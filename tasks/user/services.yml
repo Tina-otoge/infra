@@ -3,6 +3,7 @@
     src: "systemd.service.j2"
     dest: "{{ ansible_user_dir }}/.config/systemd/user/{{ item.key }}.service"
   loop: "{{ user_services | dict2items }}"
+  notify: systemd reload user
 
 - name: Set configured state for user services
   systemd:
@@ -12,3 +13,4 @@
     daemon_reload: true
     scope: user
   loop: "{{ user_services | dict2items }}"
+  notify: systemd reload user

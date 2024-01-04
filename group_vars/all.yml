@@ -159,9 +159,12 @@ python_setup: |-
   pip install -r requirements.txt
 
 bash_setup: |-
-  export PATH={{ ansible_user_dir}}/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin
+  export PATH={{ ansible_user_dir }}/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin
 
 compose_setup: |-
   {{ bash_setup }}
+  podman-compose stop
+  rm -rfv {{ ansible_user_dir }}/.local/share/containers/storage/overlay/*/merged
   podman-compose down --remove-orphans
+  podman-compose build --pull
   podman-compose up

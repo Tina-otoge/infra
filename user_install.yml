@@ -20,3 +20,9 @@
         loop_var: task
       tags:
         - always
+
+  handlers:
+    - name: systemd reload user-mode
+      systemd:
+        daemon_reload: true
+        scope: user
