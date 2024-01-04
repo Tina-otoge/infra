@@ -71,6 +71,7 @@ packages_base:
   - tree
   - util-linux-user
   - vim
+  - wireguard-tools
   - zsh
   - zsh-syntax-highlighting
 
@@ -102,6 +103,7 @@ packages_by_distro:
 
 upgrade_commands:
   dnf:
+    - systemctl restart chronyd
     - dnf -y upgrade --refresh
 upgrade_schedule: "weekly"
 upgrade_then_reboot: true
