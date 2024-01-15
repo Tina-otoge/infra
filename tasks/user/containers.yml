@@ -37,11 +37,11 @@
       {% endif %}
       {% endfor %}
 
-- name: Prepare networks
-  containers.podman.podman_network:
-    name: "{{ item }}"
-    state: present
-  loop: "{{ _containers_networks | from_yaml | default([]) | unique | list }}"
+# - name: Prepare networks
+#   containers.podman.podman_network:
+#     name: "{{ item }}"
+#     state: present
+#   loop: "{{ _containers_networks | from_yaml | default([]) | unique | list }}"
 
 - name: Create containers
   containers.podman.podman_container:

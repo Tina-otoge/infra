@@ -1,0 +1,39 @@
+- name: Create users-fstab script
+  template:
+    src: users-fstab/script.sh.j2
+    dest: /usr/local/bin/users-fstab
+    owner: root
+    group: root
+    mode: u=rwx,g=rx,o=rx
+
+- name: Create users-fstab service
+  template:
+    src: systemd.service.j2
+    dest: /usr/local/lib/systemd/system/users-fstab.service
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+  vars:
+    item:
+      value:
+        name: Users fstab
+        cmd: /usr/local/bin/users-fstab
+
+- name: Create users-fstab timer
+  template:
+    src: systemd.timer.j2
+    dest: /usr/local/lib/systemd/system/users-fstab.timer
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+  vars:
+    timer:
+      name: Users fstab
+      cmd: /usr/local/bin/users-fstab
+      time: minutely
+
+- name: Enable users-fstab timer
+  systemd:
+    name: users-fstab.timer
+    enabled: true
+    state: started

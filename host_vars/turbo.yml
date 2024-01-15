@@ -158,3 +158,12 @@ _no:
   #     - /home/tina/.config/readarr:/config
   #     - /mnt/Freebox:/mnt/Freebox
   #   user: tina
+
+
+user_mounts: []
+  # - what: //nagato.lan/tina-data
+  #   where: "{{ ansible_user_dir }}/mnt/private"
+  #   type: cifs
+  #   description: Private dir on Sakura
+  #   test: "{{ ansible_user_dir }}/mnt/private/Downloads"
+  #   options: "username=tina,password={{ secret_tina_sakura_password }},uid=1000,gid=1000"

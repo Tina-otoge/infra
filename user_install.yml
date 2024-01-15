@@ -12,7 +12,7 @@
       loop:
         - dotfiles
         # - websites
-        # - containers
+        - containers
         - compose_services
         - repositories
         - services

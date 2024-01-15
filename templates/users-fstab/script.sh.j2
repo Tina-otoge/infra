@@ -1,0 +1,33 @@
+#!/bin/bash
+
+for h in /home/*/; do
+    path="$h.config/fstab"
+    echo Handling "$path"
+    if [ ! -f "$path" ]; then
+        echo Not found, skipping
+        continue
+    fi
+
+    invalid=0
+    echo Verifying "$path"
+    while IFS= read -r line; do
+        if [[ "$line" == "#"* ]] || [[ "$line" == '' ]]; then
+            continue
+        fi
+        target=$(echo "$line" | cut -d' ' -f2)
+        target=$(realpath "$target")
+        if [[ "$target" != "$h"* ]]; then
+            echo "Invalid target $target"
+            invalid=1
+            break
+        fi
+    done < "$path"
+
+    if [ "$invalid" -eq 1 ]; then
+        echo Invalid fstab, skipping
+        continue
+    fi
+
+    echo Mounting "$path"
+    mount -a -T "$h/.config/fstab"
+done

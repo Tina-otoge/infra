@@ -20,6 +20,7 @@ tasks_list_base:
   # Services
   - caddy
   - cockpit
+  - users_fstab
 
 tasks_list: []
 
@@ -141,6 +142,8 @@ caddy_service: caddy
 cockpit_url_root: /cockpit
 cockpit_allow_unencrypted: "{{ not caddy_https }}"
 cockpit_login_to: true
+
+flood_url_root: /flood
 
 containers: {}
 containers_registries:

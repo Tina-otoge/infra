@@ -39,10 +39,11 @@ caddy_entries:
     reverses:
       - path: "{{ cockpit_url_root }}"
         to: 9090
-      - path: /flood
+      - path: "{{ flood_url_root }}"
         to: 3000
-        extra: |
-          header_up X-Graylog-Server-URL {{ graylog_url }}
+      - path: /qbit
+        remove_path: true
+        to: "{{ qbittorrent_webui_port }}"
     extra: |
       @userdir {
         path_regexp userdir ^/~(\w+)/
@@ -78,7 +79,7 @@ caddy_entries:
   #   file: tina
   #   reverses:
   #     - to: "{{ outline_port }}"
-  - domain: couscous.tina.moe
+  - domain: couscous.tina.moe wiki.couscous.tina.moe
     robots: false
     file: tina
     reverses:
@@ -132,8 +133,22 @@ user_services:
   six:
     workdir: "{{ compose_dir }}/six"
     cmd: "{{ compose_setup }}"
+  flood:
+    workdir: "{{ compose_dir }}/flood"
+    cmd: |
+      rm -rfv {{ ansible_user_dir }}/.config/flood/rtorrent/rtorrent.sock
+      {{ compose_setup }}
 
-containers: {}
+containers:
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent
+    tag: latest
+    ports:
+      - "{{ loopback_ip }}:{{ qbittorrent_webui_port }}:{{ qbittorrent_webui_port }}"
+    volumes:
+      - "{{ ansible_user_dir }}/.config/qbittorrent:/config"
+      - "{{ ansible_user_dir }}/mnt/sakura-private/Downloads/torrents:/mnt/downloads"
+    env: "{{ linuxserver_env }}"
   # affine:
   #   image: ghcr.io/toeverything/affine-self-hosted
   #   tag: latest
@@ -247,6 +262,7 @@ compose_services:
   # - authentik
   - graylog
   - six
+  - flood
 
 user_mounts:
   - what: tina@turbo.tina.moe:/
@@ -254,3 +270,5 @@ user_mounts:
     type: fuse.sshfs
     description: Savatier Home Freebox VM
     test: "{{ ansible_user_dir }}/mnt/turbo/mnt/Freebox"
+
+torrents_dir: "{{ ansible_user_dir }}/mnt/sakura-private/Downloads/torrents"
