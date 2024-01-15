@@ -9,6 +9,7 @@ services:
         - "{{ ansible_user_dir }}/.config/jellyfin:/config"
         - "{{ ansible_user_dir }}/.cache/jellyfin:/cache"
       network: six
+      restart: unless-stopped
 
 networks:
   six:

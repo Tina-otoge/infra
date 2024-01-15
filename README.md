@@ -1,3 +1,16 @@
+# Tina Infra
+
+Ansible playbooks to setup machines on my own hobby infra / home lab.
+
+It is split into 2 playbooks, `server_install.yml` and `user_install.yml`, the
+first one runs command as root, the other as the configured user.
+
+The server playbook is responsible for OS-level setup, such as setting up the
+hostname and installing packages.
+
+The user playbook is responsible for installing "user apps", such as userland
+systemd services and containers.
+
 ## Notes
 
 ### Testing the reverse-proxy when running in the VirtualBox molecule instance

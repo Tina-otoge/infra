@@ -1,0 +1,54 @@
+- name: Create the mount script
+  template:
+    src: user-mounts/script.sh.j2
+    dest: "{{ ansible_user_dir }}/.local/bin/user-mount"
+    mode: u=rwx,g=rwx,o=rx
+
+- set_fact:
+    _user_mounts_yml: |
+      {% for mount in user_mounts %}
+      {{ mount.where | regex_replace('/', '-') | regex_replace('^-') }}:
+        {{ mount }}
+      {% endfor %}
+- set_fact:
+    _user_mounts: "{{ _user_mounts_yml | from_yaml }}"
+
+- debug:
+    var: _user_mounts
+
+
+- name: Create the mount unit for each entry
+  loop: "{{ _user_mounts | dict2items }}"
+  template:
+    src: user-mounts/systemd.mount.j2
+    dest: "{{ ansible_user_dir }}/.config/systemd/user/{{ item.key }}.mount"
+    mode: u=rw,g=rw,o=r
+  vars:
+    mount: "{{ item.value }}"
+
+- name: Create the mount service for each entry
+  loop: "{{ _user_mounts | dict2items }}"
+  loop_control:
+    loop_var: entry
+  template:
+    src: systemd.service.j2
+    dest: "{{ ansible_user_dir }}/.config/systemd/user/{{ item.key }}.service"
+    mode: u=rw,g=rw,o=r
+  vars:
+    item:
+      key: "{{ entry.key }}"
+      value:
+        name: "{{ entry.value.description }} job script"
+        after: network-online.target
+        cmd: "{{ ansible_user_dir }}/.local/bin/user-mount {{ entry.key }} {{ entry.value.test }}"
+  notify: systemd reload user-mode
+
+- meta: flush_handlers
+
+- name: Enable and start the mount service for each entry
+  loop: "{{ _user_mounts | dict2items }}"
+  service:
+    name: "{{ item.key }}.service"
+    state: started
+    enabled: true
+    scope: user

@@ -247,3 +247,10 @@ compose_services:
   # - authentik
   - graylog
   - six
+
+user_mounts:
+  - what: tina@turbo.tina.moe:/
+    where: "{{ ansible_user_dir }}/mnt/turbo"
+    type: fuse.sshfs
+    description: Savatier Home Freebox VM
+    test: "{{ ansible_user_dir }}/mnt/turbo/mnt/Freebox"

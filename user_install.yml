@@ -16,6 +16,7 @@
         - compose_services
         - repositories
         - services
+        - mounts
       loop_control:
         loop_var: task
       tags:
