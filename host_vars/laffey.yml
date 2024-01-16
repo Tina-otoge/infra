@@ -54,6 +54,10 @@ caddy_entries:
           root /home/{re.userdir.1}/www/
         }
       }
+  - domain: kuma.{{ http_domain }}
+    file: tina
+    reverses:
+      - to: "{{ uptime_kuma_port }}"
   - domain: graylog.tina.moe
     file: tina
     reverses:
@@ -77,6 +81,11 @@ caddy_entries:
     reverses:
       - to: 57348
   - domain: six.savatier.fr
+    root: /home/tina/wwws/six
+    file: tina_six
+    extra: |
+      redir https://six.tina.moe{uri}
+  - domain: six.tina.moe
     root: /home/tina/wwws/six
     file: tina_six
     reverses:
@@ -122,6 +131,13 @@ containers:
       - "{{ ansible_user_dir }}/.config/qbittorrent:/config"
       - "{{ ansible_user_dir }}/mnt/sakura-private/Downloads/torrents:/mnt/downloads"
     env: "{{ linuxserver_env }}"
+  uptime_kuma:
+    image: louislam/uptime-kuma
+    tag: latest
+    ports:
+      - "{{ loopback_ip }}:{{ uptime_kuma_port }}:{{ uptime_kuma_port }}"
+    volumes:
+      - uptime-kuma:/app/data
 
 graylog_url: https://graylog.tina.moe/
 

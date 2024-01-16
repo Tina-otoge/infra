@@ -43,7 +43,7 @@ qbittorrent_webui_port: 8080
 radarr_port: 7878
 readarr_port: 8787
 sonarr_port: 8989
-uptimekuma_port: 3001
+uptime_kuma_port: 3001
 
 graylog_version: 5.2.2
 
