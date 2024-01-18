@@ -58,6 +58,15 @@ caddy_entries:
     file: tina
     reverses:
       - to: "{{ uptime_kuma_port }}"
+  - domain: kasm.{{ http_domain }}
+    file: tina
+    extra: |
+      reverse_proxy localhost:8443 {
+        transport http {
+          tls
+          tls_insecure_skip_verify
+        }
+      }
   - domain: graylog.tina.moe
     file: tina
     reverses:
