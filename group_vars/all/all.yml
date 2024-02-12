@@ -60,6 +60,7 @@ packages_base:
   - cockpit-pcp
   - cockpit-podman
   - cockpit-storaged
+  - dhcpdump
   - ffmpeg
   # - fzf
   - git
@@ -68,6 +69,7 @@ packages_base:
   # - megatools
   - net-tools
   - nfs-utils
+  - nmap
   - podman
   - screen
   - sqlite
