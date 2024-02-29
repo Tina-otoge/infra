@@ -44,6 +44,8 @@ caddy_entries:
       - path: /qbit
         remove_path: true
         to: "{{ qbittorrent_webui_port }}"
+      - path: "{{ semaphore_url_root }}"
+        to: 3005
     extra: |
       @userdir {
         path_regexp userdir ^/~(\w+)/
@@ -129,6 +131,9 @@ user_services:
     cmd: |
       rm -rfv {{ ansible_user_dir }}/.config/flood/rtorrent/rtorrent.sock
       {{ compose_setup }}
+  semaphore:
+    workdir: "{{ compose_dir }}/semaphore"
+    cmd: "{{ compose_setup }}"
 
 containers:
   qbittorrent:
@@ -154,6 +159,7 @@ compose_services:
   - graylog
   - six
   - flood
+  - semaphore
 
 user_mounts:
   - what: tina@turbo.tina.moe:/
@@ -163,3 +169,6 @@ user_mounts:
     test: "{{ ansible_user_dir }}/mnt/turbo/mnt/Freebox"
 
 torrents_dir: "{{ ansible_user_dir }}/mnt/sakura-private/Downloads/torrents"
+
+semaphore_url_root: /semui
+semaphore_url: https://{{ http_domain }}{{ semaphore_url_root }}
