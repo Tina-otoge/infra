@@ -1,0 +1,8 @@
+- hosts: all
+  become: "{{ sudo }}"
+  tasks:
+    - name: Restart service
+      systemd:
+        name: "{{ service_name }}"
+        state: restarted
+        scope: "{{ 'system' if sudo else 'user' }}"
