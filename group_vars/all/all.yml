@@ -67,6 +67,7 @@ packages_base:
   - htop
   - httpie
   # - megatools
+  - ncdu
   - net-tools
   - nfs-utils
   - nmap
