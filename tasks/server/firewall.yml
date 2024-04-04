@@ -1,0 +1,17 @@
+- when: firewall is defined
+  block:
+
+  - name: Set UFW state
+    ufw:
+      state: "{{ 'disabled' if firewall is not defined else 'enabled' }}"
+
+  - name: Set default UFW policy
+    ufw:
+      default: "{{ firewall.default }}"
+
+  - name: Set UFW rules
+    ufw:
+      from_ip: "{{ item.from | default('any') }}"
+      port: "{{ item.port | default(omit) }}"
+      rule: "{{ item.action }}"
+    loop: "{{ firewall.rules }}"

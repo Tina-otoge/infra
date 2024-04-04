@@ -2,7 +2,7 @@
   file:
     path: "{{ item.key }}"
     state: directory
-    owner: "{{ item.value.owner }}"
-    group: "{{ item.value.group | default(item.value.owner) }}"
+    owner: "{{ item.value.owner | default('root') }}"
+    group: "{{ item.value.group | default(item.value.owner) | default('root') }}"
     mode: "{{ item.value.mode | default('u=rwX,g=rX,o=rX') }}"
   loop: "{{ paths | default({}) | dict2items }}"

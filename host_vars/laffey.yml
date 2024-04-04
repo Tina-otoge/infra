@@ -1,14 +1,22 @@
 http_domain: laffey.tina.moe
+public_ip: 198.27.82.171
 
 tasks_list:
   - filebeat
 
 packages:
   - filebeat
+  - ufw
 
-skeleton_dirs:
-  - www
-  - wwws/example.com
+firewall:
+  default: allow
+  rules:
+    - port: "{{ prometheus_node_exporter_port }}"
+      action: deny
+    - port: "{{ prometheus_node_exporter_port }}"
+      from: "{{ public_ip }}"
+      action: allow
+
 
 users:
   - akeyro
@@ -22,7 +30,6 @@ users:
 users_admins:
   - tina
 
-switch_ip: 198.27.82.171
 
 caddy_service: caddy-root
 
@@ -103,12 +110,17 @@ caddy_entries:
       - path: /jellyfin
         to: "{{ jellyfin_port }}"
 
+
 paths:
   /srv/media:
     owner: tina
+  /etc/skel/www:
+  /etc/skel/wwws:
+
 
 repositories:
   - src: https://github.com/Tina-otoge/infra-webui
+
 
 user_services:
   infra_webui:
@@ -136,6 +148,7 @@ user_services:
     workdir: "{{ compose_dir }}/semaphore"
     cmd: "{{ compose_setup }}"
 
+
 quadlets:
   prometheus:
     image: prom/prometheus
@@ -146,6 +159,7 @@ quadlets:
     volumes:
       - "{{ ansible_user_dir }}/.config/prometheus:/etc/prometheus"
       - "{{ ansible_user_dir }}/.local/share/prometheus:/prometheus"
+
 
 containers:
   qbittorrent:
@@ -165,7 +179,9 @@ containers:
     volumes:
       - uptime-kuma:/app/data
 
+
 graylog_url: https://graylog.tina.moe/
+
 
 compose_services:
   - graylog
@@ -173,12 +189,14 @@ compose_services:
   - flood
   - semaphore
 
+
 user_mounts:
   - what: tina@turbo.tina.moe:/
     where: "{{ ansible_user_dir }}/mnt/turbo"
     type: fuse.sshfs
     description: Savatier Home Freebox VM
     test: "{{ ansible_user_dir }}/mnt/turbo/mnt/Freebox"
+
 
 torrents_dir: "{{ ansible_user_dir }}/mnt/sakura-private/Downloads/torrents"
 

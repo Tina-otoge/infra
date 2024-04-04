@@ -11,34 +11,30 @@ tasks_list_base:
   - periodic-upgrade
 
   # Users
-  - skeleton
   - cgroups
   - containers
-  - users
   - paths
+  - users
 
   # Services
+  - firewall
   - caddy
   - cockpit
   - users_fstab
 
 tasks_list: []
 
-affine_port: 3003
-authentik_port: 9000
-bookstack_port: 6875
+loopback_ip: 127.0.0.1
+podman_host_address: host.containers.internal
+
 cockpit_port: 9090
-flaresolverr_port: 8191
 flood_port: 3000
 graylog_port: 9000
 infra_webui_port: 10001
 jellyfin_port: 8096
-jellyseerr_port: 5055
-keycloak_port: 3004
-lidarr_port: 8686
-loopback_ip: 127.0.0.1
 outline_port: 3002
 prometheus_port: 9091
+prometheus_node_exporter_port: 9100
 prowlarr_port: 9696
 qbittorrent_webui_port: 8080
 radarr_port: 7878
