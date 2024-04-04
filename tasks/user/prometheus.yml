@@ -1,0 +1,5 @@
+- name: Install prometheus config
+  template:
+    src: prometheus.yml.j2
+    dest: "{{ ansible_user_dir }}/.config/prometheus/prometheus.yml"
+  notify: prometheus restart

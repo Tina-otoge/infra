@@ -126,6 +126,7 @@ user_services:
   six:
     workdir: "{{ compose_dir }}/six"
     cmd: "{{ compose_setup }}"
+    depend: home-tina-mnt-turbo.service
   flood:
     workdir: "{{ compose_dir }}/flood"
     cmd: |
@@ -134,6 +135,17 @@ user_services:
   semaphore:
     workdir: "{{ compose_dir }}/semaphore"
     cmd: "{{ compose_setup }}"
+
+quadlets:
+  prometheus:
+    image: prom/prometheus
+    tag: latest
+    user: "{{ ansible_user_id }}"
+    ports:
+      - "{{ loopback_ip }}:{{ prometheus_port }}:9090"
+    volumes:
+      - "{{ ansible_user_dir }}/.config/prometheus:/etc/prometheus"
+      - "{{ ansible_user_dir }}/.local/share/prometheus:/prometheus"
 
 containers:
   qbittorrent:

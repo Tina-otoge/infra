@@ -1,0 +1,50 @@
+[Unit]
+
+{% if item.value.depend is defined %}
+After={{ item.value.depend }}
+Requires={{ item.value.depend }}
+{% endif %}
+
+[Container]
+Image={{ item.value.image }}{% if item.value.tag is defined %}:{{ item.value.tag }}{% endif %}
+
+{% if item.value.exec is defined %}
+Exec={{ item.value.exec }}
+{% endif %}
+
+{% if item.value.volumes is defined %}
+{% for volume in item.value.volumes %}
+Volume={{ volume }}
+{% endfor %}
+{% endif %}
+
+{% if item.value.ports is defined %}
+{% for port in item.value.ports %}
+PublishPort={{ port }}
+{% endfor %}
+{% endif %}
+
+{% if item.value.environment is defined %}
+{% for env_key, env_value in item.value.environment.items() %}
+Environment={{ env_key }}={{ env_value }}
+{% endfor %}
+{% endif %}
+
+{% if item.value.user is defined %}
+User={{ item.value.user }}
+{% endif %}
+
+
+[Service]
+
+{% if item.value.restart is not defined %}
+Restart=always
+{% else %}
+Restart={{ item.value.restart }}
+{% endif %}
+RestartSec=5s
+StartLimitBurst=15
+StartLimitInterval=5m
+
+[Install]
+WantedBy=multi-user.target

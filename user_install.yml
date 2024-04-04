@@ -17,6 +17,7 @@
         - repositories
         - services
         - mounts
+        - prometheus
       loop_control:
         loop_var: task
       tags:
@@ -26,4 +27,9 @@
     - name: systemd reload user-mode
       systemd:
         daemon_reload: true
+        scope: user
+    - name: prometheus restart
+      systemd:
+        name: prometheus
+        state: restarted
         scope: user

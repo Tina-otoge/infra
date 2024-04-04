@@ -3,12 +3,23 @@
 Description={{ item.value.name}}
 {% endif %}
 
+{% if item.value.depend is defined %}
+After={{ item.value.depend }}
+Requires={{ item.value.depend }}
+{% endif %}
+
 {% if item.value.after is defined %}
 After={{ item.value.after }}.target
 {% endif %}
 
 [Service]
+{% if item.value.cmd is defined %}
 ExecStart=/bin/bash -c "{{ item.value.cmd.strip().replace('\n', ' && \\\n') }}"
+{% endif %}
+{% if item.value.podman is defined %}
+ExecStart=/bin/bash -c "podman start {{ item.value.podman }}"
+ExecStop=/bin/bash -c "podman stop {{ item.value.podman }}"
+{% endif %}
 
 {% if item.value.workdir is defined %}
 WorkingDirectory={{ item.value.workdir }}

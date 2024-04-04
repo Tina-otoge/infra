@@ -38,6 +38,7 @@ keycloak_port: 3004
 lidarr_port: 8686
 loopback_ip: 127.0.0.1
 outline_port: 3002
+prometheus_port: 9091
 prowlarr_port: 9696
 qbittorrent_webui_port: 8080
 radarr_port: 7878

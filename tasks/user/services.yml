@@ -1,8 +1,31 @@
+- name: Prepare systemd user services directory
+  file:
+    path: "{{ ansible_user_dir }}/.config/systemd/user"
+    state: directory
+
+- name: Prepare systemd quadlet directory
+  file:
+    path: "{{ ansible_user_dir }}/.config/containers/systemd"
+    state: directory
+
 - name: Create user service files
   template:
     src: "systemd.service.j2"
     dest: "{{ ansible_user_dir }}/.config/systemd/user/{{ item.key }}.service"
   loop: "{{ user_services | dict2items }}"
+  notify: systemd reload user-mode
+
+- name: Create volume paths on host for quadlets
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop: "{{ quadlets | dict2items | map(attribute='value.volumes') | list | flatten | unique | map('split', ':') | map('first') }}"
+
+- name: Create quadlet files
+  template:
+    src: "systemd.quadlet.j2"
+    dest: "{{ ansible_user_dir }}/.config/containers/systemd/{{ item.key }}.container"
+  loop: "{{ quadlets | dict2items }}"
   notify: systemd reload user-mode
 
 - name: Set configured state for user services
@@ -12,5 +35,5 @@
     enabled: "{{ item.value.enabled | default(true) }}"
     daemon_reload: true
     scope: user
-  loop: "{{ user_services | dict2items }}"
+  loop: "{{ (user_services | combine(quadlets)) | dict2items }}"
   notify: systemd reload user-mode
