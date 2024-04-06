@@ -1,0 +1,5 @@
+- name: Install loki config
+  template:
+    src: grafana/loki.yml.j2
+    dest: "{{ ansible_user_dir }}/.config/loki/local-config.yaml"
+  notify: loki restart

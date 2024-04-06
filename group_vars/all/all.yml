@@ -21,20 +21,26 @@ tasks_list_base:
   - caddy
   - cockpit
   - users_fstab
+  - promtail
 
 tasks_list: []
 
 loopback_ip: 127.0.0.1
+podman_host_loopback_ip: 10.0.2.2
 podman_host_address: host.containers.internal
 
+caddy_admin_port: 2019
 cockpit_port: 9090
 flood_port: 3000
+grafana_port: 3003
 graylog_port: 9000
 infra_webui_port: 10001
 jellyfin_port: 8096
+loki_port: 3100
 outline_port: 3002
 prometheus_port: 9091
 prometheus_node_exporter_port: 9100
+promtail_port: 9080
 prowlarr_port: 9696
 qbittorrent_webui_port: 8080
 radarr_port: 7878
@@ -138,6 +144,7 @@ caddy_https: true
 caddy_email: null
 caddy_entries: []
 caddy_service: caddy
+caddy_prometheus: false
 
 cockpit_url_root: /cockpit
 cockpit_allow_unencrypted: "{{ not caddy_https }}"

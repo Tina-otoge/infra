@@ -6,13 +6,22 @@
 		format console
 		level debug
 	}
-	{% for name, output in caddy_logs_outputs.items() | default({}) %}
+	log access_log {
+		output file {{ caddy_access_log | default('/var/log/caddy/access.log') }}
+	}
+	{% for name, output in (caddy_logs_outputs| default({})).items() %}
 	log {{ name }} {
 		output {{ output }}
 		format json
 		level info
 	}
 	{% endfor %}
+
+	{% if caddy_prometheus %}
+	servers {
+		metrics
+	}
+	{% endif %}
 
 
 	{% if not caddy_https %}
@@ -22,6 +31,8 @@
 	{% if caddy_email %}
 	email {{ caddy_email }}
 	{% endif %}
+
+	{{ caddy_global_extra | default('') }}
 }
 
 {% if http_domain %}
@@ -36,6 +47,7 @@
 
 (common) {
 	log stdout
+	log access_log
 	{% for output in caddy_logs_outputs | default({}) %}
 	log {{ output }}
 	{% endfor %}

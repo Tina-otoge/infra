@@ -1,0 +1,24 @@
+- name: Check if promtail is installed
+  command: promtail --version
+  register: _promtail_check
+  changed_when: false
+
+- name: Install promtail
+  command: |
+    dnf install -y https://github.com/grafana/loki/releases/download/v2.8.11/promtail-2.8.11.x86_64.rpm
+  when: _promtail_check.rc != 0
+
+- name: Ensure promtail service is set to run as root
+  lineinfile:
+    path: /etc/systemd/system/promtail.service
+    regexp: '^User='
+    line: 'User=root'
+  notify:
+    - systemd reload
+    - promtail restart
+
+- name: Install promtail config
+  template:
+    src: grafana/promtail.yml.j2
+    dest: /etc/promtail/config.yml
+  notify: promtail restart

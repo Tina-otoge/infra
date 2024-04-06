@@ -17,6 +17,24 @@ firewall:
       from: "{{ public_ip }}"
       action: allow
 
+    - port: "{{ prometheus_port }}"
+      action: deny
+    - port: "{{ prometheus_port }}"
+      from: "{{ public_ip }}"
+      action: allow
+
+    - port: "{{ caddy_admin_port }}"
+      action: deny
+    - port: "{{ caddy_admin_port }}"
+      from: "{{ public_ip }}"
+      action: allow
+
+    - port: "{{ loki_port }}"
+      action: deny
+    - port: "{{ loki_port }}"
+      from: "{{ public_ip }}"
+      action: allow
+
 
 users:
   - akeyro
@@ -32,9 +50,12 @@ users_admins:
 
 
 caddy_service: caddy-root
+caddy_prometheus: true
+caddy_global_extra: |
+  admin :{{ caddy_admin_port }}
 
-caddy_logs_outputs:
-  graylog: net localhost:5555
+# caddy_logs_outputs:
+#   graylog: net localhost:5555
 
 caddy_extra: |
   import users.d/*.conf
@@ -80,6 +101,10 @@ caddy_entries:
     file: tina
     reverses:
       - to: "{{ graylog_port }}"
+  - domain: grafana.tina.moe
+    file: tina
+    reverses:
+      - to: "{{ grafana_port }}"
   - domain: tina.moe
     root: /home/tina/wwws/tina
     file: tina
@@ -155,11 +180,26 @@ quadlets:
     tag: latest
     user: "{{ ansible_user_id }}"
     ports:
-      - "{{ loopback_ip }}:{{ prometheus_port }}:9090"
+      - "{{ prometheus_port }}:9090"
     volumes:
       - "{{ ansible_user_dir }}/.config/prometheus:/etc/prometheus"
       - "{{ ansible_user_dir }}/.local/share/prometheus:/prometheus"
-
+  grafana:
+    image: grafana/grafana-oss
+    tag: main
+    ports:
+      - "{{ loopback_ip }}:{{ grafana_port }}:3000"
+    user: "{{ ansible_user_id }}"
+    volumes:
+      - "{{ ansible_user_dir }}/.local/share/grafana:/var/lib/grafana"
+  loki:
+    image: grafana/loki
+    tag: main
+    user: 0
+    ports:
+      - "{{ loki_port }}:3100"
+    volumes:
+      - "{{ ansible_user_dir }}/.config/loki:/etc/loki"
 
 containers:
   qbittorrent:

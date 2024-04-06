@@ -16,8 +16,9 @@
         - compose_services
         - repositories
         - services
-        - mounts
         - prometheus
+        - loki
+        - mounts
       loop_control:
         loop_var: task
       tags:
@@ -31,5 +32,10 @@
     - name: prometheus restart
       systemd:
         name: prometheus
+        state: restarted
+        scope: user
+    - name: loki restart
+      systemd:
+        name: loki
         state: restarted
         scope: user

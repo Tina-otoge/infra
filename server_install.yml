@@ -43,3 +43,7 @@
       systemd:
         name: dnsmasq
         state: restarted
+    - name: promtail restart
+      systemd:
+        name: promtail
+        state: restarted
