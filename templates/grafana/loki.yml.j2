@@ -46,5 +46,10 @@ ruler:
 # Refer to the buildReport method to see what goes into a report.
 #
 # If you would like to disable reporting, uncomment the following lines:
-#analytics:
-#  reporting_enabled: false
+analytics:
+  reporting_enabled: false
+
+
+limits_config:
+  max_query_series: 1000000
+  max_query_parallelism: 48
