@@ -13,12 +13,13 @@ scrape_configs:
     labels:
       job: varlogs
       __path__: /var/log/*log
+
 - job_name: caddy
   static_configs:
   - targets:
       - localhost
     labels:
-      job: caddy_access_log
+      job: caddy
       __path__: /var/log/caddy/*.log
   pipeline_stages:
   - json:
@@ -36,3 +37,17 @@ scrape_configs:
         uri: request.uri
         request_headers: request.headers
         response_headers: headers
+  - labels:
+      level:
+      ts:
+      logger:
+      msg:
+      upstream:
+      duration:
+      remote_ip:
+      proto:
+      method:
+      host:
+      uri:
+      request_headers:
+      response_headers:
