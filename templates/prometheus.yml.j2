@@ -11,13 +11,25 @@ global:
 scrape_configs:
   # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
   - job_name: 'prometheus'
-
-    # Override the global default and scrape targets from this job every 5 seconds.
-    scrape_interval: 5s
-
+    # Default.
+    # scrape_interval: 1m
     static_configs:
       - targets:
-        - localhost:9090 # Prometheus
-        - host.containers.internal:2019 # Caddy
-        # Node exporters
+        - localhost:9090
+
+  - job_name: loki
+    static_configs:
+      - targets:
+        - host.containers.internal:3100
+
+  - job_name: caddy
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+        - host.containers.internal:2019
+
+  - job_name: node_exporter
+    scrape_interval: 10s
+    static_configs:
+      - targets:
         - host.containers.internal:9100 # self

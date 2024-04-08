@@ -25,5 +25,10 @@ ExecStop=/bin/bash -c "podman stop {{ item.value.podman }}"
 WorkingDirectory={{ item.value.workdir }}
 {% endif %}
 
+Restart=always
+RestartSec=5s
+StartLimitBurst=15
+StartLimitInterval=5m
+
 [Install]
 WantedBy=default.target

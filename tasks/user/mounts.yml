@@ -1,3 +1,9 @@
+- name: Ensure local bin directory exists
+  file:
+    path: "{{ ansible_user_dir }}/.local/bin"
+    state: directory
+    mode: u=rwx,g=rwx,o=rx
+
 - name: Create the mount script
   template:
     src: user-mounts/script.sh.j2

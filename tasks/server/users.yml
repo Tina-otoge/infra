@@ -1,3 +1,10 @@
+- name: Create directories in skeleton directory
+  file:
+    path: "/etc/skel/{{ item }}"
+    state: directory
+    mode: "u=rwX,g=rX,o=rX"
+  loop: "{{ skel }}"
+
 - set_fact:
     _users_all: "{{ users + users_admins }}"
 

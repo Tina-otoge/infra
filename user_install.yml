@@ -9,16 +9,7 @@
           tags:
             - user
             - "{{ task }}"
-      loop:
-        - dotfiles
-        # - websites
-        - containers
-        - compose_services
-        - repositories
-        - services
-        - prometheus
-        - loki
-        - mounts
+      loop: "{{ user_tasks_base + user_tasks }}"
       loop_control:
         loop_var: task
       tags:

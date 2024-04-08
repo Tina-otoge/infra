@@ -27,7 +27,7 @@
   file:
     path: "{{ item }}"
     state: directory
-  loop: "{{ _containers_volumes | from_yaml | default([]) | unique }}"
+  loop: "{{ ((_containers_volumes | from_yaml) or []) | unique }}"
 
 - set_fact:
     _containers_networks: |

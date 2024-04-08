@@ -1,11 +1,18 @@
----
 driver:
   name: vagrant
 platforms:
   - name: laffey
-    box: generic/rocky9
+    box: rockylinux/9
+    memory: 2G
+    cpus: 2
   - name: turbo
-    box: generic/rocky9
+    box: rockylinux/9
+    memory: 1G
+    cpus: 2
+  - name: nagato
+    box: rockylinux/9
+    memory: 512M
+    cpus: 1
 
 provisioner:
   inventory:
@@ -16,5 +23,7 @@ provisioner:
             http_domain: laffey.local
           turbo:
             http_domain: turbo.local
+          nagato:
+            http_domain: nagato.local
   env:
     ANSIBLE_CONFIG: ../../ansible.cfg

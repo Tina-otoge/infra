@@ -65,8 +65,6 @@
       changed_when: false
       when: "item.name in _packages"
 
-    - debug: var=_packages_check
-
     - set_fact:
         _packages_to_install: |
           {{ _packages_to_install | default([]) + [item.item] }}

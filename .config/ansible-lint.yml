@@ -4,6 +4,7 @@ skip_list:
   - name
   - no-changed-when
   - package-latest
+  - risky-file-permissions
 
 exclude_paths:
   - .venv/

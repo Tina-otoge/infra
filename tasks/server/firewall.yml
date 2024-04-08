@@ -1,6 +1,5 @@
 - when: firewall is defined
   block:
-
   - name: Set UFW state
     ufw:
       state: "{{ 'disabled' if firewall is not defined else 'enabled' }}"

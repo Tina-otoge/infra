@@ -1,12 +1,16 @@
 http_domain: laffey.tina.moe
 public_ip: 198.27.82.171
+graylog_url: https://graylog.tina.moe/
 
-tasks_list:
-  - filebeat
+
+user_tasks:
+  - prometheus
+  - loki
+
 
 packages:
-  - filebeat
   - ufw
+
 
 firewall:
   default: allow
@@ -48,8 +52,13 @@ users:
 users_admins:
   - tina
 
+skel:
+  - www
+  - wwws/example.com
 
-caddy_service: caddy-root
+
+# caddy_service: caddy-root
+caddy_user: root
 caddy_prometheus: true
 caddy_global_extra: |
   admin :{{ caddy_admin_port }}
@@ -139,8 +148,6 @@ caddy_entries:
 paths:
   /srv/media:
     owner: tina
-  /etc/skel/www:
-  /etc/skel/wwws:
 
 
 repositories:
@@ -200,8 +207,7 @@ quadlets:
       - "{{ loki_port }}:3100"
     volumes:
       - "{{ ansible_user_dir }}/.config/loki:/etc/loki"
-
-containers:
+      - "{{ ansible_user_dir }}/.local/share/loki:/loki"
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent
     tag: latest
@@ -217,10 +223,7 @@ containers:
     ports:
       - "{{ loopback_ip }}:{{ uptime_kuma_port }}:{{ uptime_kuma_port }}"
     volumes:
-      - uptime-kuma:/app/data
-
-
-graylog_url: https://graylog.tina.moe/
+      - "{{ ansible_user_dir }}/.local/share/uptime-kuma:/app/data"
 
 
 compose_services:

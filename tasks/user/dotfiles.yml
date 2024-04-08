@@ -57,6 +57,23 @@
         path: "{{ ansible_user_dir }}/.bashrc"
         state: absent
 
+# Can not use a loop for blocks, best alternative would be include_tasks
+- name: Remove default zshrc
+  block:
+    - name: Get local zshrc stats
+      stat:
+        path: "{{ ansible_user_dir }}/.zshrc"
+      register: local
+    - name: Get skel zshrc stats
+      stat:
+        path: /etc/skel/.zshrc
+      register: skel
+    - name: Remove default zshrc
+      when: not local.stat.islnk and local.stat.checksum == skel.stat.checksum
+      file:
+        path: "{{ ansible_user_dir }}/.zshrc"
+        state: absent
+
 - name: Create symlinks from config directory
   file:
     src: "{{ ansible_user_dir }}/.config/{{ item.key }}"

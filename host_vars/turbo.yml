@@ -1,5 +1,8 @@
 hostname: TurboVM
 
+packages:
+  - dnsmasq
+
 tasks_list:
   - dnsmasq
 
@@ -21,7 +24,8 @@ hosts_map:
   192.168.0.69: blandine.lan
 
 
-caddy_service: caddy-root
+# caddy_service: caddy-root
+caddy_user: root
 
 caddy_entries:
   - domain: "{{ http_domain }}"

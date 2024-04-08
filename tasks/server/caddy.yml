@@ -3,6 +3,16 @@
 #     name: caddy
 #     state: latest
 
+- name: Ensure desired user is set to run Caddy
+  lineinfile:
+    path: /usr/lib/systemd/system/{{ caddy_service }}.service
+    line: "User={{ caddy_service_user }}"
+    create: false
+    state: present
+  notify:
+    - systemd reload
+    - caddy restart
+
 - name: Enable Caddy service
   service:
     name: "{{ caddy_service }}"
@@ -14,7 +24,7 @@
     src: caddy/Caddyfile.j2
     dest: /etc/caddy/Caddyfile
     mode: "u=rw,g=r,o=r"
-  notify: caddy reload
+  notify: caddy restart
 
 - name: Create Caddyfile entries
   blockinfile:
@@ -28,7 +38,7 @@
     block: "{{ lookup('template', 'caddy/entry.j2') }}"
     marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.domain }}"
   loop: "{{ caddy_entries }}"
-  notify: caddy reload
+  notify: caddy restart
 
 - name: Create symlink of Caddy certificates to ssl directory
   file:

@@ -8,7 +8,7 @@
           tags:
             - server
             - "{{ task }}"
-      loop: "{{ tasks_list_base + tasks_list }}"
+      loop: "{{ server_tasks_base + server_tasks }}"
       loop_control:
         loop_var: task
       tags:
@@ -29,8 +29,8 @@
     - name: systemd reload
       systemd:
         daemon_reload: true
-    - name: caddy reload
-      include_tasks: tasks/server/caddy_reload.yml
+    - name: caddy restart
+      include_tasks: tasks/handlers/caddy_restart.yml
     - name: cockpit reload
       systemd:
         name: cockpit.socket

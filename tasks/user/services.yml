@@ -34,6 +34,7 @@
     state: "{{ item.value.state | default('started') }}"
     enabled: "{{ item.value.enabled | default(true) }}"
     daemon_reload: true
+    no_block: true
     scope: user
   loop: "{{ (user_services | combine(quadlets)) | dict2items }}"
   notify: systemd reload user-mode

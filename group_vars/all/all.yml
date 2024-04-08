@@ -1,4 +1,4 @@
-tasks_list_base:
+server_tasks_base:
   # Core config
   - hostname
   - selinux
@@ -9,12 +9,13 @@ tasks_list_base:
   - pkg-mgr-conf
   - packages
   - periodic-upgrade
+  - fzf
 
   # Users
   - cgroups
   - containers
-  - paths
   - users
+  - paths
 
   # Services
   - firewall
@@ -23,7 +24,18 @@ tasks_list_base:
   - users_fstab
   - promtail
 
-tasks_list: []
+server_tasks: []
+
+user_tasks_base:
+  - dotfiles
+  # - websites
+  - containers
+  - compose_services
+  - repositories
+  - mounts
+  - services
+
+user_tasks: []
 
 loopback_ip: 127.0.0.1
 podman_host_loopback_ip: 10.0.2.2
@@ -57,6 +69,7 @@ linuxserver_env:
 selinux_state: disabled
 
 packages_base:
+  - caddy
   - cockpit
   - cockpit-file-sharing
   - cockpit-navigator
@@ -75,6 +88,7 @@ packages_base:
   - nfs-utils
   - nmap
   - podman
+  - promtail
   - screen
   - sqlite
   - tree
@@ -108,6 +122,8 @@ packages_by_distro:
         url: https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.11.3-x86_64.rpm
       # - name: centos-release-kmods
       #   url: https://cbs.centos.org/kojifiles/packages/centos-release-kmods/9/3.el9s/noarch/centos-release-kmods-9-3.el9s.noarch.rpm
+      - name: promtail
+        url: https://github.com/grafana/loki/releases/download/v2.8.11/promtail-2.8.11.x86_64.rpm
 
 
 upgrade_commands:
@@ -125,11 +141,9 @@ pkgmgr_dnf_deltarpm: true
 pkgmgr_dnf_metadata_expire: 604800 # 1 week
 
 
-skeleton_dirs: []
-
-
 users: []
 users_admins: []
+skel: []
 
 
 hostname: null
@@ -144,6 +158,7 @@ caddy_https: true
 caddy_email: null
 caddy_entries: []
 caddy_service: caddy
+caddy_service_user: caddy
 caddy_prometheus: false
 
 cockpit_url_root: /cockpit
@@ -155,6 +170,10 @@ flood_url_root: /flood
 containers: {}
 containers_registries:
   - docker.io
+
+quadlets: {}
+
+compose_services: []
 
 repositories: []
 
