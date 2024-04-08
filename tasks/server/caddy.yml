@@ -6,7 +6,7 @@
 - name: Ensure desired user is set to run Caddy
   lineinfile:
     path: /usr/lib/systemd/system/{{ caddy_service }}.service
-    line: "User={{ caddy_service_user }}"
+    line: "User={{ caddy_user }}"
     create: false
     state: present
   notify:

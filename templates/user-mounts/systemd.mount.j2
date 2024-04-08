@@ -9,6 +9,6 @@ What={{ mount.what }}
 Where={{ mount.where }}
 
 Type={{ mount.type }}
-{% if mount.options %}
+{% if mount.options is defined %}
 Options={{ mount.options }}
 {% endif %}

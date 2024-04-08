@@ -17,11 +17,7 @@
         {{ mount }}
       {% endfor %}
 - set_fact:
-    _user_mounts: "{{ _user_mounts_yml | from_yaml }}"
-
-- debug:
-    var: _user_mounts
-
+    _user_mounts: "{{ _user_mounts_yml | from_yaml or {} }}"
 
 - name: Create the mount unit for each entry
   loop: "{{ _user_mounts | dict2items }}"

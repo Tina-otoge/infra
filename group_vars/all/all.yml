@@ -61,6 +61,8 @@ sonarr_port: 8989
 uptime_kuma_port: 3001
 
 graylog_version: 5.2.2
+flood_url_root: /flood
+user_apps_dir: "{{ ansible_user_dir }}/.local/opt"
 
 linuxserver_env:
   PUID: 0
@@ -91,6 +93,7 @@ packages_base:
   - promtail
   - screen
   - sqlite
+  - sshfs
   - tree
   - util-linux-user
   - vim
@@ -158,14 +161,15 @@ caddy_https: true
 caddy_email: null
 caddy_entries: []
 caddy_service: caddy
-caddy_service_user: caddy
+caddy_user: root
 caddy_prometheus: false
 
 cockpit_url_root: /cockpit
 cockpit_allow_unencrypted: "{{ not caddy_https }}"
 cockpit_login_to: true
 
-flood_url_root: /flood
+
+user_mounts: []
 
 containers: {}
 containers_registries:
@@ -174,11 +178,11 @@ containers_registries:
 quadlets: {}
 
 compose_services: []
+compose_dir: "{{ user_apps_dir }}"
 
 repositories: []
+repositories_dir: "{{ user_apps_dir }}"
 
-repositories_dir: "{{ ansible_user_dir }}/.local/opt"
-compose_dir: "{{ ansible_user_dir }}/.local/opt"
 
 user_services: {}
 

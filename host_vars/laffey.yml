@@ -57,8 +57,6 @@ skel:
   - wwws/example.com
 
 
-# caddy_service: caddy-root
-caddy_user: root
 caddy_prometheus: true
 caddy_global_extra: |
   admin :{{ caddy_admin_port }}
