@@ -1,0 +1,54 @@
+
+on:
+  workflow_call:
+    inputs:
+      app:
+        required: true
+        type: string
+      service:
+        required: false
+        type: string
+        default: ''
+      user:
+        required: true
+        type: string
+      host:
+        required: true
+        type: string
+      login_user:
+        required: true
+        type: string
+      key:
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone Ansible
+        uses: actions/checkout@v4
+        with:
+          repository: Tina-otoge/infra
+          ref: master
+      - name: Install dependencies
+        run: |
+          pip install -U pip
+          pip install -r requirements.txt
+      - name: Save SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ inputs.key }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+      - name: Run Ansible
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: false
+        run: |
+          ansible-playbook -l ${{ inputs.host }} playbooks/deploy_as.yml \
+            -u ${{ inputs.login_user }} \
+            -e "deploy_user=${{ inputs.user }}" \
+            -e "deploy_git=${{ github.server_url }}/${{ github.repository }}" \
+            -e "deploy_version=${{ github.sha }}" \
+            -e "deploy_app=${{ inputs.app }}"" \
+            -e "deploy_service=${{ inputs.service }} \
