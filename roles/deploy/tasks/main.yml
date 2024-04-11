@@ -1,0 +1,24 @@
+- assert:
+    that: "{{ item }} is defined"
+  loop:
+    - deploy_version
+    - deploy_git
+    - deploy_app
+- name: Check if application directory exists
+  stat:
+    path: "{{ deploy_dir }}"
+  register: _deploy_dir_stat
+- name: Fail if application directory does not exist
+  fail:
+    msg: "Application directory does not exist"
+  when:
+    - not _deploy_dir_stat.stat.exists
+    - not _deploy_dir_stat.stat.isdir
+- name: Fetch version {{ deploy_version }} of application
+  git:
+    repo: "{{ deploy_git }}"
+    dest: "{{ deploy_dir }}"
+    version: "{{ deploy_version }}"
+  register: _deploy_git_action
+  changed_when: _deploy_git_action.after != _deploy_git_action.before
+  notify: restart
