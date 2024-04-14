@@ -1,0 +1,22 @@
+- set_fact:
+    _tunnels_units:
+      tunnels:
+        cmd: /usr/local/bin/tunnels.sh
+
+- name: Create tunnels script
+  template:
+    src: tunnels/tunnels.sh.j2
+    dest: /usr/local/bin/tunnels.sh
+    mode: u=rwx,g=rx,o=rx
+  notify:
+    - tunnels restart
+
+- name: Create tunnels unit file
+  template:
+    src: systemd.service.j2
+    dest: /usr/local/lib/systemd/system/tunnels.service
+    mode: u=rw,g=r,o=r
+  notify:
+    - systemd reload
+    - tunnels restart
+  loop: "{{ _tunnels_units | dict2items }}"

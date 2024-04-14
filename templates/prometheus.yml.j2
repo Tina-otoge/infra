@@ -15,21 +15,27 @@ scrape_configs:
     # scrape_interval: 1m
     static_configs:
       - targets:
-        - localhost:9090
+        # - localhost:9090
+        - localhost:{{ prometheus_port }}
 
   - job_name: loki
     static_configs:
       - targets:
-        - host.containers.internal:3100
+        - localhost:3100
+        # - host.containers.internal:3100
 
   - job_name: caddy
     scrape_interval: 5s
     static_configs:
       - targets:
-        - host.containers.internal:2019
+        - localhost:2019
+        # - host.containers.internal:2019
 
   - job_name: node_exporter
     scrape_interval: 10s
     static_configs:
       - targets:
-        - host.containers.internal:9100 # self
+        - localhost:9100 # laffey (self)
+        - localhost:9101 # turbo
+        - localhost:9102 # nagato
+        # - host.containers.internal:9100 # self

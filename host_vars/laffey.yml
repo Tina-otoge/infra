@@ -148,6 +148,18 @@ paths:
     owner: tina
 
 
+tunnels:
+  # node_exporter
+  - user: tina
+    remote_host: turbo.tina.moe
+    remote_port: 9100
+    local_port: 9101
+  - user: tina
+    remote_host: nagato.lan
+    remote_port: 9100
+    local_port: 9102
+
+
 repositories:
   - src: https://github.com/Tina-otoge/infra-webui
 
@@ -184,16 +196,21 @@ quadlets:
     image: prom/prometheus
     tag: latest
     user: "{{ ansible_user_id }}"
-    ports:
-      - "{{ prometheus_port }}:9090"
+    network: host
+    exec: |
+      --config.file=/etc/prometheus/prometheus.yml
+      --storage.tsdb.path=/prometheus
+      --web.listen-address="{{ loopback_ip }}:{{ prometheus_port }}"
     volumes:
       - "{{ ansible_user_dir }}/.config/prometheus:/etc/prometheus"
       - "{{ ansible_user_dir }}/.local/share/prometheus:/prometheus"
   grafana:
     image: grafana/grafana-oss
     tag: main
-    ports:
-      - "{{ loopback_ip }}:{{ grafana_port }}:3000"
+    network: host
+    env:
+      GF_SERVER_HTTP_ADDR: "{{ loopback_ip }}"
+      GF_SERVER_HTTP_PORT: "{{ grafana_port }}"
     user: "{{ ansible_user_id }}"
     volumes:
       - "{{ ansible_user_dir }}/.local/share/grafana:/var/lib/grafana"

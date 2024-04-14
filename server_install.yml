@@ -19,9 +19,9 @@
         apply:
           tags:
             - server
-            - prometheus
+            - node_exporter
       vars:
-        node_exporter_web_listen_address: "198.27.82.171:9100"
+        node_exporter_web_listen_address: "localhost:9100"
       tags:
         - always
 
@@ -46,4 +46,8 @@
     - name: promtail restart
       systemd:
         name: promtail
+        state: restarted
+    - name: tunnels restart
+      systemd:
+        name: tunnels
         state: restarted

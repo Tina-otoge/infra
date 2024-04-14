@@ -23,6 +23,7 @@ server_tasks_base:
   - cockpit
   - users_fstab
   - promtail
+  - tunnels
 
 server_tasks: []
 
@@ -132,10 +133,8 @@ packages_by_distro:
 
 upgrade_commands:
   dnf:
-    - sleep 60
     - systemctl restart chronyd
     - dnf -y upgrade --refresh
-    - sleep 60
 upgrade_schedule: "weekly"
 upgrade_then_reboot: true
 upgrade_service_name: upgrade-and-restart

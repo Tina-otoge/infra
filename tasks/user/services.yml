@@ -28,6 +28,8 @@
   loop: "{{ quadlets | dict2items }}"
   notify: systemd reload user-mode
 
+- meta: flush_handlers
+
 - name: Set configured state for user services
   systemd:
     name: "{{ item.key }}"

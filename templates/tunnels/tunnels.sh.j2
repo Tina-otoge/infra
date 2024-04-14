@@ -1,0 +1,17 @@
+#!/bin/bash
+
+{% for tunnel in tunnels | default([]) %}
+{% set user = tunnel.get('user', 'root') %}
+{% set remote_user = tunnel.get('remote_user') or user %}
+(
+    while true; do
+        echo "Creating tunnel {{ remote_user }}@{{ tunnel.remote_host }} {{ tunnel.remote_port }} -> {{ tunnel.local_port }} as {{ user }}"
+        sudo -u {{ user }} ssh -NL {{ tunnel.local_port }}:{{ tunnel.remote_host }}:{{ tunnel.remote_port }} {{ remote_user }}@{{ tunnel.remote_host }}
+        echo "Tunnel closed, retrying in 5 seconds"
+        sleep 5
+    done
+) &
+{% endfor %}
+
+
+wait

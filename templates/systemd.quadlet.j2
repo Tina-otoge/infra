@@ -9,7 +9,7 @@ Requires={{ item.value.depend }}
 Image={{ item.value.image }}{% if item.value.tag is defined %}:{{ item.value.tag }}{% endif %}
 
 {% if item.value.exec is defined %}
-Exec={{ item.value.exec }}
+Exec={{ item.value.exec | split('\n') | join(' ') }}
 {% endif %}
 
 {% if item.value.volumes is defined %}
@@ -18,14 +18,18 @@ Volume={{ volume }}
 {% endfor %}
 {% endif %}
 
+{% if item.value.network is defined %}
+Network={{ item.value.network }}
+{% endif %}
+
 {% if item.value.ports is defined %}
 {% for port in item.value.ports %}
 PublishPort={{ port }}
 {% endfor %}
 {% endif %}
 
-{% if item.value.environment is defined %}
-{% for env_key, env_value in item.value.environment.items() %}
+{% if item.value.env is defined %}
+{% for env_key, env_value in item.value.env.items() %}
 Environment={{ env_key }}={{ env_value }}
 {% endfor %}
 {% endif %}

@@ -1,9 +1,11 @@
 # {{ ansible_managed }}
-[Service]
+[Unit]
 Description=Upgrade the system
+
+[Service]
 ExecStart=bash -c "\
     {{ upgrade_commands[ansible_pkg_mgr] | join(";") }}; \
     {% if upgrade_then_reboot %}
-    sleep 1m; reboot \
+    sleep 1m; shutdown -r +15 \
     {% endif %}
 "
