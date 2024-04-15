@@ -1,0 +1,5 @@
+# {{ ansible_managed }}
+
+{% if inventory_hostname == 'laffey' %}
+//nagato.lan/tina-data /home/tina/mnt/sakura-private cifs username=tina,password={{ secret_tina_sakura_password }},uid=1000,gid=1000 0 0
+{% endif %}
