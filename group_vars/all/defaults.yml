@@ -38,34 +38,13 @@ user_tasks_base:
 
 user_tasks: []
 
-loopback_ip: 127.0.0.1
-podman_host_loopback_ip: 10.0.2.2
-podman_host_address: host.containers.internal
-
-caddy_admin_port: 2019
-cockpit_port: 9090
-flood_port: 3000
-grafana_port: 3003
-graylog_port: 9000
-infra_webui_port: 10001
-jellyfin_port: 8096
-loki_port: 3100
-outline_port: 3002
-prometheus_port: 9091
-prometheus_node_exporter_port: 9100
-promtail_port: 9080
-prowlarr_port: 9696
-qbittorrent_webui_port: 8080
-radarr_port: 7878
-readarr_port: 8787
-sonarr_port: 8989
-uptime_kuma_port: 3001
-
-graylog_version: 5.2.2
 flood_url_root: /flood
 user_apps_dir: "{{ ansible_user_dir }}/.local/opt"
 
 linuxserver_env:
+  # Since we run containers as the current user, we need to run as root inside
+  # the container, as root in container = current user outside the container
+  # with Podman
   PUID: 0
   PGID: 0
 
@@ -106,7 +85,7 @@ packages_base:
 packages: []
 
 packages_remove:
-  - crontabs
+  - crontabs # we prefer systemd-timers
   - haveged
   - udisks2-iscsi
 
@@ -135,7 +114,7 @@ upgrade_commands:
   dnf:
     - systemctl restart chronyd
     - dnf -y upgrade --refresh
-upgrade_schedule: "weekly"
+upgrade_schedule: weekly
 upgrade_then_reboot: true
 upgrade_service_name: upgrade-and-restart
 
@@ -146,6 +125,7 @@ pkgmgr_dnf_deltarpm: true
 pkgmgr_dnf_metadata_expire: 604800 # 1 week
 
 
+
 users: []
 users_admins: []
 skel: []
@@ -153,7 +133,7 @@ skel: []
 
 hostname: null
 
-timezone: "Europe/Paris"
+timezone: Europe/Paris
 
 
 http_domain: "{{ ansible_host }}"
@@ -166,40 +146,26 @@ caddy_service: caddy
 caddy_user: root
 caddy_prometheus: false
 
+
 cockpit_url_root: /cockpit
 cockpit_allow_unencrypted: "{{ not caddy_https }}"
 cockpit_login_to: true
 
-
 user_mounts: []
+
 
 containers: {}
 containers_registries:
   - docker.io
-
 quadlets: {}
+
 
 compose_services: []
 compose_dir: "{{ user_apps_dir }}"
+
 
 repositories: []
 repositories_dir: "{{ user_apps_dir }}"
 
 
 user_services: {}
-
-python_setup: |-
-  python -m venv .venv
-  source .venv/bin/activate
-  pip install -r requirements.txt
-
-bash_setup: |-
-  export PATH={{ ansible_user_dir }}/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin
-
-compose_setup: |-
-  {{ bash_setup }}
-  podman-compose stop
-  rm -rfv {{ ansible_user_dir }}/.local/share/containers/storage/overlay/*/merged
-  podman-compose down --remove-orphans
-  podman-compose build --pull
-  podman-compose up
