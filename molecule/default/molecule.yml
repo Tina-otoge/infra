@@ -3,15 +3,15 @@ driver:
 platforms:
   - name: laffey
     box: rockylinux/9
-    memory: 2G
+    memory: 2048
     cpus: 2
   - name: turbo
     box: rockylinux/9
-    memory: 1G
+    memory: 1024
     cpus: 2
   - name: nagato
     box: rockylinux/9
-    memory: 512M
+    memory: 512
     cpus: 1
 
 provisioner:
