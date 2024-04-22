@@ -189,6 +189,13 @@ user_services:
   semaphore:
     workdir: "{{ compose_dir }}/semaphore"
     cmd: "{{ compose_setup }}"
+  pixivfe:
+    workdir: "{{ repositories_dir }}/PixivFE"
+    cmd: |
+      git checkout .
+      git pull
+      ./patch/patch.sh
+      {{ compose_setup }}
 
 
 quadlets:
