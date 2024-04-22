@@ -51,6 +51,7 @@ linuxserver_env:
 selinux_state: disabled
 
 packages_base:
+  - bat
   - caddy
   - cockpit
   - cockpit-file-sharing
