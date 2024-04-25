@@ -2,11 +2,9 @@ caddy_admin_port: 2019
 cockpit_port: 9090
 flood_port: 3000
 grafana_port: 3003
-graylog_port: 9000
 infra_webui_port: 10001
 jellyfin_port: 8096
 loki_port: 3100
-outline_port: 3002
 prometheus_port: 9091
 prometheus_node_exporter_port: 9100
 promtail_port: 9080

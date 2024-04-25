@@ -4,14 +4,20 @@
 #     state: latest
 
 - name: Ensure desired user is set to run Caddy
-  lineinfile:
+  ini_file:
     path: /usr/lib/systemd/system/{{ caddy_service }}.service
-    line: "User={{ caddy_user }}"
+    option: "{{ item }}"
+    section: Service
+    value: "{{ caddy_user }}"
     create: false
-    state: present
+  loop:
+    - User
+    - Group
   notify:
     - systemd reload
     - caddy restart
+
+- meta: flush_handlers
 
 - name: Enable Caddy service
   service:

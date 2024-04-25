@@ -79,8 +79,6 @@ caddy_entries:
       - path: /qbit
         remove_path: true
         to: "{{ qbittorrent_webui_port }}"
-      - path: "{{ semaphore_url_root }}"
-        to: 3005
     extra: |
       @userdir {
         path_regexp userdir ^/~(\w+)/
@@ -91,23 +89,10 @@ caddy_entries:
           root /home/{re.userdir.1}/www/
         }
       }
-  - domain: kuma.{{ http_domain }}
+  - domain: kuma.tina.moe
     file: tina
     reverses:
       - to: "{{ uptime_kuma_port }}"
-  - domain: kasm.{{ http_domain }}
-    file: tina
-    extra: |
-      reverse_proxy localhost:8443 {
-        transport http {
-          tls
-          tls_insecure_skip_verify
-        }
-      }
-  - domain: graylog.tina.moe
-    file: tina
-    reverses:
-      - to: "{{ graylog_port }}"
   - domain: grafana.tina.moe
     file: tina
     reverses:
@@ -130,6 +115,21 @@ caddy_entries:
     file: tina
     reverses:
       - to: 57348
+  - domain: pixiv.tina.moe
+    file: tina
+    robots: false
+    reverses:
+      - to: 8282
+    # extra: |
+    #   @artworks path_regexp ^/\w{2}/artworks/(\d+)
+    #   handle @artworks {
+    #     redir /artworks/{re.artworks.1}
+    #   }
+  - domain: www.pixiv.tina.moe
+    file: tina
+    extra: |
+      redir https://pixiv.tina.moe{uri}
+
   - domain: six.savatier.fr
     root: /home/tina/wwws/six
     file: tina_six
@@ -141,6 +141,7 @@ caddy_entries:
     reverses:
       - path: /jellyfin
         to: "{{ jellyfin_port }}"
+
 
 
 paths:
@@ -174,26 +175,18 @@ user_services:
   couscous_infra:
     workdir: "{{ repositories_dir }}/couscous"
     cmd: "{{ compose_setup }}"
-  graylog:
-    workdir: "{{ compose_dir }}/graylog"
-    cmd: "{{ compose_setup }}"
   six:
     workdir: "{{ compose_dir }}/six"
     cmd: "{{ compose_setup }}"
-    depend: home-tina-mnt-turbo.service
+    depend: home-tina-mnt-turbo.mount
   flood:
     workdir: "{{ compose_dir }}/flood"
     cmd: |
       rm -rfv {{ ansible_user_dir }}/.config/flood/rtorrent/rtorrent.sock
       {{ compose_setup }}
-  semaphore:
-    workdir: "{{ compose_dir }}/semaphore"
-    cmd: "{{ compose_setup }}"
   pixivfe:
     workdir: "{{ repositories_dir }}/PixivFE"
     cmd: |
-      git checkout .
-      git pull
       ./patch/patch.sh
       {{ compose_setup }}
 
@@ -239,7 +232,7 @@ quadlets:
       - "{{ ansible_user_dir }}/.config/qbittorrent:/config"
       - "{{ ansible_user_dir }}/mnt/sakura-private/Downloads/torrents:/mnt/downloads"
     env: "{{ linuxserver_env }}"
-  uptime_kuma:
+  kuma:
     image: louislam/uptime-kuma
     tag: latest
     ports:
@@ -249,10 +242,8 @@ quadlets:
 
 
 compose_services:
-  - graylog
   - six
   - flood
-  - semaphore
 
 
 user_mounts:
@@ -264,6 +255,3 @@ user_mounts:
 
 
 torrents_dir: "{{ ansible_user_dir }}/mnt/sakura-private/Downloads/torrents"
-
-semaphore_url_root: /semui
-semaphore_url: https://{{ http_domain }}{{ semaphore_url_root }}
