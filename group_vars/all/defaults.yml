@@ -24,6 +24,7 @@ server_tasks_base:
   - users_fstab
   - promtail
   - tunnels
+  - healthcheck
 
 server_tasks: []
 
