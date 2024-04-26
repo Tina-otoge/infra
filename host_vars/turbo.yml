@@ -23,6 +23,10 @@ hosts_map:
   192.168.0.23: copula.lan
   192.168.0.69: blandine.lan
 
+  192.168.27.70: nagato.vpn.lan
+  192.168.27.71: turbo.vpn.lan
+  192.168.27.73: ninox.vpn.lan
+
 
 caddy_entries:
   - domain: "{{ http_domain }}"
