@@ -27,6 +27,8 @@ hosts_map:
   192.168.27.71: turbo.vpn.lan
   192.168.27.73: ninox.vpn.lan
 
+  127.0.0.2: sddt.amlog.sys-log.net
+
 
 caddy_entries:
   - domain: "{{ http_domain }}"
