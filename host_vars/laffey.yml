@@ -129,6 +129,10 @@ caddy_entries:
     file: tina
     extra: |
       redir https://pixiv.tina.moe{uri}
+  - domain: taiko.tina.moe
+    file: tina
+    reverses:
+      - to: 5000
 
   - domain: six.savatier.fr
     root: /home/tina/wwws/six
@@ -189,6 +193,11 @@ user_services:
     cmd: |
       ./patch/patch.sh
       {{ compose_setup }}
+  taiko:
+    workdir: "{{ repositories_dir }}/TaikoLocalServer"
+    cmd: |
+      chmod +x TaikoLocalServer
+      ./TaikoLocalServer
 
 
 quadlets:
