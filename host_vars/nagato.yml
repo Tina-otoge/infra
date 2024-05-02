@@ -1,6 +1,15 @@
 tasks_list:
   - samba
 
+packages:
+  - cifs-utils
+  - samba
+  - samba-client
+  - samba-common
+  - syncthing
+  - wsdd
+
+
 users_admins:
   - tina
 
@@ -14,10 +23,12 @@ caddy_entries:
     reverses:
       - path: "{{ cockpit_url_root }}"
         to: "{{ cockpit_port }}"
+      - path: /syncthing
+        to: 8384
+        extra:
+          header_up Host {upstream_hostport}
+        remove_path: true
 
-packages:
-  - cifs-utils
-  - samba
-  - samba-common
-  - samba-client
-  - wsdd
+user_services:
+  syncthing:
+    create: false

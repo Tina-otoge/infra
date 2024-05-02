@@ -9,6 +9,7 @@ user_tasks:
 
 
 packages:
+  - syncthing
   - ufw
 
 
@@ -79,6 +80,11 @@ caddy_entries:
       - path: /qbit
         remove_path: true
         to: "{{ qbittorrent_webui_port }}"
+      - path: /syncthing
+        to: 8384
+        extra:
+          header_up Host {upstream_hostport}
+        remove_path: true
     extra: |
       @userdir {
         path_regexp userdir ^/~(\w+)/
@@ -198,6 +204,8 @@ user_services:
     cmd: |
       chmod +x TaikoLocalServer
       ./TaikoLocalServer
+  syncthing:
+    create: false
 
 
 quadlets:
