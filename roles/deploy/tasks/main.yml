@@ -5,6 +5,16 @@
     - deploy_git
     - deploy_app
 
+- debug:
+    msg: "Deploying {{ deploy_app }} version {{ deploy_version }} from {{ deploy_git }}"
+
+- set_fact:
+    _deploy_service: "{{ deploy_service or deploy_app }}"
+
+- debug:
+    msg: "Service is set to {{ _deploy_service }}"
+
+
 - name: Check if application directory exists
   stat:
     path: "{{ deploy_dir }}"
