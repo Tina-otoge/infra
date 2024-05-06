@@ -152,6 +152,11 @@ caddy_entries:
       - path: /jellyfin
         to: "{{ jellyfin_port }}"
 
+  - domain: demo.asso-msn.fr
+    file: msn
+    reverses:
+      - to: "{{ msnweb_demo_port }}"
+
 
 
 paths:
@@ -173,6 +178,9 @@ tunnels:
 
 repositories:
   - src: https://github.com/Tina-otoge/infra-webui
+  - src: https://github.com/asso-msn/msn-web
+    name: msnweb-demo
+    version: main
 
 
 user_services:
@@ -206,6 +214,13 @@ user_services:
       ./TaikoLocalServer
   syncthing:
     create: false
+  msnweb_demo:
+    workdir: "{{ repositories_dir }}/msnweb-demo"
+    cmd: |
+      git pull
+      git checkout main
+      {{ python_setup }}
+      flask run -h {{ loopback_ip }} -p {{ msnweb_demo_port }}
 
 
 quadlets:
