@@ -1,3 +1,3 @@
 deploy_dir: "{{ user_apps_dir }}/{{ deploy_app }}"
 deploy_service: "{{ deploy_app }}"
-deploy_service_scope: "{{ 'user' if (deploy_user is not defined or deploy_user != 'root') else 'system' }}"
+deploy_service_scope: "{{ 'user' if (deploy_user is defined and deploy_user != 'root') else 'system' }}"
