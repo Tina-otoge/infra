@@ -217,8 +217,6 @@ user_services:
   msnweb_demo:
     workdir: "{{ repositories_dir }}/msnweb-demo"
     cmd: |
-      git pull
-      git checkout main
       {{ python_setup }}
       flask run -h {{ loopback_ip }} -p {{ msnweb_demo_port }}
 
