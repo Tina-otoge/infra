@@ -241,13 +241,13 @@ quadlets:
     env:
       GF_SERVER_HTTP_ADDR: "{{ loopback_ip }}"
       GF_SERVER_HTTP_PORT: "{{ grafana_port }}"
-    user: "{{ ansible_user_id }}"
+    user: root
     volumes:
       - "{{ ansible_user_dir }}/.local/share/grafana:/var/lib/grafana"
   loki:
     image: grafana/loki
     tag: main
-    user: 0
+    user: root
     ports:
       - "{{ loki_port }}:3100"
     volumes:
