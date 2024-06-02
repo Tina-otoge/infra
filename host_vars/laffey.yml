@@ -9,6 +9,7 @@ user_tasks:
 
 
 packages:
+  - rclone
   - syncthing
   - ufw
 
@@ -219,6 +220,13 @@ user_services:
     cmd: |
       {{ python_setup }}
       flask run -h {{ loopback_ip }} -p {{ msnweb_demo_port }}
+  rclone_msn:
+    workdir: "{{ ansible_user_dir }}/wwws/asso-msn.fr/assets"
+    cmd: |
+      date
+      rclone sync -v msn:Website/Assets/ .
+      echo Waiting 60s
+      sleep 60
 
 
 quadlets:
