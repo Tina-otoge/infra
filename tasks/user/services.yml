@@ -16,6 +16,17 @@
   notify: systemd reload user-mode
   when: item.value.get('create', True)
 
+- name: Create user service scripts
+  copy:
+    dest: "{{ ansible_user_dir }}/.local/bin/service_{{ item.key }}.sh"
+    mode: 'u=rwx,g=rwx,o='
+    content: |
+      #!/bin/bash -e
+
+      {{ item.value.script }}
+  loop: "{{ user_services | dict2items }}"
+  when: item.value.get('script')
+
 - name: Create volume paths on host for quadlets
   file:
     path: "{{ item }}"

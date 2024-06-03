@@ -222,11 +222,25 @@ user_services:
       flask run -h {{ loopback_ip }} -p {{ msnweb_demo_port }}
   rclone_msn:
     workdir: "{{ ansible_user_dir }}/wwws/asso-msn.fr/assets"
-    cmd: |
-      date
-      rclone sync -v msn:Website/Assets/ .
-      echo Waiting 60s
-      sleep 60
+    script: |
+      while true; do
+        date
+        rclone sync -v msn:Website/Assets/ .
+        echo Waiting 60s
+        sleep 60
+      done
+  watchdog_six:
+    script: |
+      restart_service() {
+        echo "Test file not found, restarting"
+        systemctl --user restart six
+      }
+
+      test_file='/mnt/sakura/public/Works/Music/Singles/BPM15Q - LaRiLaRu/01. LaRiLaRu.mp3'
+      while true; do
+        podman exec six_jellyfin_1 bash -c '[ -f "$test_file" ]' || restart_service
+        sleep 60
+      done
 
 
 quadlets:
