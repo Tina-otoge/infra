@@ -70,6 +70,7 @@ caddy_extra: |
   import users.d/*.conf
 
 caddy_entries:
+  # Machine domain
   - domain: "{{ http_domain }}"
     root: /home/tina/wwws/laffey
     file: tina
@@ -96,6 +97,8 @@ caddy_entries:
           root /home/{re.userdir.1}/www/
         }
       }
+
+  # Tina
   - domain: kuma.tina.moe
     file: tina
     reverses:
@@ -140,19 +143,25 @@ caddy_entries:
     file: tina
     reverses:
       - to: 5000
-
-  - domain: six.savatier.fr
-    root: /home/tina/wwws/six
-    file: tina_six
-    extra: |
-      redir https://six.tina.moe{uri}
   - domain: six.tina.moe
     root: /home/tina/wwws/six
     file: tina_six
     reverses:
       - path: /jellyfin
         to: "{{ jellyfin_port }}"
+  - domain: vault.tina.moe
+    file: tina
+    reverses:
+      - to: "{{ vaultwarden_port }}"
 
+  # Savatier
+  - domain: six.savatier.fr
+    root: /home/tina/wwws/six
+    file: tina_six
+    extra: |
+      redir https://six.tina.moe{uri}
+
+  # MSN
   - domain: demo.asso-msn.fr
     file: msn
     reverses:
@@ -291,6 +300,13 @@ quadlets:
       - "{{ loopback_ip }}:{{ uptime_kuma_port }}:{{ uptime_kuma_port }}"
     volumes:
       - "{{ ansible_user_dir }}/.local/share/uptime-kuma:/app/data"
+  vaultwarden:
+    image: vaultwarden/server
+    tag: latest
+    ports:
+      - "{{ loopback_ip }}:{{ vaultwarden_port }}:80"
+    volumes:
+      - "{{ ansible_user_dir }}/.config/vaultwarden:/data"
 
 
 compose_services:
