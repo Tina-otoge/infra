@@ -1,6 +1,6 @@
 services:
     flood:
-        image: jesec/flood
+        image: jesec/flood:master
         user: root
         ports:
             - "{{ loopback_ip }}:3000:3000"
@@ -13,7 +13,7 @@ services:
         command: --allowedpath /data --baseuri {{ flood_url_root }}
 
     rtorrent:
-        image: jesec/rtorrent
+        image: jesec/rtorrent:master
         user: 0:0
         restart: unless-stopped
         command: -o network.port_range.set=6881-6881,system.daemon.set=true
