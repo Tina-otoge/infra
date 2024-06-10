@@ -245,9 +245,8 @@ user_services:
         systemctl --user restart six
       }
 
-      test_file='/mnt/sakura/public/Works/Music/Singles/BPM15Q - LaRiLaRu/01. LaRiLaRu.mp3'
       while true; do
-        podman exec six_jellyfin_1 bash -c '[ -f "'"$test_dir"'" ]' || restart_service
+        podman exec six_jellyfin_1 bash -c '[ -d /mnt/sakura/public/Works/Music/Singles/ ]' || restart_service
         sleep 60
       done
 
