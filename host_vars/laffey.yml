@@ -217,11 +217,15 @@ user_services:
     cmd: |
       ./patch/patch.sh
       {{ compose_setup }}
+  # taiko:
+  #   workdir: "{{ repositories_dir }}/TaikoLocalServer"
+  #   cmd: |
+  #     chmod +x TaikoLocalServer
+  #     ./TaikoLocalServer
   taiko:
-    workdir: "{{ repositories_dir }}/TaikoLocalServer"
+    workdir: "{{ repositories_dir }}/tls-jp-april-2023"
     cmd: |
-      chmod +x TaikoLocalServer
-      ./TaikoLocalServer
+      dotnet run --project TaikoLocalServer
   syncthing:
     create: false
   msnweb_demo:
