@@ -242,6 +242,15 @@ user_services:
         echo Waiting 60s
         sleep 60
       done
+  rclone_tina:
+    workdir: "{{ ansible_user_dir }}/wwws/tina/assets/"
+    script: |
+      while true; do
+        date
+        rclone sync -v tina:/ cloud
+        echo Waiting 60s
+        sleep 60
+      done
   watchdog_six:
     script: |
       restart_service() {
