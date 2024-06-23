@@ -1,0 +1,60 @@
+- name: Create directory for healthcheck script
+  file:
+    path: /opt/healthcheck
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+
+- name: Copy healthcheck script files
+  copy:
+    src: "{{ item }}"
+    dest: /opt/healthcheck/
+    mode: u=rw,g=r,o=r
+  loop:
+    - healthcheck/healthcheck.py
+    - healthcheck/requirements.txt
+
+- name: Create service
+  template:
+    src: systemd.service.j2
+    dest: /usr/local/lib/systemd/system/healthcheck.service
+    mode: u=rw,g=r,o=r
+  notify: systemd reload
+  vars:
+    item:
+      value:
+        name: healthcheck
+        cmd: |
+          {{ python_setup }}
+          python healthcheck.py
+        workdir: /opt/healthcheck
+        restart: false
+
+- name: Create timer
+  template:
+    src: systemd.timer.j2
+    dest: /usr/local/lib/systemd/system/healthcheck.timer
+    mode: u=rw,g=r,o=r
+  notify: systemd reload
+  vars:
+    timer:
+      name: healthcheck
+      time: minutely
+
+- meta: flush_handlers
+
+- name: Ensure timer is enabled
+  systemd:
+    name: healthcheck.timer
+    enabled: true
+    state: started
+
+- name: Check if healthcheck config exists
+  stat:
+    path: /etc/healthcheck.yml
+  register: healthcheck_config
+
+- name: Ensure permissions on config are correct
+  when: healthcheck_config.stat.exists
+  file:
+    path: /etc/healthcheck.yml
+    mode: u=rw,g=,o=

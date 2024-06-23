@@ -11,9 +11,21 @@
 - name: Create user service files
   template:
     src: "systemd.service.j2"
-    dest: "{{ ansible_user_dir }}/.config/systemd/user/{{ item.key }}.service"
+    dest: "{{ ansible_user_dir }}/.config/systemd/user/{{ item.key | replace('_', '-') }}.service"
   loop: "{{ user_services | dict2items }}"
   notify: systemd reload user-mode
+  when: item.value.get('create', True)
+
+- name: Create user service scripts
+  copy:
+    dest: "{{ ansible_user_dir }}/.local/bin/service_{{ item.key }}.sh"
+    mode: 'u=rwx,g=rwx,o='
+    content: |
+      #!/bin/bash -e
+
+      {{ item.value.script }}
+  loop: "{{ user_services | dict2items }}"
+  when: item.value.get('script')
 
 - name: Create volume paths on host for quadlets
   file:
@@ -24,7 +36,7 @@
 - name: Create quadlet files
   template:
     src: "systemd.quadlet.j2"
-    dest: "{{ ansible_user_dir }}/.config/containers/systemd/{{ item.key }}.container"
+    dest: "{{ ansible_user_dir }}/.config/containers/systemd/{{ item.key | replace('_', '-') }}.container"
   loop: "{{ quadlets | dict2items }}"
   notify: systemd reload user-mode
 
@@ -32,7 +44,7 @@
 
 - name: Set configured state for user services
   systemd:
-    name: "{{ item.key }}"
+    name: "{{ item.key | replace('_', '-') }}"
     state: "{{ item.value.state | default('started') }}"
     enabled: "{{ item.value.enabled | default(true) }}"
     daemon_reload: true

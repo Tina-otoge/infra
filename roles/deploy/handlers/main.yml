@@ -1,5 +1,6 @@
-- name: restart
+- name: "restart {{ _deploy_service }} ({{ deploy_service_scope }})"
   systemd:
-    name: "{{ deploy_service }}"
+    name: "{{ _deploy_service }}"
     state: restarted
     scope: "{{ deploy_service_scope }}"
+  listen: restart

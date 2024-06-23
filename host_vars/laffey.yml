@@ -9,6 +9,8 @@ user_tasks:
 
 
 packages:
+  - rclone
+  - syncthing
   - ufw
 
 
@@ -68,6 +70,7 @@ caddy_extra: |
   import users.d/*.conf
 
 caddy_entries:
+  # Machine domain
   - domain: "{{ http_domain }}"
     root: /home/tina/wwws/laffey
     file: tina
@@ -79,8 +82,11 @@ caddy_entries:
       - path: /qbit
         remove_path: true
         to: "{{ qbittorrent_webui_port }}"
-      - path: "{{ semaphore_url_root }}"
-        to: 3005
+      - path: /syncthing
+        to: 8384
+        extra:
+          header_up Host {upstream_hostport}
+        remove_path: true
     extra: |
       @userdir {
         path_regexp userdir ^/~(\w+)/
@@ -91,23 +97,12 @@ caddy_entries:
           root /home/{re.userdir.1}/www/
         }
       }
-  - domain: kuma.{{ http_domain }}
+
+  # Tina
+  - domain: kuma.tina.moe
     file: tina
     reverses:
       - to: "{{ uptime_kuma_port }}"
-  - domain: kasm.{{ http_domain }}
-    file: tina
-    extra: |
-      reverse_proxy localhost:8443 {
-        transport http {
-          tls
-          tls_insecure_skip_verify
-        }
-      }
-  - domain: graylog.tina.moe
-    file: tina
-    reverses:
-      - to: "{{ graylog_port }}"
   - domain: grafana.tina.moe
     file: tina
     reverses:
@@ -130,17 +125,48 @@ caddy_entries:
     file: tina
     reverses:
       - to: 57348
-  - domain: six.savatier.fr
-    root: /home/tina/wwws/six
-    file: tina_six
+  - domain: pixiv.tina.moe
+    file: tina
+    robots: false
+    reverses:
+      - to: 8282
+    # extra: |
+    #   @artworks path_regexp ^/\w{2}/artworks/(\d+)
+    #   handle @artworks {
+    #     redir /artworks/{re.artworks.1}
+    #   }
+  - domain: www.pixiv.tina.moe
+    file: tina
     extra: |
-      redir https://six.tina.moe{uri}
+      redir https://pixiv.tina.moe{uri}
+  - domain: taiko.tina.moe
+    file: tina
+    reverses:
+      - to: 5000
   - domain: six.tina.moe
     root: /home/tina/wwws/six
     file: tina_six
     reverses:
       - path: /jellyfin
         to: "{{ jellyfin_port }}"
+  - domain: vault.tina.moe
+    file: tina
+    reverses:
+      - to: "{{ vaultwarden_port }}"
+
+  # Savatier
+  - domain: six.savatier.fr
+    root: /home/tina/wwws/six
+    file: tina_six
+    extra: |
+      redir https://six.tina.moe{uri}
+
+  # MSN
+  - domain: demo.asso-msn.fr
+    file: msn
+    reverses:
+      - to: "{{ msnweb_demo_port }}"
+
 
 
 paths:
@@ -162,6 +188,9 @@ tunnels:
 
 repositories:
   - src: https://github.com/Tina-otoge/infra-webui
+  - src: https://github.com/asso-msn/msn-web
+    name: msnweb-demo
+    version: main
 
 
 user_services:
@@ -174,21 +203,56 @@ user_services:
   couscous_infra:
     workdir: "{{ repositories_dir }}/couscous"
     cmd: "{{ compose_setup }}"
-  graylog:
-    workdir: "{{ compose_dir }}/graylog"
-    cmd: "{{ compose_setup }}"
   six:
     workdir: "{{ compose_dir }}/six"
     cmd: "{{ compose_setup }}"
-    depend: home-tina-mnt-turbo.service
+    depend: home-tina-mnt-turbo.mount
   flood:
     workdir: "{{ compose_dir }}/flood"
     cmd: |
       rm -rfv {{ ansible_user_dir }}/.config/flood/rtorrent/rtorrent.sock
       {{ compose_setup }}
-  semaphore:
-    workdir: "{{ compose_dir }}/semaphore"
-    cmd: "{{ compose_setup }}"
+  pixivfe:
+    workdir: "{{ repositories_dir }}/PixivFE"
+    cmd: |
+      ./patch/patch.sh
+      {{ compose_setup }}
+  # taiko:
+  #   workdir: "{{ repositories_dir }}/TaikoLocalServer"
+  #   cmd: |
+  #     chmod +x TaikoLocalServer
+  #     ./TaikoLocalServer
+  taiko:
+    workdir: "{{ repositories_dir }}/tls-jp-april-2023"
+    cmd: |
+      dotnet run --project TaikoLocalServer
+  syncthing:
+    create: false
+  msnweb_demo:
+    workdir: "{{ repositories_dir }}/msnweb-demo"
+    cmd: |
+      {{ python_setup }}
+      flask run -h {{ loopback_ip }} -p {{ msnweb_demo_port }}
+  rclone_msn:
+    workdir: "{{ ansible_user_dir }}/wwws/asso-msn.fr/assets"
+    script: |
+      while true; do
+        date
+        rclone sync -v msn:Website/Assets/ .
+        echo Waiting 60s
+        sleep 60
+      done
+  watchdog_six:
+    script: |
+      restart_service() {
+        echo "Test file not found, restarting"
+        systemctl --user restart six
+      }
+
+      while true; do
+        podman exec six_jellyfin_1 bash -c '[ -d /mnt/sakura/public/Works/Music/Singles/ ]' || restart_service
+        sleep 60
+      done
 
 
 quadlets:
@@ -211,13 +275,13 @@ quadlets:
     env:
       GF_SERVER_HTTP_ADDR: "{{ loopback_ip }}"
       GF_SERVER_HTTP_PORT: "{{ grafana_port }}"
-    user: "{{ ansible_user_id }}"
+    user: root
     volumes:
       - "{{ ansible_user_dir }}/.local/share/grafana:/var/lib/grafana"
   loki:
     image: grafana/loki
     tag: main
-    user: 0
+    user: root
     ports:
       - "{{ loki_port }}:3100"
     volumes:
@@ -232,20 +296,25 @@ quadlets:
       - "{{ ansible_user_dir }}/.config/qbittorrent:/config"
       - "{{ ansible_user_dir }}/mnt/sakura-private/Downloads/torrents:/mnt/downloads"
     env: "{{ linuxserver_env }}"
-  uptime_kuma:
+  kuma:
     image: louislam/uptime-kuma
     tag: latest
     ports:
       - "{{ loopback_ip }}:{{ uptime_kuma_port }}:{{ uptime_kuma_port }}"
     volumes:
       - "{{ ansible_user_dir }}/.local/share/uptime-kuma:/app/data"
+  vaultwarden:
+    image: vaultwarden/server
+    tag: latest
+    ports:
+      - "{{ loopback_ip }}:{{ vaultwarden_port }}:80"
+    volumes:
+      - "{{ ansible_user_dir }}/.config/vaultwarden:/data"
 
 
 compose_services:
-  - graylog
   - six
   - flood
-  - semaphore
 
 
 user_mounts:
@@ -257,6 +326,3 @@ user_mounts:
 
 
 torrents_dir: "{{ ansible_user_dir }}/mnt/sakura-private/Downloads/torrents"
-
-semaphore_url_root: /semui
-semaphore_url: https://{{ http_domain }}{{ semaphore_url_root }}

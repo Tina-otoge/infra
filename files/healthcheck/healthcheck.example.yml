@@ -1,0 +1,10 @@
+kuma_url: https://kuma.example.com
+
+items:
+  - name: service_name1
+    kuma: token1
+
+  - name: service_name2
+    kuma: token2
+    # specifying an user will look for user-scoped services
+    user: unix_user

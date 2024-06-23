@@ -24,6 +24,7 @@ server_tasks_base:
   - users_fstab
   - promtail
   - tunnels
+  - healthcheck
 
 server_tasks: []
 
@@ -51,6 +52,7 @@ linuxserver_env:
 selinux_state: disabled
 
 packages_base:
+  - bat
   - caddy
   - cockpit
   - cockpit-file-sharing

@@ -20,15 +20,20 @@ ExecStart=/bin/bash -c "{{ item.value.cmd.strip().replace('\n', ' && \\\n') }}"
 ExecStart=/bin/bash -c "podman start {{ item.value.podman }}"
 ExecStop=/bin/bash -c "podman stop {{ item.value.podman }}"
 {% endif %}
+{% if item.value.script is defined %}
+ExecStart={{ ansible_user_dir }}/.local/bin/service_{{ item.key }}.sh
+{% endif %}
 
 {% if item.value.workdir is defined %}
 WorkingDirectory={{ item.value.workdir }}
 {% endif %}
 
+{% if item.value.get('restart', True) %}
 Restart=always
 RestartSec=5s
 StartLimitBurst=15
 StartLimitInterval=5m
+{% endif %}
 
 [Install]
 WantedBy=default.target
