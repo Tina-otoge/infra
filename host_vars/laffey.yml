@@ -191,6 +191,8 @@ repositories:
   - src: https://github.com/asso-msn/msn-web
     name: msnweb-demo
     version: main
+  - src: https://github.com/asso-msn/helloasso-discord-role
+    version: main
 
 
 user_services:
@@ -253,6 +255,12 @@ user_services:
         podman exec six_jellyfin_1 bash -c '[ -d /mnt/sakura/public/Works/Music/Singles/ ]' || restart_service
         sleep 60
       done
+  helloasso_discord_role:
+    workdir: "{{ repositories_dir }}/helloasso-discord-role"
+    cmd: |
+      {{ python_setup }}
+      python main.py
+    calendar: "*-*-* *:00/5"
 
 
 quadlets:

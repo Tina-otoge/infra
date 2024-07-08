@@ -16,6 +16,18 @@
   notify: systemd reload user-mode
   when: item.value.get('create', True)
 
+- name: Create user timer files
+  template:
+    src: "systemd.timer.j2"
+    dest: "{{ ansible_user_dir }}/.config/systemd/user/{{ item.key | replace('_', '-') }}.timer"
+  vars:
+    timer:
+      name: "{{ item.key }}"
+      time: "{{ item.value.get('calendar') }}"
+  loop: "{{ user_services | dict2items }}"
+  notify: systemd reload user-mode
+  when: item.value.get('calendar')
+
 - name: Create user service scripts
   copy:
     dest: "{{ ansible_user_dir }}/.local/bin/service_{{ item.key }}.sh"
@@ -44,7 +56,7 @@
 
 - name: Set configured state for user services
   systemd:
-    name: "{{ item.key | replace('_', '-') }}"
+    name: "{{ item.key | replace('_', '-') }}{{ '.timer' if item.value.get('calendar') else '.service' }}"
     state: "{{ item.value.state | default('started') }}"
     enabled: "{{ item.value.enabled | default(true) }}"
     daemon_reload: true

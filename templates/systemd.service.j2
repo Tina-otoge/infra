@@ -28,7 +28,7 @@ ExecStart={{ ansible_user_dir }}/.local/bin/service_{{ item.key }}.sh
 WorkingDirectory={{ item.value.workdir }}
 {% endif %}
 
-{% if item.value.get('restart', True) %}
+{% if item.value.get('restart', True) and not item.value.get('calendar') %}
 Restart=always
 RestartSec=5s
 StartLimitBurst=15
