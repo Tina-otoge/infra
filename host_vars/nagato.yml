@@ -13,6 +13,8 @@ packages:
 users_admins:
   - tina
 
+upgrade_then_reboot: false
+
 caddy_https: false
 
 caddy_entries:
