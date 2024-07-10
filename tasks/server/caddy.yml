@@ -3,13 +3,18 @@
 #     name: caddy
 #     state: latest
 
+- name: Ensure service config directory exists
+  file:
+    path: /etc/systemd/system/{{ caddy_service }}.service.d
+    state: directory
+
+
 - name: Ensure desired user is set to run Caddy
   ini_file:
-    path: /usr/lib/systemd/system/{{ caddy_service }}.service
+    path: /etc/systemd/system/{{ caddy_service }}.service.d/override.conf
     option: "{{ item }}"
     section: Service
     value: "{{ caddy_user }}"
-    create: false
   loop:
     - User
     - Group
