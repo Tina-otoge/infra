@@ -22,6 +22,7 @@ hosts_map:
   192.168.0.18: tricoro.lan
   192.168.0.20: rootage.lan
   192.168.0.23: copula.lan
+  192.168.0.52: tinarcade.lan
   192.168.0.69: blandine.lan
 
   192.168.27.70: nagato.vpn.lan
