@@ -3,7 +3,7 @@ podman_host_loopback_ip: 10.0.2.2
 podman_host_address: host.containers.internal
 
 python_setup: |-
-  python -m venv .venv
+  [ -d .venv ] || python -m venv .venv
   source .venv/bin/activate
   pip install -r requirements.txt
 
