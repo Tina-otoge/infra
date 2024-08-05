@@ -232,11 +232,11 @@ user_services:
     workdir: "{{ compose_dir }}/six"
     cmd: "{{ compose_setup }}"
     depend: home-tina-mnt-turbo.mount
-  flood:
-    workdir: "{{ compose_dir }}/flood"
-    cmd: |
-      rm -rfv {{ ansible_user_dir }}/.config/flood/rtorrent/rtorrent.sock
-      {{ compose_setup }}
+  # flood:
+  #   workdir: "{{ compose_dir }}/flood"
+  #   cmd: |
+  #     rm -rfv {{ ansible_user_dir }}/.config/flood/rtorrent/rtorrent.sock
+  #     {{ compose_setup }}
   pixivfe:
     workdir: "{{ repositories_dir }}/PixivFE"
     cmd: |
@@ -301,38 +301,38 @@ user_services:
 
 
 quadlets:
-  prometheus:
-    image: prom/prometheus
-    tag: latest
-    user: "{{ ansible_user_id }}"
-    network: host
-    exec: |
-      --config.file=/etc/prometheus/prometheus.yml
-      --storage.tsdb.path=/prometheus
-      --web.listen-address="{{ loopback_ip }}:{{ prometheus_port }}"
-    volumes:
-      - "{{ ansible_user_dir }}/.config/prometheus:/etc/prometheus"
-      - "{{ ansible_user_dir }}/.local/share/prometheus:/prometheus"
-  grafana:
-    image: grafana/grafana-oss
-    tag: main
-    network: host
-    env:
-      GF_SERVER_HTTP_ADDR: "{{ loopback_ip }}"
-      GF_SERVER_HTTP_PORT: "{{ grafana_port }}"
-    user: root
-    volumes:
-      - "{{ ansible_user_dir }}/.local/share/grafana:/var/lib/grafana"
-  loki:
-    image: grafana/loki
-    tag: main
-    user: root
-    ports:
-      - "{{ loki_port }}:3100"
-    volumes:
-      - "{{ ansible_user_dir }}/.config/loki:/etc/loki"
-      - "{{ ansible_user_dir }}/.local/share/loki:/loki"
-  qbittorrent:
+  # prometheus:
+  #   image: prom/prometheus
+  #   tag: latest
+  #   user: "{{ ansible_user_id }}"
+  #   network: host
+  #   exec: |
+  #     --config.file=/etc/prometheus/prometheus.yml
+  #     --storage.tsdb.path=/prometheus
+  #     --web.listen-address="{{ loopback_ip }}:{{ prometheus_port }}"
+  #   volumes:
+  #     - "{{ ansible_user_dir }}/.config/prometheus:/etc/prometheus"
+  #     - "{{ ansible_user_dir }}/.local/share/prometheus:/prometheus"
+  # grafana:
+  #   image: grafana/grafana-oss
+  #   tag: main
+  #   network: host
+  #   env:
+  #     GF_SERVER_HTTP_ADDR: "{{ loopback_ip }}"
+  #     GF_SERVER_HTTP_PORT: "{{ grafana_port }}"
+  #   user: root
+  #   volumes:
+  #     - "{{ ansible_user_dir }}/.local/share/grafana:/var/lib/grafana"
+  # loki:
+  #   image: grafana/loki
+  #   tag: main
+  #   user: root
+  #   ports:
+  #     - "{{ loki_port }}:3100"
+  #   volumes:
+  #     - "{{ ansible_user_dir }}/.config/loki:/etc/loki"
+  #     - "{{ ansible_user_dir }}/.local/share/loki:/loki"
+  qbit:
     image: lscr.io/linuxserver/qbittorrent
     tag: latest
     ports:
@@ -340,6 +340,7 @@ quadlets:
     volumes:
       - "{{ ansible_user_dir }}/.config/qbittorrent:/config"
       - "{{ ansible_user_dir }}/mnt/sakura-private/Downloads/torrents:/mnt/downloads"
+      - "{{ ansible_user_dir }}/mnt/sakura:/mnt/sakura"
     env: "{{ linuxserver_env }}"
   kuma:
     image: louislam/uptime-kuma
