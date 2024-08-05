@@ -71,10 +71,13 @@ caddy_entries:
         }
 
         handle @private {
-                reverse_proxy /photon/* :7001
-                redir /photon /photon/
-
-                redir / /photon
+                handle / {
+                        root * /home/tina/wwws/arcade/private
+                        file_server
+                }
+                handle /* {
+                        redir * /
+                }
         }
 
 
