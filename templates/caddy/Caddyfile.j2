@@ -56,9 +56,9 @@
 (robots_on) {
 	respond /robots.txt 200 {
 		body "
-			User-agent: AdsBot-Google
-			User-agent: *
-			Allow: /
+User-agent: AdsBot-Google
+User-agent: *
+Allow: /
 		"
 	}
 }
@@ -66,9 +66,9 @@
 (robots_off) {
 	respond /robots.txt 200 {
 		body "
-			User-agent: AdsBot-Google
-			User-agent: *
-			Disallow: /
+User-agent: AdsBot-Google
+User-agent: *
+Disallow: /
 		"
 	}
 }

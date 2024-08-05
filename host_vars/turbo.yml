@@ -34,6 +34,7 @@ hosts_map:
 
 caddy_entries:
   - domain: "{{ http_domain }}"
+    robots: false
     root: /home/tina/wwws/turbo
     browser: true
     file: turbo
@@ -48,10 +49,12 @@ caddy_entries:
           header_up Host {upstream_hostport}
         remove_path: true
   - domain: "ani.{{ http_domain }}"
+    robots: false
     file: turbo
     reverses:
       - to: 57401
   - domain: "arcade.tina.moe"
+    robots: false
     file: arcade
     extra: |
         @private remote_ip private_ranges

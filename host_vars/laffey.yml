@@ -100,10 +100,12 @@ caddy_entries:
 
   # Tina
   - domain: kuma.tina.moe
+    robots: false
     file: tina
     reverses:
       - to: "{{ uptime_kuma_port }}"
   - domain: grafana.tina.moe
+    robots: false
     file: tina
     reverses:
       - to: "{{ grafana_port }}"
@@ -140,22 +142,26 @@ caddy_entries:
     extra: |
       redir https://pixiv.tina.moe{uri}
   - domain: taiko.tina.moe
+    robots: false
     file: tina
     reverses:
       - to: 5000
   - domain: six.tina.moe
+    robots: false
     root: /home/tina/wwws/six
     file: tina_six
     reverses:
       - path: /jellyfin
         to: "{{ jellyfin_port }}"
   - domain: vault.tina.moe
+    robots: false
     file: tina
     reverses:
       - to: "{{ vaultwarden_port }}"
 
   # Savatier
   - domain: six.savatier.fr
+    robots: false
     root: /home/tina/wwws/six
     file: tina_six
     extra: |
@@ -163,6 +169,7 @@ caddy_entries:
 
   # MSN
   - domain: demo.asso-msn.fr
+    robots: false
     file: msn
     reverses:
       - to: "{{ msnweb_demo_port }}"
