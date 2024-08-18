@@ -210,7 +210,7 @@ repositories:
   - src: https://github.com/Tina-otoge/infra-webui
   - src: https://github.com/asso-msn/msn-web
     name: msnweb-demo
-    version: main
+    version: develop
   - src: https://github.com/asso-msn/msn-web
     name: msnweb
     version: release
@@ -257,11 +257,13 @@ user_services:
     workdir: "{{ repositories_dir }}/msnweb-demo"
     cmd: |
       {{ python_setup }}
+      alembic upgrade head
       flask run -h {{ loopback_ip }} -p {{ msnweb_demo_port }}
   msnweb:
     workdir: "{{ repositories_dir }}/msnweb"
     cmd: |
       {{ python_setup }}
+      alembic upgrade head
       flask run -h {{ loopback_ip }} -p {{ msnweb_port }}
   rclone_msn:
     workdir: "{{ ansible_user_dir }}/wwws/asso-msn.fr/assets"
