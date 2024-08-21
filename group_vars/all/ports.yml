@@ -7,13 +7,14 @@ jellyfin_port: 8096
 loki_port: 3100
 msnweb_demo_port: 10002
 msnweb_port: 10004
-prometheus_port: 9091
 prometheus_node_exporter_port: 9100
+prometheus_port: 9091
 promtail_port: 9080
 prowlarr_port: 9696
 qbittorrent_webui_port: 8080
 radarr_port: 7878
 readarr_port: 8787
+shlag_webui_port: 10005
 sonarr_port: 8989
 uptime_kuma_port: 3001
 vaultwarden_port: 10003

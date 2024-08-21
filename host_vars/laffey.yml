@@ -158,6 +158,11 @@ caddy_entries:
     file: tina
     reverses:
       - to: "{{ vaultwarden_port }}"
+  - domain: drs.tina.moe
+    robots: false
+    file: tina
+    reverses:
+      - to: "{{ shlag_webui_port }}"
 
   # Savatier
   - domain: six.savatier.fr
@@ -300,6 +305,11 @@ user_services:
       {{ python_setup }}
       python main.py
     calendar: "*-*-* *:00/5"
+  shlag_webui:
+    workdir: "{{ repositories_dir }}/shlag-webui"
+    cmd: |
+      {{ python_setup }}
+      flask run -h {{ loopback_ip }} -p {{ shlag_webui_port }}
 
 
 quadlets:
