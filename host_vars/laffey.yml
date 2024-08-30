@@ -9,6 +9,7 @@ user_tasks:
 
 
 packages:
+  - libcurl-devel # for NUT
   - rclone
   - syncthing
   - ufw
