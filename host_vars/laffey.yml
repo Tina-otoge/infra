@@ -164,6 +164,11 @@ caddy_entries:
     file: tina
     reverses:
       - to: "{{ shlag_webui_port }}"
+  - domain: nut.tina.moe
+    robots: false
+    file: tina
+    reverses:
+      - to: "{{ nut_port }}"
 
   # Savatier
   - domain: six.savatier.fr
@@ -313,6 +318,11 @@ user_services:
     cmd: |
       {{ python_setup }}
       flask run -h {{ loopback_ip }} -p {{ shlag_webui_port }}
+  nut:
+    workdir: "{{ repositories_dir }}/nut"
+    cmd: |
+      {{ python_setup }}
+      python nut.py -s -S -m {{ loopback_ip }} -p {{ nut_port }}
 
 
 quadlets:
