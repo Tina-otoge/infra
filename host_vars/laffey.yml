@@ -169,6 +169,11 @@ caddy_entries:
     file: tina
     reverses:
       - to: "{{ nut_port }}"
+  - domain: foil.tina.moe
+    robots: false
+    file: tina
+    reverses:
+      - to: "{{ foil_port }}"
 
   # Savatier
   - domain: six.savatier.fr
@@ -323,6 +328,13 @@ user_services:
     cmd: |
       {{ python_setup }}
       python nut.py -s -S -m {{ loopback_ip }} -p {{ nut_port }}
+  ownfoil:
+    workdir: "{{ repositories_dir }}/ownfoil"
+    # Chunked send implementation not supported by gunicorn so we use Flask dev
+    # server
+    cmd: |
+      {{ python_setup }}
+      FLASK_APP=app/app:app flask run -h {{ loopback_ip }} -p {{ foil_port }}
 
 
 quadlets:
