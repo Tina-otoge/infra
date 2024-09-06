@@ -1,0 +1,5 @@
+- name: Ensure allow_other is enabled
+  lineinfile:
+    path: /etc/fuse.conf
+    regexp: '^#?user_allow_other'
+    line: 'user_allow_other'

@@ -4,6 +4,7 @@ server_tasks_base:
   - selinux
   - timezone
   - hosts
+  - fuse
 
   # Packages
   - pkg-mgr-conf

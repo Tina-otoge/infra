@@ -15,7 +15,13 @@ users_admins:
 
 upgrade_then_reboot: false
 
-caddy_https: false
+user_mounts:
+  - what: tina@turbo.tina.moe:/
+    where: "{{ ansible_user_dir }}/mnt/turbo"
+    type: fuse.sshfs
+    description: Savatier Home Freebox VM
+    test: "{{ ansible_user_dir }}/mnt/turbo/mnt/Freebox"
+    options: "idmap=user,follow_symlinks,allow_other"
 
 caddy_entries:
   - domain: "{{ http_domain }}"
@@ -30,6 +36,11 @@ caddy_entries:
         extra:
           header_up Host {upstream_hostport}
         remove_path: true
+    extra: |
+      handle_path /files/* {
+        root * /srv/www/files
+        file_server browse
+      }
   - domain: arcade.tina.moe
     file: arcade
     extra: |
@@ -38,6 +49,12 @@ caddy_entries:
         redir /photon /photon/
 
         redir / /photon
+      }
+  - domain: turbo.tina.moe
+    file: nagato
+    extra: |
+      handle {
+        redir https://nagato.tina.moe{uri}
       }
 
 repositories:
