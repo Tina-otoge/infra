@@ -1,3 +1,3 @@
 laffey ansible_host=laffey.tina.moe
 turbo  ansible_host=turbo.tina.moe
-nagato ansible_host=nagato.lan
+nagato ansible_host=nagato.tina.moe
