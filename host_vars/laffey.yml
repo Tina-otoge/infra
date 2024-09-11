@@ -70,12 +70,17 @@ caddy_global_extra: |
 caddy_extra: |
   import users.d/*.conf
 
+caddy_error_handlers:
+  - 502
+
 caddy_entries:
   # Machine domain
   - domain: "{{ http_domain }}"
     root: /home/tina/wwws/laffey
     file: tina
     reverses:
+      - path: /fail
+        to: 0
       - path: "{{ cockpit_url_root }}"
         to: 9090
       - path: "{{ flood_url_root }}"

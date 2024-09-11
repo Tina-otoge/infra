@@ -1,3 +1,4 @@
+aniboard_port: 10008
 caddy_admin_port: 2019
 cockpit_port: 9090
 flood_port: 3000

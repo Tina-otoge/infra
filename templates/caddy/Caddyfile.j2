@@ -51,6 +51,14 @@
 	{% for output in caddy_logs_outputs | default({}) %}
 	log {{ output }}
 	{% endfor %}
+
+	{% for code in (caddy_error_handlers | default([])) %}
+	handle_errors {{ code }} {
+		rewrite * {{ code }}.html
+		root /srv/www/errors
+		file_server
+	}
+	{% endfor %}
 }
 
 (robots_on) {
