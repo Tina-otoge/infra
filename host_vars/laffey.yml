@@ -167,8 +167,8 @@ caddy_entries:
   - domain: drs.tina.moe
     robots: false
     file: tina
-    reverses:
-      - to: "{{ shlag_webui_port }}"
+    extra: |
+      redir https://drs.lelap.in{uri}
   - domain: nut.tina.moe
     robots: false
     file: tina
@@ -179,6 +179,23 @@ caddy_entries:
     file: tina
     reverses:
       - to: "{{ foil_port }}"
+
+  # Le LAP
+  - domain: lelap.in
+    file: lap
+    root: /home/tina/wwws/lap
+    extra: |
+      handle_path /discord {
+        redir https://discord.gg/4RNagv4pfh
+      }
+  - domain: drs.lelap.in
+    file: lap
+    robots: false
+    root: /home/tina/wwws/lap
+    extra: |
+      @app not path /videos/* /favicon.png
+      reverse_proxy @app localhost:{{ shlag_webui_port }}
+      file_server browse
 
   # Savatier
   - domain: six.savatier.fr
