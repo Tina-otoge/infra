@@ -69,9 +69,6 @@ caddy_entries:
                 root * /srv/www/arcade/private
                 file_server
         }
-        handle /* {
-                redir * /
-        }
         reverse_proxy /photon/* :7001
         redir /photon /photon/
 
