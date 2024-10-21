@@ -9,7 +9,7 @@ server_tasks_base:
   # Packages
   - pkg-mgr-conf
   - packages
-  - periodic-upgrade
+  # - periodic-upgrade
   - fzf
 
   # Users

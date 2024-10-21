@@ -17,3 +17,9 @@ compose_setup: |-
   podman-compose down --remove-orphans
   podman-compose build --pull
   podman-compose up
+
+sssimp_setup: |-
+  {{ bash_setup }}
+  [ -d .venv ] || python -m venv .venv
+  ./.venv/bin/pip install sssimp
+  ./.venv/bin/sssimp

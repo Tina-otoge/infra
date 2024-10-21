@@ -254,6 +254,8 @@ repositories:
     version: release
   - src: https://github.com/asso-msn/helloasso-discord-role
     version: main
+  - src: https://github.com/LAP-Arcade/lap-web
+    version: main
 
 
 user_services:
@@ -276,6 +278,7 @@ user_services:
   #     rm -rfv {{ ansible_user_dir }}/.config/flood/rtorrent/rtorrent.sock
   #     {{ compose_setup }}
   pixivfe:
+    enabled: false
     workdir: "{{ repositories_dir }}/PixivFE"
     cmd: |
       ./patch/patch.sh
@@ -347,6 +350,7 @@ user_services:
       flask run -h {{ loopback_ip }} -p {{ shlag_webui_port }}
   nut:
     workdir: "{{ repositories_dir }}/nut"
+    enabled: false
     cmd: |
       {{ python_setup }}
       python nut.py -s -S -m {{ loopback_ip }} -p {{ nut_port }}
@@ -357,6 +361,11 @@ user_services:
     cmd: |
       {{ python_setup }}
       FLASK_APP=app/app:app flask run -h {{ loopback_ip }} -p {{ foil_port }}
+  lap_web:
+    workdir: "{{ repositories_dir }}/lap-web"
+    type: oneshot
+    cmd: "{{ sssimp_setup }}"
+
 
 
 quadlets:

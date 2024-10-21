@@ -13,6 +13,9 @@ After={{ item.value.after }}.target
 {% endif %}
 
 [Service]
+{% if item.value.type is defined %}
+Type={{ item.value.type }}
+{% endif %}
 {% if item.value.cmd is defined %}
 ExecStart=/bin/bash -c "{{ item.value.cmd.strip().replace('\n', ' && \\\n') }}"
 {% endif %}
@@ -28,7 +31,7 @@ ExecStart={{ ansible_user_dir }}/.local/bin/service_{{ item.key }}.sh
 WorkingDirectory={{ item.value.workdir }}
 {% endif %}
 
-{% if item.value.get('restart', True) and not item.value.get('calendar') %}
+{% if item.value.get('restart', True) and not item.value.get('calendar') and not item.value.get('type') == 'oneshot' %}
 Restart=always
 RestartSec=5s
 StartLimitBurst=15
