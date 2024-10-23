@@ -3,3 +3,38 @@
     content: address=/use-application-dns.net/
     dest: /etc/dnsmasq.d/disable-firefox-doh.conf
   notify: dnsmasq restart
+
+- name: Disable listening on interface by name
+  lineinfile:
+    line: "#interface="
+    dest: /etc/dnsmasq.conf
+    regexp: "^interface="
+  notify: dnsmasq restart
+
+- name: Listen on all interfaces by address
+  lineinfile:
+    line: listen-address=0.0.0.0
+    dest: /etc/dnsmasq.conf
+    regexp: ".*listen-address=$"
+  notify: dnsmasq restart
+
+- name: Add DNS servers
+  lineinfile:
+    line: "server={{ item }}"
+    dest: /etc/dnsmasq.conf
+  loop: "{{ dns_servers }}"
+  notify: dnsmasq restart
+
+- name: Add local suffixes
+  lineinfile:
+    line: "local=/{{ item }}/"
+    dest: /etc/dnsmasq.conf
+  loop: "{{ dns_local_suffixes }}"
+  notify: dnsmasq restart
+
+- name: Disable resolv.conf
+  lineinfile:
+    line: no-resolv
+    dest: /etc/dnsmasq.conf
+    regexp: ".*no-resolv$"
+  notify: dnsmasq restart

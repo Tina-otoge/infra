@@ -4,7 +4,7 @@ packages:
   - dnsmasq
   - syncthing
 
-tasks_list:
+server_tasks:
   - dnsmasq
 
 users_admins:

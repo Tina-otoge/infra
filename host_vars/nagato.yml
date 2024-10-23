@@ -1,6 +1,5 @@
-tasks_list:
+server_tasks:
   - dnsmasq
-  - samba
 
 packages:
   - cifs-utils
@@ -11,8 +10,18 @@ packages:
   - syncthing
   - wsdd
 
+dns_servers:
+  - 192.168.1.254 # Freebox server
+  - 8.8.8.8 # Google DNS 1
+  - 8.8.4.4 # Google DNS 2
+
+dns_local_suffixes:
+  - lan
+  - local
+
 hosts_map:
   192.168.1.1: nagato.lan arcade.tina.moe nagato.tina.moe cachan.savatier.fr home.tina.moe
+  192.168.1.254: freebox.lan
   127.0.0.2: sddt.amlog.sys-all.net
 
 
