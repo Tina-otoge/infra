@@ -1,13 +1,19 @@
 tasks_list:
+  - dnsmasq
   - samba
 
 packages:
   - cifs-utils
+  - dnsmasq
   - samba
   - samba-client
   - samba-common
   - syncthing
   - wsdd
+
+hosts_map:
+  192.168.1.1: nagato.lan arcade.tina.moe nagato.tina.moe cachan.savatier.fr home.tina.moe
+  127.0.0.2: sddt.amlog.sys-all.net
 
 
 users_admins:
@@ -123,5 +129,5 @@ quadlets:
     ports:
       - "{{ loopback_ip }}:{{ foil_port }}:8465"
     volumes:
-      - "{{ ansible_user_dir }}/.config/ownfoil:/config"
+      - "{{ ansible_user_dir }}/.config/ownfoil:/app/config"
       - "{{ ansible_user_dir }}/Games/Console/Switch:/games"
