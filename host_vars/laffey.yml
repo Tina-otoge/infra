@@ -408,7 +408,7 @@ quadlets:
     volumes:
       - "{{ ansible_user_dir }}/.config/qbittorrent:/config"
       - "{{ ansible_user_dir }}/mnt/sakura-private/Downloads/torrents:/mnt/downloads"
-      - "{{ ansible_user_dir }}/mnt/sakura:/mnt/sakura"
+      - "{{ ansible_user_dir }}/mnt/sakura:/mnt/sakura/public"
     env: "{{ linuxserver_env }}"
   kuma:
     image: louislam/uptime-kuma
@@ -437,6 +437,11 @@ user_mounts:
     type: fuse.sshfs
     description: Savatier Home Freebox VM
     test: "{{ ansible_user_dir }}/mnt/turbo/mnt/Freebox"
+  - what: tina@nagato.tina.moe:/
+    where: "{{ ansible_user_dir }}/mnt/nagato"
+    type: fuse.sshfs
+    description: Nagato
+    test: "{{ ansible_user_dir }}/mnt/nagato/home/tina/"
 
 
 torrents_dir: "{{ ansible_user_dir }}/mnt/sakura-private/Downloads/torrents"

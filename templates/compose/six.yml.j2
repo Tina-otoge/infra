@@ -5,7 +5,7 @@ services:
         - "{{ loopback_ip }}:{{ jellyfin_port }}:{{ jellyfin_port }}"
       volumes:
         - "{{ ansible_user_dir }}/mnt/freebox:/mnt/Freebox"
-        - "{{ ansible_user_dir }}/mnt/sakura:/mnt/sakura"
+        - "{{ ansible_user_dir }}/mnt/sakura:/mnt/sakura/public"
         - "{{ ansible_user_dir }}/.config/jellyfin:/config"
         - "{{ ansible_user_dir }}/.cache/jellyfin:/cache"
       network: six
