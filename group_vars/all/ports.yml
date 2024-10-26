@@ -6,6 +6,7 @@ foil_port: 10007
 grafana_port: 3003
 infra_webui_port: 10001
 jellyfin_port: 8096
+lapadmin_demo_port: 10009
 loki_port: 3100
 msnweb_demo_port: 10002
 msnweb_port: 10004

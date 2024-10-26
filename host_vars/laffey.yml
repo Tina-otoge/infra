@@ -196,6 +196,10 @@ caddy_entries:
       @app not path /videos/* /favicon.png
       reverse_proxy @app localhost:{{ shlag_webui_port }}
       file_server browse
+  - domain: demo.admin.lelap.in
+    file: lap
+    reverses:
+      - to: "{{ lapadmin_demo_port }}"
 
   # Savatier
   - domain: six.savatier.fr
@@ -256,6 +260,11 @@ repositories:
     version: main
   - src: https://github.com/LAP-Arcade/lap-web
     version: main
+  - src: https://github.com/LAP-Arcade/lapadmin
+    name: lapadmin-demo
+    version: main
+  # - src: https://github.com/LAP-Arcade/lapadmin
+  #   version: release
 
 
 user_services:
@@ -365,6 +374,11 @@ user_services:
     workdir: "{{ repositories_dir }}/lap-web"
     type: oneshot
     cmd: "{{ sssimp_setup }}"
+  lapadmin_demo:
+    workdir: "{{ repositories_dir }}/lapadmin-demo"
+    cmd: |
+      {{ python_setup }}
+      flask run -h {{ loopback_ip }} -p {{ lapadmin_demo_port }}
 
 
 
