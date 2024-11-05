@@ -23,3 +23,11 @@ sssimp_setup: |-
   [ -d .venv ] || python -m venv .venv
   ./.venv/bin/pip install sssimp
   ./.venv/bin/sssimp
+
+linuxserver_env:
+  # Since we run containers as the current user, we need to run as root inside
+  # the container, as root in container = current user outside the container
+  # with Podman
+  PUID: 0
+  PGID: 0
+  UMASK: 002

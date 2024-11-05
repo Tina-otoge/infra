@@ -43,13 +43,6 @@ user_tasks: []
 flood_url_root: /flood
 user_apps_dir: "{{ ansible_user_dir }}/.local/opt"
 
-linuxserver_env:
-  # Since we run containers as the current user, we need to run as root inside
-  # the container, as root in container = current user outside the container
-  # with Podman
-  PUID: 0
-  PGID: 0
-
 selinux_state: disabled
 
 packages_base:
@@ -111,6 +104,10 @@ packages_by_distro:
       #   url: https://cbs.centos.org/kojifiles/packages/centos-release-kmods/9/3.el9s/noarch/centos-release-kmods-9-3.el9s.noarch.rpm
       - name: promtail
         url: https://github.com/grafana/loki/releases/download/v2.8.11/promtail-2.8.11.{{ ansible_architecture }}.rpm
+      - name: cockpit-identities
+        url: https://github.com/45Drives/cockpit-identities/releases/download/v0.1.12/cockpit-identities-0.1.12-1.el8.noarch.rpm
+      - name: cockpit-file-sharing
+        url: https://github.com/45Drives/cockpit-file-sharing/releases/download/v4.2.5/cockpit-file-sharing-4.2.5-2.el8.noarch.rpm
 
 
 upgrade_commands:

@@ -3,12 +3,19 @@ server_tasks:
 
 packages:
   - cifs-utils
+  - cockpit-file-sharing
+  - cockpit-identities
   - dnsmasq
   - samba
   - samba-client
   - samba-common
   - syncthing
   - wsdd
+  # Python
+  - bzip2-devel
+  - libffi-devel
+  - openssl-devel
+  - readline-devel
 
 dns_servers:
   - 192.168.1.254 # Freebox server
@@ -43,6 +50,10 @@ caddy_error_handlers:
   - 502
 
 caddy_entries:
+  - domain: nagato.lan
+    file: nagato
+    extra: |
+      redir /* https://nagato.tina.moe{uri}
   - domain: "{{ http_domain }}"
     root: /srv/www/nagato
     browser: true
@@ -58,6 +69,15 @@ caddy_entries:
         extra:
           header_up Host {upstream_hostport}
         remove_path: true
+      - path: /sonarr
+        to: 8989
+      - path: /qbit
+        remove_path: true
+        to: "{{ qbittorrent_webui_port }}"
+      - path: /jackett
+        to: 9117
+      - path: /prowlarr
+        to: "{{ prowlarr_port }}"
     extra: |
       handle_path /files/* {
         root * /srv/www/files
@@ -130,7 +150,7 @@ user_services:
     workdir: "{{ repositories_dir }}/AniBoard"
     cmd: |
       {{ python_setup }}
-      gunicorn -w 4 app:app -b {{ loopback_ip }}:{{ aniboard_port }}
+      gunicorn -w 4 --timeout 120 app:app -b {{ loopback_ip }}:{{ aniboard_port }}
 
 
 quadlets:
@@ -141,3 +161,43 @@ quadlets:
     volumes:
       - "{{ ansible_user_dir }}/.config/ownfoil:/app/config"
       - "{{ ansible_user_dir }}/Games/Console/Switch:/games"
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr
+    tag: latest
+    volumes:
+      - "{{ ansible_user_dir }}/.config/sonarr:/config"
+      - "/mnt/sakura:/mnt/sakura"
+    ports:
+      - "{{ loopback_ip }}:8989:8989"
+    env: "{{ linuxserver_env }}"
+    network: six.network
+  qbit:
+    image: lscr.io/linuxserver/qbittorrent
+    tag: latest
+    volumes:
+      - "{{ ansible_user_dir }}/.config/qbittorrent:/config"
+      - /mnt/sakura:/mnt/sakura
+    ports:
+      - "{{ loopback_ip }}:{{ qbittorrent_webui_port }}:{{ qbittorrent_webui_port }}"
+    env: "{{ linuxserver_env }}"
+    network: six.network
+  jackett:
+    image: lscr.io/linuxserver/jackett
+    tag: latest
+    volumes:
+      - "{{ ansible_user_dir }}/.config/jackett:/config"
+      - /mnt/sakura:/mnt/sakura
+    ports:
+      - "{{ loopback_ip }}:9117:9117"
+    env: "{{ linuxserver_env }}"
+    network: six.network
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr
+    tag: latest
+    volumes:
+      - "{{ ansible_user_dir }}/.config/prowlarr:/config"
+    ports:
+      - "{{ loopback_ip }}:{{ prowlarr_port }}:{{ prowlarr_port }}"
+    env: "{{ linuxserver_env }}"
+    network: six.network

@@ -45,6 +45,13 @@
     state: directory
   loop: "{{ quadlets | dict2items | map(attribute='value.volumes') | list | flatten | unique | map('split', ':') | map('first') }}"
 
+- name: Create quadlet network files on host for quadlets
+  file:
+    path: "{{ ansible_user_dir }}/.config/containers/systemd/{{ item.value.network }}"
+    state: touch
+  loop: "{{ quadlets | dict2items }}"
+  when: "'network' in item.value and item.value.network.endswith('.network')"
+
 - name: Create quadlet files
   template:
     src: "systemd.quadlet.j2"
@@ -57,7 +64,7 @@
 - name: Set configured state for user services
   systemd:
     name: "{{ item.key | replace('_', '-') }}{{ '.timer' if item.value.get('calendar') else '.service' }}"
-    state: "{{ item.value.state | default('started') }}"
+    state: "{{ item.value.state | default('started' if item.value.enabled | default(true) else 'stopped') }}"
     enabled: "{{ item.value.enabled | default(true) }}"
     daemon_reload: true
     no_block: true

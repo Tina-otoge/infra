@@ -424,6 +424,7 @@ quadlets:
       - "{{ ansible_user_dir }}/mnt/sakura-private/Downloads/torrents:/mnt/downloads"
       - "{{ ansible_user_dir }}/mnt/sakura:/mnt/sakura/public"
     env: "{{ linuxserver_env }}"
+    enabled: false
   kuma:
     image: louislam/uptime-kuma
     tag: latest
