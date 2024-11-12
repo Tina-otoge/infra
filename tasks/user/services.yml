@@ -7,6 +7,7 @@
   file:
     path: "{{ ansible_user_dir }}/.config/containers/systemd"
     state: directory
+  tags: containers
 
 - name: Create user service files
   template:
@@ -44,6 +45,7 @@
     path: "{{ item }}"
     state: directory
   loop: "{{ quadlets | dict2items | map(attribute='value.volumes') | list | flatten | unique | map('split', ':') | map('first') }}"
+  tags: containers
 
 - name: Create quadlet network files on host for quadlets
   file:
@@ -51,6 +53,7 @@
     state: touch
   loop: "{{ quadlets | dict2items }}"
   when: "'network' in item.value and item.value.network.endswith('.network')"
+  tags: containers
 
 - name: Create quadlet files
   template:
@@ -58,6 +61,7 @@
     dest: "{{ ansible_user_dir }}/.config/containers/systemd/{{ item.key | replace('_', '-') }}.container"
   loop: "{{ quadlets | dict2items }}"
   notify: systemd reload user-mode
+  tags: containers
 
 - meta: flush_handlers
 
