@@ -78,6 +78,8 @@ caddy_entries:
         to: 9117
       - path: /prowlarr
         to: "{{ prowlarr_port }}"
+      - path: /flood
+        to: 3000
     extra: |
       handle_path /files/* {
         root * /srv/www/files
@@ -200,4 +202,13 @@ quadlets:
     ports:
       - "{{ loopback_ip }}:{{ prowlarr_port }}:{{ prowlarr_port }}"
     env: "{{ linuxserver_env }}"
+    network: six.network
+  flood:
+    image: jesec/flood
+    tag: master
+    volumes:
+      - "{{ ansible_user_dir }}/.local/share/flood:/data"
+    ports:
+      - "{{ loopback_ip }}:{{ flood_port }}:3000"
+    exec: --baseuri /flood
     network: six.network
