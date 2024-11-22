@@ -75,3 +75,4 @@
     scope: user
   loop: "{{ (user_services | combine(quadlets)) | dict2items }}"
   notify: systemd reload user-mode
+  tags: containers
