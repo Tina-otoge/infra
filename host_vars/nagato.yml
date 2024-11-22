@@ -80,6 +80,8 @@ caddy_entries:
         to: "{{ prowlarr_port }}"
       - path: /flood
         to: 3000
+      - path: /lidarr
+        to: 8686
     extra: |
       handle_path /files/* {
         root * /srv/www/files
@@ -172,6 +174,16 @@ quadlets:
       - "/mnt/sakura:/mnt/sakura"
     ports:
       - "{{ loopback_ip }}:8989:8989"
+    env: "{{ linuxserver_env }}"
+    network: six.network
+  lidarr:
+    image: lscr.io/linuxserver/lidarr
+    tag: latest
+    volumes:
+      - "{{ ansible_user_dir }}/.config/lidarr:/config"
+      - "/mnt/sakura:/mnt/sakura"
+    ports:
+      - "{{ loopback_ip }}:8686:8686"
     env: "{{ linuxserver_env }}"
     network: six.network
   qbit:
