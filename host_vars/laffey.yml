@@ -196,10 +196,10 @@ caddy_entries:
       @app not path /videos/* /favicon.png
       reverse_proxy @app localhost:{{ shlag_webui_port }}
       file_server browse
-  - domain: demo.admin.lelap.in
+  - domain: admin.lelap.in
     file: lap
     reverses:
-      - to: "{{ lapadmin_demo_port }}"
+      - to: "{{ lapadmin_port }}"
 
   # Savatier
   - domain: six.savatier.fr
@@ -261,10 +261,8 @@ repositories:
   - src: https://github.com/LAP-Arcade/lap-web
     version: main
   - src: https://github.com/LAP-Arcade/lapadmin
-    name: lapadmin-demo
+    name: lapadmin
     version: main
-  # - src: https://github.com/LAP-Arcade/lapadmin
-  #   version: release
 
 
 user_services:
@@ -374,11 +372,13 @@ user_services:
     workdir: "{{ repositories_dir }}/lap-web"
     type: oneshot
     cmd: "{{ sssimp_setup }}"
-  lapadmin_demo:
-    workdir: "{{ repositories_dir }}/lapadmin-demo"
+  lapadmin:
+    workdir: "{{ repositories_dir }}/lapadmin"
     cmd: |
       {{ python_setup }}
-      flask run -h {{ loopback_ip }} -p {{ lapadmin_demo_port }}
+      alembic upgrade head
+      pip install gunicorn
+      gunicorn 'app:create_app()' -b {{ loopback_ip }}:{{ lapadmin_port }} -w 4
 
 
 
