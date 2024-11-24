@@ -28,6 +28,7 @@ dns_local_suffixes:
 
 hosts_map:
   192.168.1.1: nagato.lan arcade.tina.moe nagato.tina.moe cachan.savatier.fr home.tina.moe foil.tina.moe
+  192.168.1.3: ninox.lan
   192.168.1.65: pop.lan tv.lan
   192.168.1.254: freebox.lan
   127.0.0.2: sddt.amlog.sys-all.net
