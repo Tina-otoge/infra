@@ -8,6 +8,8 @@ Requires={{ item.value.depend }}
 [Container]
 Image={{ item.value.image }}{% if item.value.tag is defined %}:{{ item.value.tag }}{% endif %}
 
+Pull=newer
+
 {% if item.value.exec is defined %}
 Exec={{ item.value.exec | split('\n') | join(' ') }}
 {% endif %}
