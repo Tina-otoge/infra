@@ -188,6 +188,12 @@ caddy_entries:
       handle_path /discord {
         redir https://discord.gg/4RNagv4pfh
       }
+      redir /discord/ /discord
+
+      handle_path /challenges/ {
+        redir https://docs.google.com/spreadsheets/d/e/2PACX-1vS-mV03DXECeFQ942PkemeGT4e4_h4NYOypMFakGxMbL8EkiO6H-Srf1Md-GBKrLuA7qVt6p0La3qwC/pubhtml
+      }
+      redir /challenges /challenges/
   - domain: drs.lelap.in
     file: lap
     robots: false
