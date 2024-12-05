@@ -190,10 +190,10 @@ caddy_entries:
       }
       redir /discord/ /discord
 
-      handle_path /challenges/scores/ {
+      handle_path /contest/scores/ {
         redir https://docs.google.com/spreadsheets/d/e/2PACX-1vS-mV03DXECeFQ942PkemeGT4e4_h4NYOypMFakGxMbL8EkiO6H-Srf1Md-GBKrLuA7qVt6p0La3qwC/pubhtml
       }
-      redir /challenges/scores /challenges/scores/
+      redir /contest/scores /contest/scores/
   - domain: drs.lelap.in
     file: lap
     robots: false
