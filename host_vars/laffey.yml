@@ -445,6 +445,17 @@ quadlets:
       - "{{ loopback_ip }}:{{ vaultwarden_port }}:80"
     volumes:
       - "{{ ansible_user_dir }}/.config/vaultwarden:/data"
+  teamspeak:
+    image: teamspeak
+    tag: latest
+    ports:
+      - 9987:9987/udp
+      - 10011:10011
+      - 30033:30033
+    env:
+      TS3SERVER_LICENSE: accept
+    volumes:
+      - "{{ ansible_user_dir }}/.config/teamspeak:/var/ts3server"
 
 
 compose_services:
@@ -457,7 +468,7 @@ user_mounts:
     where: "{{ ansible_user_dir }}/mnt/turbo"
     type: fuse.sshfs
     description: Savatier Home Freebox VM
-    test: "{{ ansible_user_dir }}/mnt/turbo/mnt/Freebox"
+    test: "{{ ansible_user_dir }}/mnt/turbo/mnt/Freebox/Enregistrements"
   - what: tina@nagato.tina.moe:/
     where: "{{ ansible_user_dir }}/mnt/nagato"
     type: fuse.sshfs
