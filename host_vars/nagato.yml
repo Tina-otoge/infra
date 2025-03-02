@@ -34,6 +34,13 @@ hosts_map:
   192.168.1.254: freebox.lan
   127.0.0.2: sddt.amlog.sys-all.net
 
+tunnels:
+  - user: tina
+    ssh_host: laffey.tina.moe
+    remote_host: 127.0.0.1
+    remote_port: "{{ jellyfin_port }}"
+    local_port: "{{ jellyfin_port }}"
+    local_host: 192.168.1.1
 
 users_admins:
   - tina

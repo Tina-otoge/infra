@@ -242,16 +242,6 @@ paths:
     owner: tina
 
 
-tunnels:
-  # node_exporter
-  - user: tina
-    remote_host: turbo.tina.moe
-    remote_port: 9100
-    local_port: 9101
-  - user: tina
-    remote_host: nagato.lan
-    remote_port: 9100
-    local_port: 9102
 
 
 repositories:
