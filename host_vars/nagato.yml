@@ -91,6 +91,8 @@ caddy_entries:
         to: 3000
       - path: /lidarr
         to: 8686
+      - path: /navi
+        to: "{{ navidrome_port }}"
     extra: |
       handle_path /files/* {
         root * /srv/www/files
@@ -233,3 +235,16 @@ quadlets:
       - "{{ loopback_ip }}:{{ flood_port }}:3000"
     exec: --baseuri /flood
     network: six.network
+  navidrome:
+    image: deluan/navidrome
+    tag: latest
+    ports:
+      - "{{ loopback_ip }}:{{ navidrome_port }}:{{ navidrome_port }}"
+    volumes:
+     - "{{ ansible_user_dir }}/.local/share/navidrome:/data"
+     - /mnt/sakura/public/Works/Music:/music:ro
+    env:
+      ND_BASEURL: /navi
+      ND_SCANNER_GROUPALBUMRELEASES: "true"
+     
+
