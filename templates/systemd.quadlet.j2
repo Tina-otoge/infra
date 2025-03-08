@@ -40,6 +40,10 @@ Environment={{ env_key }}={{ env_value }}
 User={{ item.value.user }}
 {% endif %}
 
+{% if item.value.podman is defined %}
+PodmanArgs={{ item.value.podman }}
+{% endif %}
+
 
 [Service]
 

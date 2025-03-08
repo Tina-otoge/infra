@@ -446,7 +446,54 @@ quadlets:
       TS3SERVER_LICENSE: accept
     volumes:
       - "{{ ansible_user_dir }}/.config/teamspeak:/var/ts3server"
+  mc:
+    image: marctv/minecraft-papermc-server
+    tag: latest
+    ports:
+      - "{{ minecraft_port }}:{{ minecraft_port }}"
+    volumes:
+      - "{{ ansible_user_dir }}/Games/Minecraft/overdrive:/data"
+    env:
+      SKIP_PERM_CHECK: "true"
+      MEMORYSIZE: 3G
+      PUID: 0
+      PGID: 0
+    podman: -it # Required to be able to attach to the console
 
+minecraft_servers:
+  overdrive:
+    motd: Survie libre avec Essentials et WorldGuard
+    ops:
+      "Tina-otoge": cb4b7120-fc7b-49cd-8204-b8574b454dc0
+    path: "{{ ansible_user_dir }}/Games/Minecraft/overdrive"
+    plugins:
+      # CoreProtect:
+      #   url: https://www.patreon.com/file?h=104200466&m=307159314
+      #   version: 22.4
+      EssentialsX:
+        url: https://ci.ender.zone/job/EssentialsX/lastSuccessfulBuild/artifact/jars/EssentialsX-{version}.jar
+        version: 2.21.0-dev+185-5bf158c
+      EssentialsX Discord:
+        url: https://ci.ender.zone/job/EssentialsX/lastSuccessfulBuild/artifact/jars/EssentialsXDiscord-{version}.jar
+        version: 2.21.0-dev+185-5bf158c
+      EssesentialsX Spawn:
+        url: https://ci.ender.zone/job/EssentialsX/lastSuccessfulBuild/artifact/jars/EssentialsXSpawn-{version}.jar
+        version: 2.21.0-dev+185-5bf158c
+      PermissionsBukkit:
+        url: https://mediafilez.forgecdn.net/files/911/279/PermissionsBukkit-{version}.jar
+        version: 2.5
+      ServerSigns:
+        url: https://github.com/serversigns/ServerSigns/releases/download/v{version}/ServerSigns-{version}.jar
+        version: 4.9.1
+      WorldEdit:
+        url: https://cdn.modrinth.com/data/1u6JkXh5/versions/4jRlujfz/worldedit-bukkit-{version}.jar
+        version: 7.3.10
+      WorldEditSelectionVisualizer:
+        url: https://github.com/MrMicky-FR/WorldEditSelectionVisualizer/releases/download/v{version}/WorldEditSelectionVisualizer-{version}.jar
+        version: 2.1.7
+      WorldGuard:
+        url: https://dev.bukkit.org/projects/worldguard/files/6201343/download
+        version: 7.0.13
 
 compose_services:
   - six

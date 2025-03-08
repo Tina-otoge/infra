@@ -1,0 +1,4 @@
+- include_tasks: file=minecraft/main.yml
+  loop: "{{ minecraft_servers | dict2items }}"
+  loop_control:
+    loop_var: server

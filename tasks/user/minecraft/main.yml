@@ -1,0 +1,47 @@
+
+- name: Create ops.json
+  copy:
+    dest: "{{ server.value.path }}/ops.json"
+    content: |
+      [
+        {% for username, uuid in server.value.ops.items() %}
+        {
+          "uuid": "{{ uuid }}",
+          "name": "{{ username }}",
+          "level": 4,
+          "bypassesPlayerLimit": false
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+      ]
+
+- name: Accept EULA
+  copy:
+    dest: "{{ server.value.path }}/eula.txt"
+    content: |
+      eula=true
+
+- name: Set server.properties
+  ini_file:
+    dest: "{{ server.value.path }}/server.properties"
+    option: "{{ item.key }}"
+    value: "{{ item.value }}"
+    ignore_spaces: true
+  loop:
+    - key: allow-flight
+      value: true
+    - key: difficulty
+      value: hard
+    - key: enable-command-block
+      value: true
+    - key: max-players
+      value: 40
+    - key: motd
+      value: "{{ server.value.motd | default('') }}"
+    - key: spawn-protection
+      value: 0
+
+- name: Download Minecraft plugins for {{ server.key }}
+  get_url:
+    url: "{{ item.value.url | replace('{version}', item.value.version) }}"
+    dest: "{{ server.value.path }}/plugins/{{ item.key }}.jar"
+  loop: "{{ server.value.plugins | dict2items }}"
