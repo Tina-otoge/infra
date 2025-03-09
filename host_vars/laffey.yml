@@ -199,9 +199,12 @@ caddy_entries:
     robots: false
     root: /home/tina/wwws/lap
     extra: |
-      @app not path /videos/* /favicon.png
-      reverse_proxy @app localhost:{{ shlag_webui_port }}
-      file_server browse
+      handle_path /videos/* {
+        root * /home/tina/www/lap/drs_videos
+        file_server
+      }
+    reverses:
+      - to: "{{ shlag_webui_port }}"
   - domain: admin.lelap.in
     file: lap
     reverses:
