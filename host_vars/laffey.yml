@@ -463,6 +463,8 @@ quadlets:
       PGID: 0
     podman: -it # Required to be able to attach to the console
 
+minecraft_essentials_version: 2.21.0-dev+189-eab2201
+
 minecraft_servers:
   overdrive:
     motd: Survie libre avec Essentials et WorldGuard
@@ -470,18 +472,21 @@ minecraft_servers:
       "Tina-otoge": cb4b7120-fc7b-49cd-8204-b8574b454dc0
     path: "{{ ansible_user_dir }}/Games/Minecraft/overdrive"
     plugins:
-      # CoreProtect:
-      #   url: https://www.patreon.com/file?h=104200466&m=307159314
-      #   version: 22.4
+      CoreProtect:
+        url: https://www.patreon.com/file?h=104200466&m=307159314
+        version: 22.4
       EssentialsX:
         url: https://ci.ender.zone/job/EssentialsX/lastSuccessfulBuild/artifact/jars/EssentialsX-{version}.jar
-        version: 2.21.0-dev+185-5bf158c
+        version: "{{ minecraft_essentials_version }}"
+      EssentialsX Chat:
+        url: https://ci.ender.zone/job/EssentialsX/lastSuccessfulBuild/artifact/jars/EssentialsXChat-{version}.jar
+        version: "{{ minecraft_essentials_version }}"
       EssentialsX Discord:
         url: https://ci.ender.zone/job/EssentialsX/lastSuccessfulBuild/artifact/jars/EssentialsXDiscord-{version}.jar
-        version: 2.21.0-dev+185-5bf158c
+        version: "{{ minecraft_essentials_version }}"
       EssesentialsX Spawn:
         url: https://ci.ender.zone/job/EssentialsX/lastSuccessfulBuild/artifact/jars/EssentialsXSpawn-{version}.jar
-        version: 2.21.0-dev+185-5bf158c
+        version: "{{ minecraft_essentials_version }}"
       PermissionsBukkit:
         url: https://mediafilez.forgecdn.net/files/911/279/PermissionsBukkit-{version}.jar
         version: 2.5
