@@ -61,6 +61,14 @@
 	{% endfor %}
 }
 
+(cors) {
+	header {
+		Access-Control-Allow-Origin *
+		Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+		Access-Control-Allow-Headers Content-Type
+	}
+}
+
 (robots_on) {
 	respond /robots.txt 200 {
 		body "

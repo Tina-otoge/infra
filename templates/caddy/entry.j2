@@ -45,6 +45,7 @@
 		reverse_proxy {{ ns.reverse }} {
 			{{ reverse_proxy.extra | default('') }}
 		}
+		{{ reverse_proxy.extra_handle | default('') }}
 	}
 	{% else %}
 	reverse_proxy {{ ns.match }} {{ ns.reverse }} {

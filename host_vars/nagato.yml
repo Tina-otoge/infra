@@ -147,6 +147,13 @@ caddy_entries:
     robots: false
     reverses:
       - to: "{{ aniboard_port }}"
+  - domain: lms.nagato.tina.moe
+    file: tina
+    robots: false
+    reverses:
+      - to: 5082
+    extra: |
+      import cors
 
 repositories:
   - src: https://github.com/Tina-otoge/photongenic
@@ -187,16 +194,16 @@ quadlets:
       - "{{ loopback_ip }}:8989:8989"
     env: "{{ linuxserver_env }}"
     network: six.network
-  lidarr:
-    image: lscr.io/linuxserver/lidarr
-    tag: latest
-    volumes:
-      - "{{ ansible_user_dir }}/.config/lidarr:/config"
-      - "/mnt/sakura:/mnt/sakura"
-    ports:
-      - "{{ loopback_ip }}:8686:8686"
-    env: "{{ linuxserver_env }}"
-    network: six.network
+  # lidarr:
+  #   image: lscr.io/linuxserver/lidarr
+  #   tag: latest
+  #   volumes:
+  #     - "{{ ansible_user_dir }}/.config/lidarr:/config"
+  #     - "/mnt/sakura:/mnt/sakura"
+  #   ports:
+  #     - "{{ loopback_ip }}:8686:8686"
+  #   env: "{{ linuxserver_env }}"
+  #   network: six.network
   qbit:
     image: lscr.io/linuxserver/qbittorrent
     tag: latest
@@ -207,16 +214,16 @@ quadlets:
       - "{{ loopback_ip }}:{{ qbittorrent_webui_port }}:{{ qbittorrent_webui_port }}"
     env: "{{ linuxserver_env }}"
     network: six.network
-  jackett:
-    image: lscr.io/linuxserver/jackett
-    tag: latest
-    volumes:
-      - "{{ ansible_user_dir }}/.config/jackett:/config"
-      - /mnt/sakura:/mnt/sakura
-    ports:
-      - "{{ loopback_ip }}:9117:9117"
-    env: "{{ linuxserver_env }}"
-    network: six.network
+  # jackett:
+  #   image: lscr.io/linuxserver/jackett
+  #   tag: latest
+  #   volumes:
+  #     - "{{ ansible_user_dir }}/.config/jackett:/config"
+  #     - /mnt/sakura:/mnt/sakura
+  #   ports:
+  #     - "{{ loopback_ip }}:9117:9117"
+  #   env: "{{ linuxserver_env }}"
+  #   network: six.network
   prowlarr:
     image: lscr.io/linuxserver/prowlarr
     tag: latest
@@ -246,5 +253,14 @@ quadlets:
     env:
       ND_BASEURL: /navi
       ND_SCANNER_GROUPALBUMRELEASES: "true"
-     
-
+  lms:
+    image: epoupon/lms
+    tag: latest
+    user: root
+    ports:
+      - "{{ loopback_ip }}:5082:5082"
+    volumes:
+      - "{{ ansible_user_dir }}/.config/lms:/config"
+      - "{{ ansible_user_dir }}/.local/share/lms:/var/lms:rw"
+      - /mnt/sakura/public/Works/Music:/music:ro
+    exec: /config/lms.conf

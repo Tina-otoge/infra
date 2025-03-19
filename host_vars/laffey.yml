@@ -159,6 +159,16 @@ caddy_entries:
     reverses:
       - path: /jellyfin
         to: "{{ jellyfin_port }}"
+  - domain: sonic.six.tina.moe
+    robots: false
+    file: tina
+    reverses:
+      - to: 8001
+  - domain: soku.six.tina.moe
+    robots: false
+    file: tina
+    reverses:
+      - to: 8002
   - domain: vault.tina.moe
     robots: false
     file: tina
@@ -462,6 +472,23 @@ quadlets:
       PUID: 0
       PGID: 0
     podman: -it # Required to be able to attach to the console
+  airsonic:
+    image: tamland/airsonic-refix
+    tag: latest
+    ports:
+      - "{{ loopback_ip }}:8001:80"
+    env:
+      SERVER_URL: https://lms.nagato.tina.moe
+    volumes: []
+  soku:
+    image: ghcr.io/victoralvesf/aonsoku
+    tag: latest
+    ports:
+      - "{{ loopback_ip }}:8002:8080"
+    env:
+      SERVER_URL: https://lms.nagato.tina.moe
+      HIDE_RADIOS_SECTION: true
+    volumes: []
 
 minecraft_essentials_version: 2.21.0-dev+189-eab2201
 
