@@ -189,6 +189,11 @@ caddy_entries:
     file: tina
     reverses:
       - to: "{{ foil_port }}"
+  - domain: wallos.tina.moe
+    robots: false
+    file: tina
+    reverses:
+      - to: 8003
 
   # Le LAP
   - domain: lelap.in
@@ -489,6 +494,16 @@ quadlets:
       SERVER_URL: https://lms.nagato.tina.moe
       HIDE_RADIOS_SECTION: true
     volumes: []
+  wallos:
+    image: bellamy/wallos
+    tag: latest
+    ports:
+      - "{{ loopback_ip }}:8003:80"
+    env:
+      TZ: Europe/Paris
+    volumes:
+      - "{{ ansible_user_dir }}/.local/share/wallos/db:/var/www/html/db"
+      - "{{ ansible_user_dir }}/.local/share/wallos/uploads/logos:/var/www/html/images/uploads/logos"
 
 minecraft_essentials_version: 2.21.0-dev+189-eab2201
 
