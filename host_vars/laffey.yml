@@ -493,6 +493,8 @@ quadlets:
     env:
       SERVER_URL: https://lms.nagato.tina.moe
       HIDE_RADIOS_SECTION: true
+      APP_USER: guest
+      APP_PASSWORD: guest
     volumes: []
   wallos:
     image: bellamy/wallos
