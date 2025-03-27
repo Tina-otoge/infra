@@ -104,6 +104,11 @@ caddy_entries:
         }
       }
 
+      @drs_videos {
+        path_regexp drs_videos ^/~tina/lap/drs_videos/(.*)\.mp4
+      }
+      redir @drs_videos https://drs.lelap.in/videos/{re.drs_videos.1}.mp4
+
   # Tina
   - domain: kuma.tina.moe
     robots: false
