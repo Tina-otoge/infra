@@ -497,10 +497,11 @@ quadlets:
       - "{{ loopback_ip }}:8002:8080"
     env:
       SERVER_URL: https://lms.nagato.tina.moe
-      HIDE_RADIOS_SECTION: true
+      HIDE_SERVER: "true"
+      HIDE_RADIOS_SECTION: "true"
+      APP_AUTH_TYPE: password
       APP_USER: guest
       APP_PASSWORD: guest
-      APP_AUTH_TYPE: token
       SERVER_TYPE: lms
     volumes: []
     volumes: []
