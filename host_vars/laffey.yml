@@ -104,6 +104,11 @@ caddy_entries:
         }
       }
 
+      @drs_videos {
+        path_regexp drs_videos ^/~tina/lap/drs_videos/(.*)\.mp4
+      }
+      redir @drs_videos https://drs.lelap.in/videos/{re.drs_videos.1}.mp4
+
   # Tina
   - domain: kuma.tina.moe
     robots: false
@@ -190,6 +195,11 @@ caddy_entries:
     file: tina
     reverses:
       - to: "{{ foil_port }}"
+  - domain: wallos.tina.moe
+    robots: false
+    file: tina
+    reverses:
+      - to: 8003
 
   # Le LAP
   - domain: lelap.in
@@ -488,8 +498,24 @@ quadlets:
       - "{{ loopback_ip }}:8002:8080"
     env:
       SERVER_URL: https://lms.nagato.tina.moe
-      HIDE_RADIOS_SECTION: true
+      HIDE_SERVER: "true"
+      HIDE_RADIOS_SECTION: "true"
+      APP_AUTH_TYPE: password
+      APP_USER: guest
+      APP_PASSWORD: guest
+      SERVER_TYPE: lms
     volumes: []
+    volumes: []
+  wallos:
+    image: bellamy/wallos
+    tag: latest
+    ports:
+      - "{{ loopback_ip }}:8003:80"
+    env:
+      TZ: Europe/Paris
+    volumes:
+      - "{{ ansible_user_dir }}/.local/share/wallos/db:/var/www/html/db"
+      - "{{ ansible_user_dir }}/.local/share/wallos/uploads/logos:/var/www/html/images/uploads/logos"
 
 minecraft_essentials_version: 2.21.0-dev+189-eab2201
 
