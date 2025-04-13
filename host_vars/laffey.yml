@@ -156,9 +156,10 @@ caddy_entries:
     robots: false
     root: /home/tina/wwws/six
     file: tina_six
-    reverses:
-      - path: /jellyfin
-        to: "{{ jellyfin_port }}"
+    extra: |
+      handle /jellyfin/* {
+        redir https://fin.nagato.tina.moe
+      }
   - domain: sonic.six.tina.moe
     robots: false
     file: tina
@@ -531,7 +532,7 @@ minecraft_servers:
         version: 7.0.13
 
 compose_services:
-  - six
+  # - six
   - flood
 
 
