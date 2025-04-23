@@ -67,8 +67,10 @@ packages_base:
   - net-tools
   - nfs-utils
   - nmap
+  - openssl-devel
   - podman
-  - promtail
+  - podman-compose
+  # - promtail
   - screen
   - sqlite
   - sshfs
@@ -78,6 +80,10 @@ packages_base:
   - wireguard-tools
   - zsh
   - zsh-syntax-highlighting
+  # necessary to build Python (pyenv)
+  - gcc
+  - sqlite-devel
+  - zlib-devel
 
 packages: []
 
