@@ -23,7 +23,7 @@ server_tasks_base:
   - caddy
   - cockpit
   - users_fstab
-  - promtail
+  # - promtail
   - tunnels
   - healthcheck
 
