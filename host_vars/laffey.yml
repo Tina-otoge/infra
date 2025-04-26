@@ -237,8 +237,22 @@ caddy_entries:
       - to: "{{ lapadmin_port }}"
   - domain: replay.lelap.in
     file: lap
-    reverses:
-      - to: "{{ photongenic_port }}"
+    extra: |
+      @private remote_ip {{ addresses.lap }}
+
+      handle @private {
+        reverse_proxy :{{ photongenic_port }}
+      }
+
+      handle {
+        respond <<EOF
+          You must be on the LAP network to access this page.
+          Please connect to the WiFi.
+
+          SSID: LAP Guest
+          Password: crazy shuffle
+        EOF 403
+      }
 
   # Savatier
   - domain: six.savatier.fr
