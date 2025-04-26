@@ -174,6 +174,11 @@ caddy_entries:
     file: tina
     reverses:
       - to: 8002
+  - domain: shin.six.tina.moe
+    robots: false
+    file: tina
+    reverses:
+      - to: "{{ feishin_port }}"
   - domain: vault.tina.moe
     robots: false
     file: tina
@@ -504,6 +509,17 @@ quadlets:
       APP_PASSWORD: guest
       SERVER_TYPE: lms
     volumes: []
+  feishin:
+    image: ghcr.io/jeffvli/feishin
+    tag: latest
+    ports:
+      - "{{ loopback_ip }}:{{ feishin_port }}:{{ feishin_port }}"
+    env:
+      SERVER_NAME: Nagato LMS
+      SERVER_URL: https://lms.nagato.tina.moe
+      SERVER_LOCK: true
+      SERVER_TYPE: subsonic
+      TZ: Europe/Paris
     volumes: []
   wallos:
     image: bellamy/wallos

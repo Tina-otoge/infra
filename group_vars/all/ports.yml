@@ -1,6 +1,7 @@
 aniboard_port: 10008
 caddy_admin_port: 2019
 cockpit_port: 9090
+feishin_port: 9180
 flood_port: 3000
 foil_port: 10007
 grafana_port: 3003
