@@ -154,6 +154,11 @@ caddy_entries:
       - to: 5082
     extra: |
       import cors
+  - domain: fin.nagato.tina.moe
+    file: tina
+    robots: false
+    reverses:
+      - to: "{{ jellyfin_port }}"
 
 repositories:
   - src: https://github.com/Tina-otoge/photongenic
@@ -264,3 +269,14 @@ quadlets:
       - "{{ ansible_user_dir }}/.local/share/lms:/var/lms:rw"
       - /mnt/sakura/public/Works/Music:/music:ro
     exec: /config/lms.conf
+  jellyfin:
+    image: jellyfin/jellyfin
+    tag: latest
+    ports:
+      - "{{ loopback_ip }}:{{ jellyfin_port }}:{{ jellyfin_port }}"
+    volumes:
+      - /mnt/sakura/public:/mnt/sakura/public:ro
+      - "{{ ansible_user_dir }}/.config/jellyfin:/config"
+      - "{{ ansible_user_dir }}/.cache/jellyfin:/cache"
+    networks:
+      - six.network

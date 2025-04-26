@@ -97,7 +97,7 @@
     # direct URLs
     - name: Install distro specific packages with dnf
       command: |
-        dnf install -y {{ _packages_to_install_flat | default([]) | join }}
+        dnf install -y {{ _packages_to_install_flat | default([]) | join(' ') }}
       when: _packages_to_install is defined
 
 - name: Install packages

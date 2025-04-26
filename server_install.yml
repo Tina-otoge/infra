@@ -13,17 +13,17 @@
         loop_var: task
       tags:
         - always
-    - name: Install Prometheus Node Exporter
-      include_role:
-        name: prometheus.prometheus.node_exporter
-        apply:
-          tags:
-            - server
-            - node_exporter
-      vars:
-        node_exporter_web_listen_address: "localhost:9100"
-      tags:
-        - always
+    # - name: Install Prometheus Node Exporter
+    #   include_role:
+    #     name: prometheus.prometheus.node_exporter
+    #     apply:
+    #       tags:
+    #         - server
+    #         - node_exporter
+    #   vars:
+    #     node_exporter_web_listen_address: "localhost:9100"
+    #   tags:
+    #     - always
 
   handlers:
     - name: systemd reload

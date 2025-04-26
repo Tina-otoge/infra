@@ -14,6 +14,8 @@ msnweb_demo_port: 10002
 msnweb_port: 10004
 navidrome_port: 4533
 nut_port: 10006
+photongenic_port: 10010
+photongenic_share_port: 10012
 prometheus_node_exporter_port: 9100
 prometheus_port: 9091
 promtail_port: 9080
@@ -25,3 +27,4 @@ shlag_webui_port: 10005
 sonarr_port: 8989
 uptime_kuma_port: 3001
 vaultwarden_port: 10003
+# 0.0.0.0:10011 taken
