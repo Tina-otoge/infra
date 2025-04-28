@@ -59,7 +59,7 @@ caddy_error_handlers:
   - 502
 
 caddy_entries:
-  - domain: nagato.lan
+  - domain: http://nagato.lan
     file: nagato
     extra: |
       redir /* https://nagato.tina.moe{uri}
@@ -125,13 +125,6 @@ caddy_entries:
 
         redir / /photon
       }
-  - domain: turbo.tina.moe
-    file: tina
-    robots: false
-    extra: |
-      handle {
-        redir https://nagato.tina.moe{uri}
-      }
   - domain: ani.turbo.tina.moe
     file: tina
     robots: false
@@ -147,15 +140,22 @@ caddy_entries:
     robots: false
     reverses:
       - to: "{{ aniboard_port }}"
-  - domain: lms.nagato.tina.moe
+  - domain: fin.nagato.tina.moe
     file: tina
+    robots: false
+    extra: |
+      redir https://fin.six.tina.moe{uri}
+
+  # Six
+  - domain: lms.six.tina.moe
+    file: six
     robots: false
     reverses:
       - to: 5082
     extra: |
       import cors
-  - domain: fin.nagato.tina.moe
-    file: tina
+  - domain: fin.six.tina.moe
+    file: six
     robots: false
     reverses:
       - to: "{{ jellyfin_port }}"

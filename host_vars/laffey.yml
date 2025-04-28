@@ -157,29 +157,6 @@ caddy_entries:
     file: tina
     reverses:
       - to: 5000
-  - domain: six.tina.moe
-    robots: false
-    root: /home/tina/wwws/six
-    file: tina_six
-    extra: |
-      handle /jellyfin/* {
-        redir https://fin.nagato.tina.moe
-      }
-  - domain: sonic.six.tina.moe
-    robots: false
-    file: tina
-    reverses:
-      - to: 8001
-  - domain: soku.six.tina.moe
-    robots: false
-    file: tina
-    reverses:
-      - to: 8002
-  - domain: shin.six.tina.moe
-    robots: false
-    file: tina
-    reverses:
-      - to: "{{ feishin_port }}"
   - domain: vault.tina.moe
     robots: false
     file: tina
@@ -195,16 +172,38 @@ caddy_entries:
     file: tina
     reverses:
       - to: "{{ nut_port }}"
-  - domain: foil.tina.moe
-    robots: false
-    file: tina
-    reverses:
-      - to: "{{ foil_port }}"
   - domain: wallos.tina.moe
     robots: false
     file: tina
     reverses:
       - to: 8003
+
+  # Six
+  - domain: six.tina.moe
+    robots: false
+    root: /home/tina/wwws/six
+    file: six
+    extra: |
+      root * /home/tina/wwws/six
+      file_server
+      handle /jellyfin/* {
+        redir https://fin.six.tina.moe
+      }
+  - domain: sonic.six.tina.moe
+    robots: false
+    file: six
+    reverses:
+      - to: 8001
+  - domain: soku.six.tina.moe
+    robots: false
+    file: six
+    reverses:
+      - to: 8002
+  - domain: shin.six.tina.moe
+    robots: false
+    file: six
+    reverses:
+      - to: "{{ feishin_port }}"
 
   # Le LAP
   - domain: lelap.in
@@ -257,14 +256,6 @@ caddy_entries:
           Password: crazy shuffle
         EOF 403
       }
-
-  # Savatier
-  - domain: six.savatier.fr
-    robots: false
-    root: /home/tina/wwws/six
-    file: tina_six
-    extra: |
-      redir https://six.tina.moe{uri}
 
   # MSN
   - domain: demo.asso-msn.fr
