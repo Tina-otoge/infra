@@ -1,2 +1,5 @@
 addresses:
   lap: 91.167.93.213
+  # Overriden by local DNS if connected to home network
+  teapot: "{{ lookup('community.general.dig', 'home.tina.moe', '@8.8.8.8') }}"
+  laffey: "{{ lookup('community.general.dig', 'laffey.tina.moe') }}"

@@ -1,6 +1,7 @@
 ansible
 ansible-lint
 docker
+dnspython
 molecule
 # molecule-plugins[vagrant]@git+https://github.com/ansible-community/molecule-plugins.git
 molecule-plugins[vagrant]
