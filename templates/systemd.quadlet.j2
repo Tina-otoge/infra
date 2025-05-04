@@ -24,6 +24,18 @@ Volume={{ volume }}
 Network={{ item.value.network }}
 {% endif %}
 
+{% for cap in item.value.get('cap_add', []) %}
+AddCapability={{ cap }}
+{% endfor %}
+
+{% for cap in item.value.get('cap_drop', []) %}
+DropCapability={{ cap }}
+{% endfor %}
+
+{% for rule, value in item.value.get('sysctls', {}).items() %}
+Sysctl={{ rule }}={{ value }}
+{% endfor %}
+
 {% if item.value.ports is defined %}
 {% for port in item.value.ports %}
 PublishPort={{ port }}

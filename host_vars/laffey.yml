@@ -243,6 +243,10 @@ caddy_entries:
         reverse_proxy :{{ photongenic_port }}
       }
 
+      handle /replays/files/* {
+        reverse_proxy :{{ photongenic_port }}
+      }
+
       handle {
         respond <<EOF
           You must be on the LAP network to access this page.
@@ -413,6 +417,16 @@ user_services:
       alembic upgrade head
       pip install gunicorn
       gunicorn 'app:create_app()' -b {{ loopback_ip }}:{{ lapadmin_port }} -w 4
+  photon:
+    workdir: "{{ repositories_dir }}/photongenic"
+    cmd: |
+      {{ python_setup }}
+      (python archive.py &)
+      flask --app webui.app:app run -h {{ loopback_ip }} -p {{ photongenic_port}} --debug
+  msn_fa_counter:
+    cmd: gh workflow run -R asso-msn/fa-songs-counter cd.yml
+    calendar: daily
+
 
 
 
