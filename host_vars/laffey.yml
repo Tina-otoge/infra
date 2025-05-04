@@ -423,6 +423,9 @@ user_services:
       {{ python_setup }}
       (python archive.py &)
       flask --app webui.app:app run -h {{ loopback_ip }} -p {{ photongenic_port}} --debug
+  msn_fa_counter:
+    cmd: gh workflow run -R asso-msn/fa-songs-counter cd.yml
+    calendar: daily
 
 
 
