@@ -271,7 +271,7 @@ quadlets:
     exec: /config/lms.conf
   jellyfin:
     image: jellyfin/jellyfin
-    tag: latest
+    tag: 10.10.3 # might be needed for ani-sync, not sure
     ports:
       - "{{ loopback_ip }}:{{ jellyfin_port }}:{{ jellyfin_port }}"
     volumes:
