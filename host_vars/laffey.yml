@@ -2,18 +2,15 @@ http_domain: laffey.tina.moe
 public_ip: 198.27.82.171
 graylog_url: https://graylog.tina.moe/
 
-
 user_tasks:
   - prometheus
   - loki
-
 
 packages:
   - libcurl-devel # for NUT
   - rclone
   - syncthing
   - ufw
-
 
 firewall:
   default: allow
@@ -42,7 +39,6 @@ firewall:
       from: "{{ public_ip }}"
       action: allow
 
-
 users:
   - akeyro
   - koneko
@@ -58,7 +54,6 @@ users_admins:
 skel:
   - www
   - wwws/example.com
-
 
 caddy_prometheus: true
 caddy_global_extra: |
@@ -90,8 +85,7 @@ caddy_entries:
         to: "{{ qbittorrent_webui_port }}"
       - path: /syncthing
         to: 8384
-        extra:
-          header_up Host {upstream_hostport}
+        extra: header_up Host {upstream_hostport}
         remove_path: true
     extra: |
       @userdir {
@@ -184,22 +178,21 @@ caddy_entries:
     root: /home/tina/wwws/six
     file: six
     extra: |
-      root * /home/tina/wwws/six
       file_server
       handle /jellyfin/* {
-        redir https://fin.six.tina.moe
+        redir https://fin.tina.moe
       }
-  - domain: sonic.six.tina.moe
+  - domain: sonic.tina.moe
     robots: false
     file: six
     reverses:
       - to: 8001
-  - domain: soku.six.tina.moe
+  - domain: soku.tina.moe
     robots: false
     file: six
     reverses:
       - to: 8002
-  - domain: shin.six.tina.moe
+  - domain: shin.tina.moe
     robots: false
     file: six
     reverses:
@@ -277,14 +270,9 @@ caddy_entries:
         redir https://discord.gg/k4CVGDQ
       }
 
-
-
 paths:
   /srv/media:
     owner: tina
-
-
-
 
 repositories:
   - src: https://github.com/Tina-otoge/infra-webui
@@ -301,7 +289,6 @@ repositories:
   - src: https://github.com/LAP-Arcade/lapadmin
     name: lapadmin
     version: main
-
 
 user_services:
   infra_webui:
@@ -429,9 +416,6 @@ user_services:
     cmd: gh workflow run -R asso-msn/fa-songs-counter cd.yml
     calendar: daily
 
-
-
-
 quadlets:
   # prometheus:
   #   image: prom/prometheus
@@ -482,6 +466,7 @@ quadlets:
       - "{{ loopback_ip }}:{{ uptime_kuma_port }}:{{ uptime_kuma_port }}"
     volumes:
       - "{{ ansible_user_dir }}/.local/share/uptime-kuma:/app/data"
+    podman: --no-hosts
   vaultwarden:
     image: vaultwarden/server
     tag: latest
@@ -519,7 +504,7 @@ quadlets:
     ports:
       - "{{ loopback_ip }}:8001:80"
     env:
-      SERVER_URL: https://lms.nagato.tina.moe
+      SERVER_URL: https://lms.tina.moe
     volumes: []
   soku:
     image: ghcr.io/victoralvesf/aonsoku
@@ -527,7 +512,7 @@ quadlets:
     ports:
       - "{{ loopback_ip }}:8002:8080"
     env:
-      SERVER_URL: https://lms.nagato.tina.moe
+      SERVER_URL: https://lms.tina.moe
       HIDE_SERVER: "true"
       HIDE_RADIOS_SECTION: "true"
       APP_AUTH_TYPE: password
@@ -542,7 +527,7 @@ quadlets:
       - "{{ loopback_ip }}:{{ feishin_port }}:{{ feishin_port }}"
     env:
       SERVER_NAME: Nagato LMS
-      SERVER_URL: https://lms.nagato.tina.moe
+      SERVER_URL: https://lms.tina.moe
       SERVER_LOCK: true
       SERVER_TYPE: subsonic
       TZ: Europe/Paris
@@ -587,7 +572,6 @@ quadlets:
       USER: root
       PASS: photon
       NAME: photon
-
 minecraft_essentials_version: 2.21.0-dev+189-eab2201
 
 minecraft_servers:
@@ -632,7 +616,6 @@ compose_services:
   # - six
   - flood
 
-
 user_mounts:
   - what: tina@turbo.tina.moe:/
     where: "{{ ansible_user_dir }}/mnt/turbo"
@@ -644,6 +627,5 @@ user_mounts:
     type: fuse.sshfs
     description: Nagato
     test: "{{ ansible_user_dir }}/mnt/nagato/home/tina/"
-
 
 torrents_dir: "{{ ansible_user_dir }}/mnt/sakura-private/Downloads/torrents"
