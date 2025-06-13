@@ -237,7 +237,7 @@ caddy_entries:
   - domain: replay.lelap.in
     file: lap
     extra: |
-      @private remote_ip {{ addresses.lap }} {{ addresses.teapot }} {{ addresses.laffey }}
+      @private remote_ip {{ addresses.lap }} {{ addresses.teapot }} {{ addresses.laffey }} {{ addresses.visian }}
 
       handle @private {
         reverse_proxy :{{ photongenic_port }}
