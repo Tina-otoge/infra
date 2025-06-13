@@ -559,6 +559,7 @@ quadlets:
       net.ipv4.ip_forward: 1
     env:
       WG_HOST: "{{ ansible_host }}"
+      WG_DEVICE: tap0
   photon_smb:
     image: dockurr/samba
     tag: latest
