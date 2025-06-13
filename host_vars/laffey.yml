@@ -343,16 +343,18 @@ user_services:
     workdir: "{{ repositories_dir }}/msnweb-demo"
     cmd: |
       {{ python_setup }}
+      pip install gunicorn
       alembic upgrade head
       flask setup
-      RUN_TASKS=1 flask run -h {{ loopback_ip }} -p {{ msnweb_demo_port }}
+      RUN_TASKS=1 gunicorn -b {{ loopback_ip }}:{{ msnweb_demo_port }} app:app
   msnweb:
     workdir: "{{ repositories_dir }}/msnweb"
     cmd: |
       {{ python_setup }}
+      pip install gunicorn
       alembic upgrade head
       flask setup
-      RUN_TASKS=1 flask run -h {{ loopback_ip }} -p {{ msnweb_port }}
+      RUN_TASKS=1 gunicorn -b {{ loopback_ip }}:{{ msnweb_port }} app:app
   rclone_msn:
     workdir: "{{ ansible_user_dir }}/wwws/asso-msn.fr/assets"
     script: |
