@@ -1,0 +1,13 @@
+users_admins:
+  - tina
+
+caddy_entries:
+  - domain: laffey-ii.tina.moe
+    file: tina
+    reverses:
+      - path: "{{ cockpit_url_root }}"
+        to: 9090
+    extra: |
+      handle / {
+        respond Zzz 200
+      }

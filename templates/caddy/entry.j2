@@ -5,17 +5,23 @@
 
 {{ entry }} {
 	import common
+
 	{% if item.get('robots', True) %}
+
 	import robots_on
 	{% else %}
+
 	import robots_off
 	{% endif %}
 
 {% if 'root' in item %}
+
 	root * {{ item.root }}
 {% if item.get("browser") %}
+
 	file_server browse
 {% else %}
+
 	file_server
 {% endif %}
 {% endif %}
@@ -29,6 +35,7 @@
 	{% endif %}
 
 	{% if not 'path' in reverse_proxy %}
+
 	reverse_proxy {{ ns.reverse }} {
 		{{ reverse_proxy.extra | default('') }}
 	}
@@ -41,6 +48,7 @@
 	{% endif %}
 
 	{% if reverse_proxy.get("remove_path") %}
+
 	handle_path {{ ns.match }} {
 		reverse_proxy {{ ns.reverse }} {
 			{{ reverse_proxy.extra | default('') }}
@@ -48,12 +56,14 @@
 		{{ reverse_proxy.extra_handle | default('') }}
 	}
 	{% else %}
+
 	reverse_proxy {{ ns.match }} {{ ns.reverse }} {
 		{{ reverse_proxy.extra | default('') }}
 	}
 	{% endif %}
 
 	{% if reverse_proxy.get("redir_slash", true) %}
+
 	redir {{ reverse_proxy.path }} {{ reverse_proxy.path }}/
 	{% endif %}
 

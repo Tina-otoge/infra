@@ -24,8 +24,8 @@ server_tasks_base:
   - cockpit
   - users_fstab
   # - promtail
-  - tunnels
-  - healthcheck
+  # - tunnels
+  # - healthcheck
 
 server_tasks: []
 
@@ -45,77 +45,6 @@ flood_url_root: /flood
 user_apps_dir: "{{ ansible_user_dir }}/.local/opt"
 
 selinux_state: disabled
-
-packages_base:
-  - bat
-  - caddy
-  - cockpit
-  - cockpit-file-sharing
-  - cockpit-navigator
-  - cockpit-pcp
-  - cockpit-podman
-  - cockpit-storaged
-  - dhcpdump
-  - ffmpeg
-  # - fzf
-  - git
-  - htop
-  - httpie
-  # - megatools
-  - ncdu
-  - neofetch
-  - net-tools
-  - nfs-utils
-  - nmap
-  - openssl-devel
-  - podman
-  - podman-compose
-  # - promtail
-  - screen
-  - sqlite
-  - sshfs
-  - tree
-  - util-linux-user
-  - vim
-  - wireguard-tools
-  - zsh
-  - zsh-syntax-highlighting
-  # necessary to build Python (pyenv)
-  - gcc
-  - sqlite-devel
-  - zlib-devel
-
-packages: []
-
-packages_remove:
-  - crontabs # we prefer systemd-timers
-  - haveged
-  - udisks2-iscsi
-
-# Override how to install packages for a given distro
-packages_by_distro:
-  Rocky:
-    "9":
-      # Not in EPEL repos for RHEL 9 (yet?)
-      # - name: zsh-syntax-highlighting
-      #   url: "http://rpmfind.net/linux/epel/8/Everything/{{ ansible_architecture }}/Packages/z/zsh-syntax-highlighting-0.7.1-1.el8.noarch.rpm"
-      - name: fzf
-        url: "https://www.rpmfind.net/linux/fedora/linux/updates/38/Everything/{{ ansible_architecture }}/Packages/f/fzf-0.42.0-1.fc38.{{ ansible_architecture }}.rpm"
-      - name: caddy
-        copr: "@caddy/caddy"
-      - name: megatools
-        url: https://www.rpmfind.net/linux/fedora/linux/releases/38/Everything/{{ ansible_architecture }}/os/Packages/m/megatools-1.11.1-1.fc38.{{ ansible_architecture }}.rpm
-      - name: filebeat
-        url: https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.11.3-{{ ansible_architecture }}.rpm
-      # - name: centos-release-kmods
-      #   url: https://cbs.centos.org/kojifiles/packages/centos-release-kmods/9/3.el9s/noarch/centos-release-kmods-9-3.el9s.noarch.rpm
-      - name: promtail
-        url: https://github.com/grafana/loki/releases/download/v2.8.11/promtail-2.8.11.{{ ansible_architecture }}.rpm
-      - name: cockpit-identities
-        url: https://github.com/45Drives/cockpit-identities/releases/download/v0.1.12/cockpit-identities-0.1.12-1.el8.noarch.rpm
-      - name: cockpit-file-sharing
-        url: https://github.com/45Drives/cockpit-file-sharing/releases/download/v4.2.5/cockpit-file-sharing-4.2.5-2.el8.noarch.rpm
-
 
 upgrade_commands:
   dnf:
