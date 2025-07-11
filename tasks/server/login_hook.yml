@@ -1,0 +1,10 @@
+- name: Add pam entry for login webhook
+  lineinfile:
+    path: /etc/pam.d/sshd
+    line: "session optional pam_exec.so /usr/local/bin/login-webhook.sh"
+
+- name: Ensure login webhook script exists
+  copy:
+    dest: /usr/local/bin/login-webhook.sh
+    src: login_hook/login-webhook.sh
+    mode: u=rwx,g=r,o=r
