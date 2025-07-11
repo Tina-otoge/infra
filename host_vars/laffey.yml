@@ -487,7 +487,7 @@ quadlets:
       - "{{ ansible_user_dir }}/.config/teamspeak:/var/ts3server"
   mc:
     image: marctv/minecraft-papermc-server
-    tag: latest
+    tag: 1.21.7
     ports:
       - "{{ minecraft_port }}:{{ minecraft_port }}"
     volumes:
