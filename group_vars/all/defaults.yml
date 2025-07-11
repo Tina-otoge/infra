@@ -20,6 +20,7 @@ server_tasks_base:
 
   # Services
   - firewall
+  - fail2ban
   - caddy
   - cockpit
   - users_fstab

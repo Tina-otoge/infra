@@ -9,6 +9,7 @@ packages_base:
   - cockpit-podman
   - cockpit-storaged
   - dhcpdump
+  - fail2ban
   - ffmpeg
   # - fzf
   - git

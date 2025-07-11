@@ -1,0 +1,64 @@
+- name: Populate jail.local with default jail settings
+  ini_file:
+    path: /etc/fail2ban/jail.local
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+  loop:
+    - section: DEFAULT
+      option: ignoreip
+      value: 127.0.0.1 ::1 10.8.0.0/16 192.168.0.0/16
+    - section: DEFAULT
+      option: bantime
+      value: 90m
+    - section: DEFAULT
+      option: ignoreself
+      value: "true"
+  notify: fail2ban restart
+
+- name: Enable fail2ban jails
+  ini_file:
+    path: /etc/fail2ban/jail.local
+    section: "{{ item }}"
+    option: enabled
+    value: "true"
+  loop:
+    - sshd
+  notify: fail2ban restart
+
+- name: Configure Jellyfin jail
+  # Example:
+  # Jul 10 23:56:53 nagato systemd-jellyfin[943]: [21:56:53] [INF] [32] Jellyfin.Server.Implementations.Users.UserManager: Authentication request for admin has been denied (IP: 192.168.1.254).
+  ini_file:
+    path: /etc/fail2ban/jail.d/jellyfin.conf
+    section: jellyfin
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+  loop:
+    - option: enabled
+      value: "true"
+    - option: logpath
+      value: /home/tina/.var/log/jellyfin.log
+    - option: filter
+      value: jellyfin
+  notify: fail2ban restart
+
+- name: Configure Jellyfin filter
+  ini_file:
+    path: /etc/fail2ban/filter.d/jellyfin.conf
+    section: Definition
+    option: failregex
+    value: '^.*Authentication request for .* has been denied \(IP: <ADDR>\)\.'
+  notify: fail2ban restart
+
+- name: Ensure firewalld is disabled
+  service:
+    name: firewalld
+    state: stopped
+    enabled: false
+
+- name: Ensure fail2ban-firewalld config is absent
+  file:
+    path: /etc/fail2ban/jail.d/00-firewalld.conf
+    state: absent
+  notify: fail2ban restart

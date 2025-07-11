@@ -51,3 +51,7 @@
       systemd:
         name: tunnels
         state: restarted
+    - name: fail2ban restart
+      systemd:
+        name: fail2ban
+        state: restarted
