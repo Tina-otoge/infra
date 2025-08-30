@@ -4,7 +4,6 @@ packages_base:
   - borgbackup
   - caddy
   - cockpit
-  - cockpit-file-sharing
   - cockpit-navigator
   # - cockpit-pcp
   - cockpit-podman
