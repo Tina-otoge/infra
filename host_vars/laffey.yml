@@ -103,11 +103,6 @@ caddy_entries:
       redir @drs_videos https://drs.lelap.in/videos/{re.drs_videos.1}.mp4
 
   # Tina
-  - domain: kuma.tina.moe
-    robots: false
-    file: tina
-    reverses:
-      - to: "{{ uptime_kuma_port }}"
   - domain: grafana.tina.moe
     robots: false
     file: tina
@@ -171,32 +166,6 @@ caddy_entries:
     reverses:
       - to: 8003
 
-  # Six
-  - domain: six.tina.moe
-    robots: false
-    root: /home/tina/wwws/six
-    file: six
-    extra: |
-      file_server
-      handle /jellyfin/* {
-        redir https://fin.tina.moe
-      }
-  - domain: sonic.tina.moe
-    robots: false
-    file: six
-    reverses:
-      - to: 8001
-  - domain: soku.tina.moe
-    robots: false
-    file: six
-    reverses:
-      - to: 8002
-  - domain: shin.tina.moe
-    robots: false
-    file: six
-    reverses:
-      - to: "{{ feishin_port }}"
-
   # Le LAP
   - domain: lelap.in
     file: lap
@@ -211,43 +180,6 @@ caddy_entries:
         redir https://docs.google.com/spreadsheets/d/e/2PACX-1vS-mV03DXECeFQ942PkemeGT4e4_h4NYOypMFakGxMbL8EkiO6H-Srf1Md-GBKrLuA7qVt6p0La3qwC/pubhtml
       }
       redir /contest/scores /contest/scores/
-  - domain: drs.lelap.in
-    file: lap
-    robots: false
-    root: /home/tina/wwws/lap
-    extra: |
-      handle_path /videos/* {
-        root * /home/tina/www/lap/drs_videos
-        file_server
-      }
-    reverses:
-      - to: "{{ shlag_webui_port }}"
-  - domain: admin.lelap.in
-    file: lap
-    reverses:
-      - to: "{{ lapadmin_port }}"
-  - domain: replay.lelap.in
-    file: lap
-    extra: |
-      @private remote_ip {{ addresses.lap }} {{ addresses.teapot }} {{ addresses.laffey }} {{ addresses.visian }}
-
-      handle @private {
-        reverse_proxy :{{ photongenic_port }}
-      }
-
-      handle /replays/files/* {
-        reverse_proxy :{{ photongenic_port }}
-      }
-
-      handle {
-        respond <<EOF
-          You must be on the LAP network to access this page.
-          Please connect to the WiFi.
-
-          SSID: LAP Guest
-          Password: crazy shuffle
-        EOF 403
-      }
 
   # MSN
   - domain: demo.asso-msn.fr
@@ -272,22 +204,6 @@ caddy_entries:
 paths:
   /srv/media:
     owner: tina
-
-repositories:
-  - src: https://github.com/Tina-otoge/infra-webui
-  - src: https://github.com/asso-msn/msn-web
-    name: msnweb-demo
-    version: develop
-  - src: https://github.com/asso-msn/msn-web
-    name: msnweb
-    version: release
-  - src: https://github.com/asso-msn/helloasso-discord-role
-    version: main
-  - src: https://github.com/LAP-Arcade/lap-web
-    version: main
-  - src: https://github.com/LAP-Arcade/lapadmin
-    name: lapadmin
-    version: main
 
 user_services:
   infra_webui:
@@ -370,17 +286,6 @@ user_services:
         podman exec six_jellyfin_1 bash -c '[ -d /mnt/sakura/public/Works/Music/Singles/ ]' || restart_service
         sleep 60
       done
-  helloasso_discord_role:
-    workdir: "{{ repositories_dir }}/helloasso-discord-role"
-    cmd: |
-      {{ python_setup }}
-      python main.py
-    calendar: "*-*-* *:00/5"
-  shlag_webui:
-    workdir: "{{ repositories_dir }}/shlag-webui"
-    cmd: |
-      {{ python_setup }}
-      flask run -h {{ loopback_ip }} -p {{ shlag_webui_port }}
   nut:
     workdir: "{{ repositories_dir }}/nut"
     enabled: false
@@ -388,32 +293,13 @@ user_services:
       {{ python_setup }}
       python nut.py -s -S -m {{ loopback_ip }} -p {{ nut_port }}
   ownfoil:
+    enabled: false
     workdir: "{{ repositories_dir }}/ownfoil"
     # Chunked send implementation not supported by gunicorn so we use Flask dev
     # server
     cmd: |
       {{ python_setup }}
       FLASK_APP=app/app:app flask run -h {{ loopback_ip }} -p {{ foil_port }}
-  lap_web:
-    workdir: "{{ repositories_dir }}/lap-web"
-    type: oneshot
-    cmd: "{{ sssimp_setup }}"
-  lapadmin:
-    workdir: "{{ repositories_dir }}/lapadmin"
-    cmd: |
-      {{ python_setup }}
-      alembic upgrade head
-      pip install gunicorn
-      gunicorn 'app:create_app()' -b {{ loopback_ip }}:{{ lapadmin_port }} -w 4
-  photon:
-    workdir: "{{ repositories_dir }}/photongenic"
-    cmd: |
-      {{ python_setup }}
-      (python archive.py &)
-      flask --app webui.app:app run -h {{ loopback_ip }} -p {{ photongenic_port}} --debug
-  msn_fa_counter:
-    cmd: gh workflow run -R asso-msn/fa-songs-counter cd.yml
-    calendar: daily
 
 quadlets:
   # prometheus:
@@ -457,22 +343,6 @@ quadlets:
       - "{{ ansible_user_dir }}/mnt/sakura-private/Downloads/torrents:/mnt/downloads"
       - "{{ ansible_user_dir }}/mnt/sakura:/mnt/sakura/public"
     env: "{{ linuxserver_env }}"
-    enabled: false
-  kuma:
-    image: louislam/uptime-kuma
-    tag: latest
-    ports:
-      - "{{ loopback_ip }}:{{ uptime_kuma_port }}:{{ uptime_kuma_port }}"
-    volumes:
-      - "{{ ansible_user_dir }}/.local/share/uptime-kuma:/app/data"
-    podman: --no-hosts
-  vaultwarden:
-    image: vaultwarden/server
-    tag: latest
-    ports:
-      - "{{ loopback_ip }}:{{ vaultwarden_port }}:80"
-    volumes:
-      - "{{ ansible_user_dir }}/.config/vaultwarden:/data"
   teamspeak:
     image: teamspeak
     tag: latest
@@ -484,133 +354,6 @@ quadlets:
       TS3SERVER_LICENSE: accept
     volumes:
       - "{{ ansible_user_dir }}/.config/teamspeak:/var/ts3server"
-  mc:
-    image: marctv/minecraft-papermc-server
-    tag: 1.21.7
-    ports:
-      - "{{ minecraft_port }}:{{ minecraft_port }}"
-    volumes:
-      - "{{ ansible_user_dir }}/Games/Minecraft/overdrive:/data"
-    env:
-      SKIP_PERM_CHECK: "true"
-      MEMORYSIZE: 3G
-      PUID: 0
-      PGID: 0
-    podman: -it # Required to be able to attach to the console
-  airsonic:
-    image: tamland/airsonic-refix
-    tag: latest
-    ports:
-      - "{{ loopback_ip }}:8001:80"
-    env:
-      SERVER_URL: https://lms.tina.moe
-    volumes: []
-  soku:
-    image: ghcr.io/victoralvesf/aonsoku
-    tag: latest
-    ports:
-      - "{{ loopback_ip }}:8002:8080"
-    env:
-      SERVER_URL: https://lms.tina.moe
-      HIDE_SERVER: "true"
-      HIDE_RADIOS_SECTION: "true"
-      APP_AUTH_TYPE: password
-      APP_USER: guest
-      APP_PASSWORD: guest
-      SERVER_TYPE: lms
-    volumes: []
-  feishin:
-    image: ghcr.io/jeffvli/feishin
-    tag: latest
-    ports:
-      - "{{ loopback_ip }}:{{ feishin_port }}:{{ feishin_port }}"
-    env:
-      SERVER_NAME: Nagato LMS
-      SERVER_URL: https://lms.tina.moe
-      SERVER_LOCK: true
-      SERVER_TYPE: subsonic
-      TZ: Europe/Paris
-    volumes: []
-  wallos:
-    image: bellamy/wallos
-    tag: latest
-    ports:
-      - "{{ loopback_ip }}:8003:80"
-    env:
-      TZ: Europe/Paris
-    volumes:
-      - "{{ ansible_user_dir }}/.local/share/wallos/db:/var/www/html/db"
-      - "{{ ansible_user_dir }}/.local/share/wallos/uploads/logos:/var/www/html/images/uploads/logos"
-  wg_easy:
-    image: ghcr.io/wg-easy/wg-easy
-    tag: latest
-    volumes:
-      - "{{ ansible_user_dir }}/.local/share/wg-easy:/etc/wireguard"
-    ports:
-      - "51820:51820/udp"
-      - "{{ loopback_ip }}:51821:51821/tcp"
-    cap_add:
-      - NET_ADMIN
-      - NET_RAW
-      - SYS_MODULE
-    sysctls:
-      net.ipv4.conf.all.src_valid_mark: 1
-      net.ipv4.ip_forward: 1
-    env:
-      WG_HOST: "{{ ansible_host }}"
-      WG_DEVICE: tap0
-  photon_smb:
-    image: dockurr/samba
-    tag: latest
-    ports:
-      - "{{ wireguard.laffey }}:{{ photongenic_share_port }}:445"
-    volumes:
-      - "{{ ansible_user_dir }}/.local/opt/photongenic/files:/storage"
-    env:
-      UID: 0
-      GID: 0
-      USER: root
-      PASS: photon
-      NAME: photon
-minecraft_essentials_version: 2.21.0-dev+189-eab2201
-
-minecraft_servers:
-  overdrive:
-    motd: Survie libre avec Essentials et WorldGuard
-    ops:
-      "Tina-otoge": cb4b7120-fc7b-49cd-8204-b8574b454dc0
-    path: "{{ ansible_user_dir }}/Games/Minecraft/overdrive"
-    plugins:
-      CoreProtect:
-        url: https://www.patreon.com/file?h=104200466&m=307159314
-        version: 22.4
-      EssentialsX:
-        url: https://ci.ender.zone/job/EssentialsX/lastSuccessfulBuild/artifact/jars/EssentialsX-{version}.jar
-        version: "{{ minecraft_essentials_version }}"
-      EssentialsX Chat:
-        url: https://ci.ender.zone/job/EssentialsX/lastSuccessfulBuild/artifact/jars/EssentialsXChat-{version}.jar
-        version: "{{ minecraft_essentials_version }}"
-      EssentialsX Discord:
-        url: https://ci.ender.zone/job/EssentialsX/lastSuccessfulBuild/artifact/jars/EssentialsXDiscord-{version}.jar
-        version: "{{ minecraft_essentials_version }}"
-      EssesentialsX Spawn:
-        url: https://ci.ender.zone/job/EssentialsX/lastSuccessfulBuild/artifact/jars/EssentialsXSpawn-{version}.jar
-        version: "{{ minecraft_essentials_version }}"
-      PermissionsBukkit:
-        url: https://mediafilez.forgecdn.net/files/911/279/PermissionsBukkit-{version}.jar
-        version: 2.5
-      ServerSigns:
-        url: https://github.com/serversigns/ServerSigns/releases/download/v{version}/ServerSigns-{version}.jar
-        version: 4.9.1
-      WorldEdit:
-        url: https://cdn.modrinth.com/data/1u6JkXh5/versions/4jRlujfz/worldedit-bukkit-{version}.jar
-        version: 7.3.10
-      WorldEditSelectionVisualizer:
-        url: https://github.com/MrMicky-FR/WorldEditSelectionVisualizer/releases/download/v{version}/WorldEditSelectionVisualizer-{version}.jar
-        version: 2.1.7
-      WorldGuard:
-        url: https://dev.bukkit.org/projects/worldguard/files/6201343/download
-        version: 7.0.13
 
 compose_services:
   # - six
