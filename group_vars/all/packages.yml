@@ -1,6 +1,7 @@
 
 packages_base:
   - bat
+  - borgbackup
   - caddy
   - cockpit
   - cockpit-file-sharing
@@ -25,6 +26,7 @@ packages_base:
   - podman
   - podman-compose
   # - promtail
+  - rclone
   - screen
   - sqlite
   - sshfs
@@ -47,6 +49,7 @@ packages_remove:
   - udisks2-iscsi
 
 # Override how to install packages for a given distro
+# TODO: ghcli: https://github.com/cli/cli/blob/trunk/docs/install_linux.md#dnf5
 packages_by_distro:
   Rocky:
     "9":
