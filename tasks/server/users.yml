@@ -14,6 +14,7 @@
     groups: "{% if item in users_admins %} wheel {% endif %}"
     append: true
     generate_ssh_key: true
+    shell: "{{ user_shell | default(omit) }}"
   loop: "{{ _users_all }}"
 
 - name: Check the lingering state of users

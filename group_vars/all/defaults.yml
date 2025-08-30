@@ -91,6 +91,8 @@ cockpit_login_to: true
 
 user_mounts: []
 
+user_shell: /bin/zsh
+
 
 containers: {}
 containers_registries:
