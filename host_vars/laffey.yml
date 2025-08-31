@@ -108,24 +108,6 @@ caddy_entries:
     file: tina
     reverses:
       - to: "{{ grafana_port }}"
-  - domain: tina.moe
-    root: /home/tina/wwws/tina
-    file: tina
-    reverses:
-      - path: /infra
-        to: "{{ infra_webui_port }}"
-        remove_path: true
-    extra: |
-      handle_path /private/* {
-        root * /home/tina/wwws/private
-        file_server
-      }
-      redir /private /private/
-  - domain: couscous.tina.moe wiki.couscous.tina.moe
-    robots: false
-    file: tina
-    reverses:
-      - to: 57348
   - domain: pixiv.tina.moe
     file: tina
     robots: false
@@ -145,11 +127,6 @@ caddy_entries:
     file: tina
     reverses:
       - to: 5000
-  - domain: vault.tina.moe
-    robots: false
-    file: tina
-    reverses:
-      - to: "{{ vaultwarden_port }}"
   - domain: drs.tina.moe
     robots: false
     file: tina
@@ -160,46 +137,6 @@ caddy_entries:
     file: tina
     reverses:
       - to: "{{ nut_port }}"
-  - domain: wallos.tina.moe
-    robots: false
-    file: tina
-    reverses:
-      - to: 8003
-
-  # Le LAP
-  - domain: lelap.in
-    file: lap
-    root: /home/tina/wwws/lap
-    extra: |
-      handle_path /discord {
-        redir https://discord.gg/4RNagv4pfh
-      }
-      redir /discord/ /discord
-
-      handle_path /contest/scores/ {
-        redir https://docs.google.com/spreadsheets/d/e/2PACX-1vS-mV03DXECeFQ942PkemeGT4e4_h4NYOypMFakGxMbL8EkiO6H-Srf1Md-GBKrLuA7qVt6p0La3qwC/pubhtml
-      }
-      redir /contest/scores /contest/scores/
-
-  # MSN
-  - domain: demo.asso-msn.fr
-    robots: false
-    file: msn
-    reverses:
-      - to: "{{ msnweb_demo_port }}"
-  - domain: asso-msn.fr
-    file: msn
-    reverses:
-      - to: "{{ msnweb_port }}"
-    extra: |
-      handle_path /assets/* {
-        root * /home/tina/wwws/asso-msn.fr/assets
-        file_server
-      }
-
-      handle_path /discord {
-        redir https://discord.gg/k4CVGDQ
-      }
 
 paths:
   /srv/media:

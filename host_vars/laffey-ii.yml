@@ -5,6 +5,7 @@ caddy_error_handlers:
   - 502
 
 caddy_entries:
+  # Machine domain
   - domain: laffey-ii.tina.moe
     file: tina
     reverses:
@@ -33,41 +34,82 @@ caddy_entries:
       }
       redir @drs_videos https://drs.lelap.in/videos/{re.drs_videos.1}.mp4
 
-  # # Waiting for DNS instead of spamming letsencrypt with failed requests
-  # # Tina
-  # - domain: kuma.tina.moe
-  #   robots: false
-  #   file: tina
-  #   reverses:
-  #     - to: "{{ uptime_kuma_port }}"
+  # Tina
+  - domain: tina.moe
+    root: /home/tina/wwws/tina
+    file: tina
+    reverses:
+      - path: /infra
+        to: "{{ infra_webui_port }}"
+        remove_path: true
+    extra: |
+      handle_path /private/* {
+        root * /home/tina/wwws/private
+        file_server
+      }
+      redir /private /private/
+  - domain: wallos.tina.moe
+    robots: false
+    file: tina
+    reverses:
+      - to: 8003
+  - domain: vault.tina.moe
+    robots: false
+    file: tina
+    reverses:
+      - to: "{{ vaultwarden_port }}"
+  - domain: couscous.tina.moe
+    robots: false
+    file: tina
+    reverses:
+      - to: 57348
+  - domain: kuma.tina.moe
+    robots: false
+    file: tina
+    reverses:
+      - to: "{{ uptime_kuma_port }}"
 
-  # # Six
-  # - domain: six.tina.moe
-  #   robots: false
-  #   root: /home/tina/wwws/six
-  #   file: six
-  #   extra: |
-  #     file_server
-  #     handle /jellyfin/* {
-  #       redir https://fin.tina.moe
-  #     }
-  # - domain: sonic.tina.moe
-  #   robots: false
-  #   file: six
-  #   reverses:
-  #     - to: 8001
-  # - domain: soku.tina.moe
-  #   robots: false
-  #   file: six
-  #   reverses:
-  #     - to: 8002
-  # - domain: shin.tina.moe
-  #   robots: false
-  #   file: six
-  #   reverses:
-  #     - to: "{{ feishin_port }}"
+  # Six
+  - domain: six.tina.moe
+    robots: false
+    root: /home/tina/wwws/six
+    file: six
+    extra: |
+      file_server
+      handle /jellyfin/* {
+        redir https://fin.tina.moe
+      }
+  - domain: sonic.tina.moe
+    robots: false
+    file: six
+    reverses:
+      - to: 8001
+  - domain: soku.tina.moe
+    robots: false
+    file: six
+    reverses:
+      - to: 8002
+  - domain: shin.tina.moe
+    robots: false
+    file: six
+    reverses:
+      - to: "{{ feishin_port }}"
+
 
   # Le LAP
+  - domain: lelap.in
+    file: lap
+    root: /home/tina/wwws/lap
+    extra: |
+      handle_path /discord {
+        redir https://discord.gg/4RNagv4pfh
+      }
+      redir /discord/ /discord
+
+      handle_path /contest/scores/ {
+        redir https://docs.google.com/spreadsheets/d/e/2PACX-1vS-mV03DXECeFQ942PkemeGT4e4_h4NYOypMFakGxMbL8EkiO6H-Srf1Md-GBKrLuA7qVt6p0La3qwC/pubhtml
+      }
+      redir /contest/scores /contest/scores/
   - domain: drs.lelap.in
     file: lap
     robots: false
@@ -84,30 +126,50 @@ caddy_entries:
     file: lap
     reverses:
       - to: "{{ lapadmin_port }}"
-  # # Waiting for DNS
-  # - domain: replay.lelap.in
-  #   robots: false
-  #   file: lap
-  #   extra: |
-  #     @private remote_ip {{ addresses.lap }} {{ addresses.teapot }} {{ addresses.laffey }} {{ addresses.visian }}
+  # Waiting for DNS
+  - domain: replay.lelap.in
+    robots: false
+    file: lap
+    extra: |
+      @private remote_ip {{ addresses.lap }} {{ addresses.teapot }} {{ addresses.laffey }} {{ addresses.visian }}
 
-  #     handle @private {
-  #       reverse_proxy :{{ photongenic_port }}
-  #     }
+      handle @private {
+        reverse_proxy :{{ photongenic_port }}
+      }
 
-  #     handle /replays/files/* {
-  #       reverse_proxy :{{ photongenic_port }}
-  #     }
+      handle /replays/files/* {
+        reverse_proxy :{{ photongenic_port }}
+      }
 
-  #     handle {
-  #       respond <<EOF
-  #         You must be on the LAP network to access this page.
-  #         Please connect to the WiFi.
+      handle {
+        respond <<EOF
+          You must be on the LAP network to access this page.
+          Please connect to the WiFi.
 
-  #         SSID: LAP Guest
-  #         Password: crazy shuffle
-  #       EOF 403
-  #     }
+          SSID: LAP Guest
+          Password: crazy shuffle
+        EOF 403
+      }
+
+  # MSN
+  - domain: demo.asso-msn.fr
+    robots: false
+    file: msn
+    reverses:
+      - to: "{{ msnweb_demo_port }}"
+  - domain: asso-msn.fr
+    file: msn
+    reverses:
+      - to: "{{ msnweb_port }}"
+    extra: |
+      handle_path /assets/* {
+        root * /home/tina/wwws/asso-msn.fr/assets
+        file_server
+      }
+
+      handle_path /discord {
+        redir https://discord.gg/k4CVGDQ
+      }
 
 
 users:
