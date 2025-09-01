@@ -4,6 +4,9 @@ users_admins:
 caddy_error_handlers:
   - 502
 
+caddy_extra: |
+  import users.d/*.conf
+
 caddy_entries:
   # Machine domain
   - domain: laffey-ii.tina.moe
@@ -48,6 +51,10 @@ caddy_entries:
         file_server
       }
       redir /private /private/
+      handle_path /assets/cloud/* {
+        root * /home/tina/wwws/tina-assets
+        file_server
+      }
   - domain: wallos.tina.moe
     robots: false
     file: tina
@@ -163,7 +170,7 @@ caddy_entries:
       - to: "{{ msnweb_port }}"
     extra: |
       handle_path /assets/* {
-        root * /home/tina/wwws/asso-msn.fr/assets
+        root * /home/tina/wwws/msnweb-assets
         file_server
       }
 
@@ -204,6 +211,10 @@ repositories:
   - src: https://github.com/asso-msn/MechaDon2
     name: mechadon
   - src: https://github.com/Tina-otoge/photongenic
+  - src: https://github.com/Tina-otoge/tina-simp
+  - src: https://github.com/FairyJoke/fairyjoke-legacy
+    name: fairyjoke
+  - src: git@github.com:Tina-otoge/arcade-tools.git
 
 user_services:
   mechadon:
@@ -246,6 +257,49 @@ user_services:
   monkey:
     workdir: "{{ repositories_dir }}/monkey"
     cmd: start.sh
+  msnweb_demo:
+    workdir: "{{ repositories_dir }}/msnweb-demo"
+    cmd: |
+      {{ python_setup }}
+      pip install gunicorn
+      alembic upgrade head
+      flask setup
+      RUN_TASKS=1 gunicorn -b {{ loopback_ip }}:{{ msnweb_demo_port }} app:app
+  msnweb:
+    workdir: "{{ repositories_dir }}/msnweb"
+    cmd: |
+      {{ python_setup }}
+      pip install gunicorn
+      alembic upgrade head
+      flask setup
+      RUN_TASKS=1 gunicorn -b {{ loopback_ip }}:{{ msnweb_port }} app:app
+  rclone_msn:
+    workdir: "{{ ansible_user_dir }}/wwws/msnweb-assets"
+    script: |
+      while true; do
+        date
+        rclone sync -v msn:Website/Assets/ .
+        echo Waiting 60s
+        sleep 60
+      done
+  rclone_tina:
+    workdir: "{{ ansible_user_dir }}/wwws/tina-assets/"
+    script: |
+      while true; do
+        date
+        rclone sync -v tina:/ .
+        echo Waiting 60s
+        sleep 60
+      done
+  tina_simp:
+    workdir: "{{ repositories_dir }}/tina-simp"
+    cmd: "{{ sssimp_setup }}"
+    type: oneshot
+  fairyjoke:
+    workdir: "{{ repositories_dir }}/fairyjoke"
+    cmd: run_laffey.sh
+
+
 
 quadlets:
   mc:
