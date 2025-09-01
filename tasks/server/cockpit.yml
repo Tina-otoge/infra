@@ -13,6 +13,7 @@
       AllowUnencrypted = {{ cockpit_allow_unencrypted }}
       UrlRoot = {{ cockpit_url_root }}
       LoginTo = {{ cockpit_login_to }}
+      ForwardedForHeader = X-Forwarded-For
   notify: cockpit reload
 
 - name: Disable Cockpit motd
