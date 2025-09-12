@@ -76,8 +76,9 @@ caddy_entries:
     file: tina
     reverses:
       - to: 57302
-      - path: /sdvx/genesis/gacha/*
+      - path: /sdvx/genesis/gacha
         to: 15712
+        remove_path: true
   - domain: nico.tina.moe
     file: tina
     root: /home/tina/wwws/nico
@@ -322,6 +323,11 @@ user_services:
   couscous_infra:
     workdir: "{{ repositories_dir }}/couscous"
     cmd: "{{ compose_setup }}"
+  gacha_genesis:
+    workdir: "{{ repositories_dir }}/arcade-tools/sdvx-manual-card-generator"
+    cmd: |
+      {{ python_setup }}
+      PORT=15712 DATA_DIR=./data python gacha.py
 
 
 quadlets:
