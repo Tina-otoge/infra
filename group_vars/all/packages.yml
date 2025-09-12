@@ -22,6 +22,7 @@ packages_base:
   - nfs-utils
   - nmap
   - openssl-devel
+  - p7zip
   - podman
   - podman-compose
   # - promtail

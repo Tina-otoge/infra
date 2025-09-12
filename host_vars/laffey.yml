@@ -149,9 +149,6 @@ user_services:
       {{ python_setup }}
       pip install gunicorn
       gunicorn src:app -b {{ loopback_ip }}:{{ infra_webui_port }}
-  couscous_infra:
-    workdir: "{{ repositories_dir }}/couscous"
-    cmd: "{{ compose_setup }}"
   six:
     workdir: "{{ compose_dir }}/six"
     cmd: "{{ compose_setup }}"

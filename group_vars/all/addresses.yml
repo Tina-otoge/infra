@@ -3,4 +3,5 @@ addresses:
   # Overriden by local DNS if connected to home network
   teapot: "{{ lookup('community.general.dig', 'home.tina.moe', '@8.8.8.8') }}"
   laffey: "{{ lookup('community.general.dig', 'laffey.tina.moe') }}"
+  laffey_ii: "{{ lookup('community.general.dig', 'laffey-ii.tina.moe') }}"
   visian: 37.64.48.210

@@ -11,16 +11,13 @@ caddy_entries:
   # Machine domain
   - domain: laffey-ii.tina.moe
     file: tina
+    root: /home/tina/wwws/laffey-ii
     reverses:
       - path: /fail
         to: 0
       - path: "{{ cockpit_url_root }}"
         to: 9090
     extra: |
-      handle / {
-        respond "ふぁ……ラフィー、やる気満々で準備万端…変わったのは艤装で、ラフィーじゃない…だから指揮官、この耳も本物の耳じゃないから、触らないで……" 200
-      }
-
       # TODO: redirect ~user to ~user/
       @userdir {
         path_regexp userdir ^/~(\w+)/
@@ -75,6 +72,23 @@ caddy_entries:
     file: tina
     reverses:
       - to: "{{ uptime_kuma_port }}"
+  - domain: fairyjoke.net
+    file: tina
+    reverses:
+      - to: 57302
+      - path: /sdvx/genesis/gacha/*
+        to: 15712
+  - domain: nico.tina.moe
+    file: tina
+    root: /home/tina/wwws/nico
+  - domain: damien.savatier.fr
+    file: tina
+    root: /home/tina/wwws/damien
+    extra: |
+      handle_path /private/* {
+        root * /home/tina/wwws/private
+        file_server
+      }
 
   # Six
   - domain: six.tina.moe
@@ -138,7 +152,7 @@ caddy_entries:
     robots: false
     file: lap
     extra: |
-      @private remote_ip {{ addresses.lap }} {{ addresses.teapot }} {{ addresses.laffey }} {{ addresses.visian }}
+      @private remote_ip {{ addresses.lap }} {{ addresses.teapot }} {{ addresses.laffey }} {{ addresses.visian }} {{ addresses.laffey_ii }}
 
       handle @private {
         reverse_proxy :{{ photongenic_port }}
@@ -215,6 +229,10 @@ repositories:
   - src: https://github.com/FairyJoke/fairyjoke-legacy
     name: fairyjoke
   - src: git@github.com:Tina-otoge/arcade-tools.git
+  - src: https://github.com/Tina-otoge/ArtCompanion
+    name: artcompanion
+  - src: git@github.com:Tina-otoge/couscous-infra.git
+    name: couscous
 
 user_services:
   mechadon:
@@ -256,7 +274,7 @@ user_services:
     calendar: daily
   monkey:
     workdir: "{{ repositories_dir }}/monkey"
-    cmd: start.sh
+    cmd: ./start.sh
   msnweb_demo:
     workdir: "{{ repositories_dir }}/msnweb-demo"
     cmd: |
@@ -297,8 +315,13 @@ user_services:
     type: oneshot
   fairyjoke:
     workdir: "{{ repositories_dir }}/fairyjoke"
-    cmd: run_laffey.sh
-
+    cmd: ./run_laffey.sh
+  artcompanion:
+    workdir: "{{ repositories_dir }}/artcompanion"
+    cmd: ./scripts/run.sh
+  couscous_infra:
+    workdir: "{{ repositories_dir }}/couscous"
+    cmd: "{{ compose_setup }}"
 
 
 quadlets:
