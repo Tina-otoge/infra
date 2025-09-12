@@ -216,7 +216,7 @@ quadlets:
       - "{{ ansible_user_dir }}/.config/qbittorrent:/config"
       - /mnt/sakura:/mnt/sakura
     ports:
-      - "{{ loopback_ip }}:{{ qbittorrent_webui_port }}:{{ qbittorrent_webui_port }}"
+      - "{{ loopback_ip }}:{{ qbittorrent_webui_port }}:8080"
     env: "{{ linuxserver_env }}"
     network: six.network
   # jackett:

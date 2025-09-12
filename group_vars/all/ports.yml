@@ -20,7 +20,7 @@ prometheus_node_exporter_port: 9100
 prometheus_port: 9091
 promtail_port: 9080
 prowlarr_port: 9696
-qbittorrent_webui_port: 8080
+qbittorrent_webui_port: 10013
 radarr_port: 7878
 readarr_port: 8787
 shlag_webui_port: 10005
