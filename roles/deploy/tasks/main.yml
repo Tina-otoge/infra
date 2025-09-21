@@ -1,5 +1,5 @@
 - assert:
-    that: "{{ item }} is defined"
+    that: item is defined
   loop:
     - deploy_version
     - deploy_git
