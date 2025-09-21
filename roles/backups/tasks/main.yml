@@ -1,0 +1,34 @@
+- name: Ensure borg is installed
+  package:
+    name: borgbackup
+    state: present
+  when: ansible_user_id == 'root'
+
+- name: Use root borg config directory
+  set_fact:
+    backups_borg_config_dir: "{{ backups_borg_config_dir_root }}"
+  when:
+    - ansible_user_id == 'root'
+    - backups_borg_config_dir is not defined
+
+- name: Use user borg config directory
+  set_fact:
+    backups_borg_config_dir: "{{ backups_borg_config_dir_user }}"
+  when:
+    - ansible_user_id != 'root'
+    - backups_borg_config_dir is not defined
+
+- name: Ensure borg config directory exists
+  include_role:
+    name: common
+    tasks_from: create_directory
+  vars:
+    path: "{{ backups_borg_config_dir }}"
+
+- name: "Import backup configuration task for {{ job.key }}"
+  include_role:
+    name: "{{ role_name }}"
+    tasks_from: for_job
+  loop: "{{ backups_jobs | dict2items }}"
+  loop_control:
+    loop_var: job

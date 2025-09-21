@@ -1,0 +1,4 @@
+- name: Create directory {{ path }} recursively
+  command: "mkdir -pv {{ path }}"
+  register: _mkdir_recur_check
+  changed_when: _mkdir_recur_check.stdout != ""

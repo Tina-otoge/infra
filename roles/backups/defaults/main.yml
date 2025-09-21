@@ -1,0 +1,12 @@
+backups_jobs: {}
+# example
+# my_job:
+#  includes: ["/etc", "/home"]
+#  excludes: ["*.db-shm", "*.db-wal"]
+#  repository: user@backupserver:repo::{now}
+#  prepare_script: |
+#    #!/bin/bash
+#    echo "Preparing backup..."
+#  cleanup_script: |
+#    #!/bin/bash
+#    echo "Cleaning up after backup..."

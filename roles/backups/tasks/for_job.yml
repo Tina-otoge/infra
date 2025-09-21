@@ -1,0 +1,31 @@
+- name: "Create backup includes file for {{ job.key }}"
+  copy:
+    content: |
+      {% for include in job.value.includes | default([]) %}
+      {{ include }}
+      {% endfor %}
+    dest: "{{ backups_borg_config_dir }}/{{ job.key }}.includes.txt"
+  when: job.value.includes is defined
+
+- name: "Create backup excludes file for {{ job.key }}"
+  copy:
+    content: |
+      {% for exclude in job.value.excludes | default([]) %}
+      {{ exclude }}
+      {% endfor %}
+    dest: "{{ backups_borg_config_dir }}/{{ job.key }}.excludes.txt"
+  when: job.value.excludes is defined
+
+- name: "Create backup prepare script for {{ job.key }}"
+  copy:
+    content: "{{ job.value.prepare_script | default('') }}"
+    dest: "{{ backups_borg_config_dir }}/{{ job.key }}.prepare"
+    mode: u=rwx,g=rwx,o=rx
+  when: job.value.prepare_script is defined
+
+- name: "Create backup cleanup script for {{ job.key }}"
+  copy:
+    content: "{{ job.value.cleanup_script | default('') }}"
+    dest: "{{ backups_borg_config_dir }}/{{ job.key }}.cleanup"
+    mode: u=rwx,g=rwx,o=rx
+  when: job.value.cleanup_script is defined

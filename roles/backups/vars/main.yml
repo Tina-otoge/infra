@@ -1,0 +1,2 @@
+backups_borg_config_dir_root: /etc/borg
+backups_borg_config_dir_user: "{{ ansible_user_dir }}/.config/borg"

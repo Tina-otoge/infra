@@ -109,3 +109,27 @@ repositories_dir: "{{ user_apps_dir }}"
 
 
 user_services: {}
+
+
+user_backups_exclude_base:
+  - "*.db-wal"
+  - "*.db-shm"
+  - "*.sqlite3-wal"
+  - "*.sqlite3-shm"
+  - "*/.backup*.db"
+user_backups_exclude_extra: []
+user_backups_exclude: "{{ user_backups_exclude_base + user_backups_exclude_extra }}"
+
+user_backups_include_base:
+  - "$HOME/.ssh"
+  - "$HOME/.history"
+  - "$HOME/.config/containers/containers.conf"
+  - "$HOME/.config/containers/hosts"
+  - "$HOME/.config/gh/"
+  - "$HOME/.config/rclone/"
+user_backups_include_extra: []
+user_backups_include: "{{ user_backups_include_base + user_backups_include_extra }}"
+
+user_backups_repository: nagato.tina.moe:Backups/Repositories/{{ ansible_host }}::{now}
+
+user_backups_calendar: weekly

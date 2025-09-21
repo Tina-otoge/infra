@@ -1,6 +1,13 @@
 users_admins:
   - tina
 
+backups_jobs:
+  user:
+    includes: "{{ user_backups_include }}"
+    excludes: "{{ user_backups_exclude }}"
+    repository: "{{ user_backups_repository }}"
+    calendar: "{{ user_backups_calendar }}"
+
 caddy_error_handlers:
   - 502
 
