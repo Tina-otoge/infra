@@ -47,9 +47,6 @@ users:
   - sayaka
   - test
 
-users_admins:
-  - tina
-
 skel:
   - www
   - wwws/example.com

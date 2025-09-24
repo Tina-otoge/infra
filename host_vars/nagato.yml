@@ -42,9 +42,6 @@ tunnels:
     local_port: "{{ jellyfin_port }}"
     local_host: 192.168.1.1
 
-users_admins:
-  - tina
-
 upgrade_then_reboot: false
 
 user_mounts:

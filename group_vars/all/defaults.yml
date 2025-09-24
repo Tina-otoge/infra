@@ -31,6 +31,9 @@ server_tasks_base:
 
 server_tasks: []
 
+users_admins:
+  - tina
+
 user_tasks_base:
   - dotfiles
   # - websites
