@@ -1,5 +1,5 @@
+evertsen  ansible_host=evertsen.tina.moe
 laffey    ansible_host=laffey.tina.moe
-turbo     ansible_host=turbo.tina.moe
-nagato    ansible_host=nagato.tina.moe
-hermes    ansible_host=hermes.tina.moe
 laffey-ii ansible_host=laffey-ii.tina.moe
+nagato    ansible_host=nagato.tina.moe
+turbo     ansible_host=turbo.tina.moe

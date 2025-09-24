@@ -52,7 +52,7 @@
         path: /etc/skel/.bashrc
       register: skel
     - name: Remove default bashrc
-      when: not local.stat.islnk and local.stat.checksum == skel.stat.checksum
+      when: local.stat.exists and not local.stat.islnk and local.stat.checksum == skel.stat.checksum
       file:
         path: "{{ ansible_user_dir }}/.bashrc"
         state: absent
@@ -69,7 +69,7 @@
         path: /etc/skel/.zshrc
       register: skel
     - name: Remove default zshrc
-      when: not local.stat.islnk and local.stat.checksum == skel.stat.checksum
+      when: local.stat.exists and not local.stat.islnk and local.stat.checksum == skel.stat.checksum
       file:
         path: "{{ ansible_user_dir }}/.zshrc"
         state: absent

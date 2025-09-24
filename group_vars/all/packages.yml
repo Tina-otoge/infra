@@ -28,10 +28,8 @@ packages_base:
   # - promtail
   - rclone
   - screen
-  - sqlite
   - sshfs
   - tree
-  - util-linux-user
   - vim
   - wireguard-tools
   - zsh
@@ -61,3 +59,8 @@ packages_by_distro:
         url: https://github.com/45Drives/cockpit-identities/releases/download/v{{ versions.cockpit_identities }}/cockpit-identities-{{ versions.cockpit_identities }}-1.el8.noarch.rpm
       - name: cockpit-file-sharing
         url: https://github.com/45Drives/cockpit-file-sharing/releases/download/v{{ versions.cockpit_file_sharing }}/cockpit-file-sharing-{{ versions.cockpit_file_sharing }}-1.el9.noarch.rpm
+      - name: sqlite
+      - name: util-linux-user # chsh
+  Ubuntu:
+    "24":
+      - name: sqlite3

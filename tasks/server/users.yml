@@ -8,10 +8,18 @@
 - set_fact:
     _users_all: "{{ users + users_admins }}"
 
+- set_fact:
+    _admin_group: wheel
+
+  when: ansible_os_family == 'RedHat'
+- set_fact:
+    _admin_group: sudo
+  when: ansible_os_family == 'Debian'
+
 - name: Create users
   user:
     name: "{{ item }}"
-    groups: "{% if item in users_admins %} wheel {% endif %}"
+    groups: "{% if item in users_admins %}{{ _admin_group }}{% endif %}"
     append: true
     generate_ssh_key: true
     shell: "{{ user_shell | default(omit) }}"

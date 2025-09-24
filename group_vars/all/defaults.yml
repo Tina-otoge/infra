@@ -30,6 +30,7 @@ server_tasks_base:
   - healthcheck
 
 server_tasks: []
+server_tasks_disabled: []
 
 users_admins:
   - tina

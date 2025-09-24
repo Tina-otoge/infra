@@ -13,6 +13,7 @@
         loop_var: task
       tags:
         - always
+      when: task not in server_tasks_disabled
     # - name: Install Prometheus Node Exporter
     #   include_role:
     #     name: prometheus.prometheus.node_exporter
