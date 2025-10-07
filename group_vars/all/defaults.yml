@@ -32,9 +32,6 @@ server_tasks_base:
 server_tasks: []
 server_tasks_disabled: []
 
-users_admins:
-  - tina
-
 user_tasks_base:
   - dotfiles
   # - websites
@@ -69,7 +66,8 @@ pkgmgr_dnf_metadata_expire: 604800 # 1 week
 
 
 users: []
-users_admins: []
+users_admins:
+  - tina
 skel: []
 
 
