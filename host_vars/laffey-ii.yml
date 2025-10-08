@@ -200,6 +200,15 @@ caddy_entries:
         redir https://discord.gg/k4CVGDQ
       }
 
+  # sayaka
+  - domain: mirror.lovelyrad.io
+    file: sayaka
+    root: /home/sayaka/www/mirror
+    browser: true
+  - domain: hewwo.lovelyrad.io
+    file: sayaka
+    reverses:
+      - to: 39614
 
 users:
   - sayaka
