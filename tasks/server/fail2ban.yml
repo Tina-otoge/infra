@@ -57,6 +57,12 @@
   ignore_errors: true
   register: _firewalld_check
 
+- name: Check if firewalld is installed
+  when: ansible_os_family == 'RedHat'
+  command: rpm -q firewalld
+  ignore_errors: true
+  register: _firewalld_check
+
 - name: Ensure firewalld is disabled
   service:
     name: firewalld
