@@ -6,6 +6,9 @@
     src: https://github.com/junegunn/fzf/releases/download/{{ _fzf_version }}/fzf-{{ _fzf_version }}-linux_amd64.tar.gz
     dest: /usr/local/bin
     creates: /usr/local/bin/fzf
+    mode: o=rwx,g=rx,u=rx
+    owner: root
+    group: root
     remote_src: true
 
 - name: Clone fzf repository
