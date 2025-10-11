@@ -6,3 +6,10 @@
     group: "{{ item.value.group | default(item.value.owner) | default('root') }}"
     mode: "{{ item.value.mode | default('u=rwX,g=rX,o=rX') }}"
   loop: "{{ paths | default({}) | dict2items }}"
+
+- name: Ensure links exist
+  file:
+    src: "{{ item.key }}"
+    dest: "{{ item.value }}"
+    state: link
+  loop: "{{ links | default({}) | dict2items }}"
