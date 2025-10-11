@@ -8,6 +8,8 @@ backups_jobs:
     repository: "{{ user_backups_repository }}"
     calendar: "{{ user_backups_calendar }}"
 
+healthchecks: true
+
 caddy_error_handlers:
   - 502
 
