@@ -18,6 +18,7 @@
       value:
         name: Users fstab
         cmd: /usr/local/bin/users-fstab
+        type: oneshot
 
 - name: Create users-fstab timer
   template:

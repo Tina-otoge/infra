@@ -2,6 +2,4 @@
   template:
     src: users-fstab/fstab.j2
     dest: "{{ ansible_user_dir }}/.config/fstab"
-    owner: root
-    group: root
     mode: u=rw,g=r,o=r
