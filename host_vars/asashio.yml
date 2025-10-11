@@ -1,0 +1,197 @@
+server_tasks:
+  - dnsmasq
+
+packages:
+  - acl
+  - cifs-utils
+  - cockpit-file-sharing
+  - cockpit-identities
+  - dnsmasq
+  - samba
+  - samba-client
+  - samba-common
+  - syncthing
+  - wsdd
+  # Python
+  - bzip2-devel
+  - libffi-devel
+  - openssl-devel
+  - readline-devel
+
+packages_base_excludes:
+  # missing packages in EPEL 10.0
+  - cockpit-navigator
+  - httpie
+  - rclone
+  - zsh-syntax-highlighting
+
+links:
+  /usr/bin/python3: /usr/local/bin/python
+
+dns_servers:
+  - 192.168.1.254 # Freebox server
+  - 8.8.8.8 # Google DNS 1
+  - 8.8.4.4 # Google DNS 2
+
+dns_local_suffixes:
+  - lan
+  - local
+
+hosts_map:
+  192.168.1.1: nagato.lan
+  192.168.1.3: ninox.lan
+  192.168.1.5: rootage.lan
+  192.168.1.65: pop.lan tv.lan
+  192.168.1.80: asashio.lan
+  192.168.1.139: kokona.lan
+  192.168.1.254: freebox.lan
+  127.0.0.2: sddt.amlog.sys-all.net
+
+
+caddy_error_handlers:
+  - 502
+
+caddy_entries:
+  - domain: http://asashio.lan
+    file: asashio
+    extra: |
+      redir /* https://asashio.tina.moe{uri}
+  - domain: "{{ http_domain }}"
+    root: /srv/www/asashio
+    file: asashio
+    robots: false
+    reverses:
+      - path: /fail
+        to: 0
+      - path: "{{ cockpit_url_root }}"
+        to: "{{ cockpit_port }}"
+      - path: /syncthing
+        to: 8384
+        extra:
+          header_up Host {upstream_hostport}
+        remove_path: true
+      - path: /sonarr
+        to: 8989
+      - path: /qbit
+        remove_path: true
+        to: "{{ qbittorrent_webui_port }}"
+      - path: /jackett
+        to: 9117
+      - path: /prowlarr
+        to: "{{ prowlarr_port }}"
+      - path: /flood
+        to: 3000
+      - path: /lidarr
+        to: 8686
+      - path: /navi
+        to: "{{ navidrome_port }}"
+    extra: |
+      handle_path /files/* {
+        root * /srv/www/files
+        file_server browse
+      }
+
+  - domain: nagato.tina.moe
+    file: nagato
+    extra: |
+      redir /* https://asashio.tina.moe{uri}
+
+  - domain: foil.tina.moe
+    file: tina
+    robots: false
+    reverses:
+      - to: "{{ foil_port }}"
+  - domain: aniboard.tina.moe
+    file: tina
+    robots: false
+    reverses:
+      - to: "{{ aniboard_port }}"
+
+  # Six
+  - domain: lms.tina.moe
+    file: six
+    robots: false
+    reverses:
+      - to: 5082
+    extra: |
+      import cors
+  - domain: fin.tina.moe
+    file: six
+    robots: false
+    reverses:
+      - to: "{{ jellyfin_port }}"
+
+repositories:
+  - src: https://github.com/Tina-otoge/AniBoard
+    name: aniboard
+
+user_services:
+  aniboard:
+    workdir: "{{ repositories_dir }}/aniboard"
+    cmd: |
+      {{ python_setup }}
+      gunicorn -w 4 --timeout 120 app:app -b {{ loopback_ip }}:{{ aniboard_port }}
+
+
+quadlets:
+  ownfoil:
+    image: a1ex4/ownfoil
+    ports:
+      - "{{ loopback_ip }}:{{ foil_port }}:8465"
+    volumes:
+      - "{{ ansible_user_dir }}/.config/ownfoil:/app/config"
+      - "{{ ansible_user_dir }}/Games/Console/Switch:/games"
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr
+    tag: latest
+    volumes:
+      - "{{ ansible_user_dir }}/.config/sonarr:/config"
+      - "/mnt/sakura:/mnt/sakura"
+    ports:
+      - "{{ loopback_ip }}:8989:8989"
+    env: "{{ linuxserver_env }}"
+    network: six.network
+  qbit:
+    image: lscr.io/linuxserver/qbittorrent
+    tag: latest
+    volumes:
+      - "{{ ansible_user_dir }}/.config/qbittorrent:/config"
+      - /mnt/sakura:/mnt/sakura
+    ports:
+      - "{{ loopback_ip }}:{{ qbittorrent_webui_port }}:8080"
+    env: "{{ linuxserver_env }}"
+    network: six.network
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr
+    tag: latest
+    volumes:
+      - "{{ ansible_user_dir }}/.config/prowlarr:/config"
+    ports:
+      - "{{ loopback_ip }}:{{ prowlarr_port }}:{{ prowlarr_port }}"
+    env: "{{ linuxserver_env }}"
+    network: six.network
+  lms:
+    image: epoupon/lms
+    tag: latest
+    user: root
+    ports:
+      - "{{ loopback_ip }}:5082:5082"
+    volumes:
+      - "{{ ansible_user_dir }}/.config/lms:/config"
+      - "{{ ansible_user_dir }}/.local/share/lms:/var/lms:rw"
+      - /mnt/sakura/public/Works/Music:/music:ro
+    exec: /config/lms.conf
+  jellyfin:
+    image: jellyfin/jellyfin
+    # tag: 10.11.0
+    tag: 10.10.3 # needed for ani-sync
+    # https://github.com/vosmiic/jellyfin-ani-sync/issues/185
+    ports:
+      - "{{ loopback_ip }}:{{ jellyfin_port }}:{{ jellyfin_port }}"
+    volumes:
+      - /mnt/sakura/public:/mnt/sakura/public:ro
+      - "{{ ansible_user_dir }}/.config/jellyfin:/config"
+      - "{{ ansible_user_dir }}/.cache/jellyfin:/cache"
+    networks:
+      - six.network
