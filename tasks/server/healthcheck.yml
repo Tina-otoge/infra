@@ -28,6 +28,7 @@
           python healthcheck.py
         workdir: /opt/healthcheck
         restart: false
+        type: oneshot
 
 - name: Create timer
   template:
@@ -42,11 +43,11 @@
 
 - meta: flush_handlers
 
-- name: Ensure timer is enabled
+- name: Ensure timer is in desired state
   systemd:
     name: healthcheck.timer
-    enabled: true
-    state: started
+    enabled: "{{ healthchecks | default(false) }}"
+    state: "{{ 'started' if healthchecks | default(false) else 'stopped' }}"
 
 - name: Check if healthcheck config exists
   stat:
