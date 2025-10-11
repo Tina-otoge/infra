@@ -6,7 +6,7 @@
         [ansible_distribution_major_version]
         | default([])
       }}
-    _packages: "{{ packages_base + packages }}"
+    _packages: "{{ (packages_base + packages) | difference(packages_base_excludes) }}"
 
 - when:
     - ansible_os_family == "RedHat"
