@@ -10,14 +10,14 @@ packages_base:
   - cockpit-storaged
   - dhcpdump
   - fail2ban
+  - fastfetch
   - ffmpeg
-  # - fzf
+  # - fzf # moved to server tasks
   - git
   - htop
   - httpie
   # - megatools
   - ncdu
-  - neofetch
   - net-tools
   - nfs-utils
   - nmap
@@ -41,9 +41,12 @@ packages_base:
 
 packages: []
 
+packages_base_excludes: []
+
 packages_remove:
   - crontabs # we prefer systemd-timers
   - haveged
+  - neofetch # we do fastfetch now
   - udisks2-iscsi
 
 # Override how to install packages for a given distro
@@ -58,7 +61,18 @@ packages_by_distro:
       - name: cockpit-identities
         url: https://github.com/45Drives/cockpit-identities/releases/download/v{{ versions.cockpit_identities }}/cockpit-identities-{{ versions.cockpit_identities }}-1.el8.noarch.rpm
       - name: cockpit-file-sharing
-        url: https://github.com/45Drives/cockpit-file-sharing/releases/download/v{{ versions.cockpit_file_sharing }}/cockpit-file-sharing-{{ versions.cockpit_file_sharing }}-1.el9.noarch.rpm
+        url: https://github.com/45Drives/cockpit-file-sharing/releases/download/v{{ versions.cockpit_file_sharing | split('-') | first }}/cockpit-file-sharing-{{ versions.cockpit_file_sharing }}.el9.noarch.rpm
+      - name: sqlite
+      - name: util-linux-user # chsh
+    "10":
+      - name: caddy
+        copr: "@caddy/caddy"
+      - name: megatools
+        url: https://www.rpmfind.net/linux/fedora/linux/releases/42/Everything/{{ ansible_architecture }}/os/Packages/m/megatools-1.11.1-7.fc42.{{ ansible_architecture }}.rpm
+      - name: cockpit-identities
+        url: https://github.com/45Drives/cockpit-identities/releases/download/v{{ versions.cockpit_identities }}/cockpit-identities-{{ versions.cockpit_identities }}-1.el8.noarch.rpm
+      - name: cockpit-file-sharing
+        url: https://github.com/45Drives/cockpit-file-sharing/releases/download/v{{ versions.cockpit_file_sharing | split('-') | first }}/cockpit-file-sharing-{{ versions.cockpit_file_sharing }}.el9.noarch.rpm
       - name: sqlite
       - name: util-linux-user # chsh
   Ubuntu:
