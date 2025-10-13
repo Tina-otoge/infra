@@ -132,6 +132,7 @@ backups_job_machine_paths_base:
   - "{{ ansible_user_dir }}/.config/pipus.txt"
   - "{{ ansible_user_dir }}/.config/rclone/"
 
+  - /etc/backups-webhook.env
   - /etc/healthcheck.yml
   - /etc/login-webhook.env
   - /etc/profile.d/motd.sh
