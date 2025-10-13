@@ -1,3 +1,14 @@
+backups_job_machine_paths_extra:
+  - "{{ repositories_dir }}/aniboard/conf/config.yml"
+
+  - "{{ ansible_user_dir }}/.config/ownfoil/"
+  - "{{ ansible_user_dir }}/.config/sonarr/"
+  - "{{ ansible_user_dir }}/.config/qbittorrent/"
+  - "{{ ansible_user_dir }}/.config/prowlarr/"
+  - "{{ ansible_user_dir }}/.config/lms/"
+  - "{{ ansible_user_dir }}/.local/share/lms/"
+  - "{{ ansible_user_dir }}/.config/jellyin/"
+
 server_tasks:
   - dnsmasq
 
