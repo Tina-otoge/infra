@@ -1,0 +1,16 @@
+# {{ ansible_managed }}
+[Unit]
+{% if service_description is defined %}
+Description=Timer for {{ timer.name }}
+{% endif %}
+
+[Timer]
+OnCalendar={{ service_schedule }}
+
+{% if service_random_delay | default(false) %}
+RandomizedDelaySec={{ service_random_delay }}
+{% endif %}
+
+Persistent=true
+[Install]
+WantedBy=timers.target

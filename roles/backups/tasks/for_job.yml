@@ -1,31 +1,67 @@
-- name: "Create backup includes file for {{ job.key }}"
+- name: "Create backup paths file for {{ job.key }}"
   copy:
     content: |
-      {% for include in job.value.includes | default([]) %}
+      {% for include in job.value.paths %}
       {{ include }}
       {% endfor %}
-    dest: "{{ backups_borg_config_dir }}/{{ job.key }}.includes.txt"
-  when: job.value.includes is defined
+    dest: "{{ backups_borg_config_dir }}/{{ job.key }}.paths.txt"
+  when: job.value.paths is defined
 
 - name: "Create backup excludes file for {{ job.key }}"
   copy:
     content: |
-      {% for exclude in job.value.excludes | default([]) %}
+      {% for exclude in job.value.excludes %}
       {{ exclude }}
       {% endfor %}
     dest: "{{ backups_borg_config_dir }}/{{ job.key }}.excludes.txt"
   when: job.value.excludes is defined
 
-- name: "Create backup prepare script for {{ job.key }}"
-  copy:
-    content: "{{ job.value.prepare_script | default('') }}"
-    dest: "{{ backups_borg_config_dir }}/{{ job.key }}.prepare"
-    mode: u=rwx,g=rwx,o=rx
-  when: job.value.prepare_script is defined
 
-- name: "Create backup cleanup script for {{ job.key }}"
-  copy:
-    content: "{{ job.value.cleanup_script | default('') }}"
-    dest: "{{ backups_borg_config_dir }}/{{ job.key }}.cleanup"
-    mode: u=rwx,g=rwx,o=rx
-  when: job.value.cleanup_script is defined
+- name: "Create service files for {{ job.key }} backup"
+  include_role:
+    name: common
+    tasks_from: create_service
+  vars:
+    service_name: "backup-{{ job.key }}"
+    service_schedule: "{{ job.value.calendar | default(omit) }}"
+    service_script: |
+      logmsg() {
+        # get from stdin if no argument
+        if [ -z "$1" ]; then
+          msg=''
+          read -r line
+          while [ -n "$line" ]; do
+            echo $line
+            msg="$msg$line\n"
+            read -r line
+          done
+        else
+          echo $1
+          msg="$1"
+        fi
+
+        if [ -z "$WEBHOOK_URL" ]; then
+          return
+        fi
+
+        msg=$(echo $msg | sed 's/"/\\"/g' | sed "s/'/\\'/g" | tr -d '\n')
+
+        curl -X POST -H 'Content-type: application/json' -d '{"content":"'"$msg"'"}' $WEBHOOK_URL
+      }
+
+      if [ -f /etc/backups-webhook.env ]; then
+        source /etc/backups-webhook.env
+      fi
+
+      ssh_key=$(find "{{ ansible_user_dir }}/.ssh/borg_key" "{{ ansible_user_dir }}/.ssh/id_rsa" "{{ ansible_user_dir }}/.ssh/id_ed25519" | head -n 1)
+
+      export BORG_RELOCATED_REPO_ACCESS_IS_OK=yes
+      export BORG_REPO="{{ job.value.repository }}"
+      export BORG_KEYS_DIR={{ ansible_user_dir }}/.config/borg/keys
+      export BORG_RSH="ssh -i $ssh_key -o StrictHostKeyChecking=no"
+
+      logmsg "Backup job \"{{ job.key }}\" started on {{ ansible_hostname }}."
+
+      # no pipefail here is important, we want to capture find's output even
+      # on exit 1s
+      find $(cat "{{ backups_borg_config_dir }}/{{ job.key }}.paths.txt") 2>/dev/null | borg create --stats --paths-from-stdin --exclude-from="{{ backups_borg_config_dir }}/{{ job.key }}.excludes.txt" ::{{ job.value.archive }} 2>&1 | logmsg

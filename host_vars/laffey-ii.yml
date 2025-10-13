@@ -1,12 +1,35 @@
 users_admins:
   - tina
 
-backups_jobs:
-  user:
-    includes: "{{ user_backups_include }}"
-    excludes: "{{ user_backups_exclude }}"
-    repository: "{{ user_backups_repository }}"
-    calendar: "{{ user_backups_calendar }}"
+backups_job_machine_paths_extra:
+  - "{{ repositories_dir }}/mechadon/app.db"
+  - "{{ repositories_dir }}/mechadon/config.json"
+  - "{{ repositories_dir }}/helloasso-discord-role/config.yml"
+  - "{{ repositories_dir }}/helloasso-discord-role/save.json"
+  - "{{ repositories_dir }}/shlag-webui/config.yml"
+  - "{{ repositories_dir }}/lapadmin/var/"
+  - "{{ repositories_dir }}/lapadmin/keys/"
+  - "{{ repositories_dir }}/photongenic/clients.yml"
+  - "{{ repositories_dir }}/photongenic/config.toml"
+  - "{{ repositories_dir }}/photongenic/custom/"
+  - "{{ repositories_dir }}/monkey/db.json"
+  - "{{ repositories_dir }}/msnweb-demo/config.yml"
+  - "{{ repositories_dir }}/msnweb-demo/var/"
+  - "{{ repositories_dir }}/msnweb/config.yml"
+  - "{{ repositories_dir }}/msnweb/var/"
+  - "{{ repositories_dir }}/fairyjoke/run_laffey.sh"
+  - "{{ repositories_dir }}/fairyjoke/run_laffey_db.sh"
+  - "{{ repositories_dir }}/artcompanion/config.json"
+  - "{{ repositories_dir }}/artcompanion/data.json"
+  - "{{ repositories_dir }}/couscous/.env"
+  - "{{ repositories_dir }}/couscous/gitea/"
+
+  - "{{ ansible_user_dir }}/.local/share/wallos/"
+  - "{{ ansible_user_dir }}/.local/share/wg-easy/"
+  - "{{ ansible_user_dir }}/.local/share/uptime-kuma/"
+  - "{{ ansible_user_dir }}/.local/share/vaultwarden/"
+
+  - /etc/motd_laffey_ii_lines.txt
 
 healthchecks: true
 

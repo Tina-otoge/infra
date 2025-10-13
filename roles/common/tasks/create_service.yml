@@ -1,0 +1,90 @@
+- set_fact:
+    _service_filename: >-
+      {{ service_name | replace(' ', '_') | replace('-', '_') | lower }}
+    _service_scope: "{{ service_scope | default('system') }}"
+
+- when: _service_scope == 'system'
+  block:
+    - set_fact:
+        _service_owner: "{{ service_user | default('root') }}"
+    - set_fact:
+        _service_directory: "/usr/local/lib/systemd/system"
+    - file:
+        path: "{{ _systemd_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: u=rwX,g=rX,o=rX
+      loop:
+        - "/usr/local/lib/systemd"
+        - "/usr/local/lib/systemd/system"
+        - "/usr/local/bin"
+      loop_control:
+        loop_var: _systemd_dir
+    - set_fact:
+        _service_script_path: "/usr/local/bin/systemd_{{ _service_filename }}.sh"
+
+- when: _service_scope == 'user'
+  block:
+    - set_fact:
+        _service_owner: "{{ service_user | default(ansible_user_id) }}"
+    - set_fact:
+        _service_directory: "/home/{{ _service_owner }}/.config/systemd/user"
+    - file:
+        path: "{{ _systemd_dir }}"
+        state: directory
+        owner: "{{ service_user }}"
+        group: "{{ service_user }}"
+        mode: u=rwX,g=rX,o=rX
+      become: "{{ _service_owner != ansible_user_id }}"
+      loop:
+        - "/home/{{ _service_owner }}/.config"
+        - "/home/{{ _service_owner }}/.config/systemd"
+        - "/home/{{ _service_owner }}/.config/systemd/user"
+        - "/home/{{ _service_owner }}/.local"
+        - "/home/{{ _service_owner }}/.local/bin"
+      loop_control:
+        loop_var: _systemd_dir
+    - set_fact:
+        _service_script_path: "/home/{{ _service_owner }}/.local/bin/systemd_{{ _service_filename }}.sh"
+
+- set_fact:
+    _service_become: "{{ _service_scope == 'system' or _service_owner != ansible_user_id }}"
+
+- name: Create service script file
+  become: "{{ _service_scope == 'system' }}"
+  template:
+    src: systemd.script.sh.j2
+    dest: "{{ _service_script_path }}"
+    mode: u=rwx,g=rx,o=rx
+    owner: "{{ _service_owner }}"
+    group: "{{ _service_owner }}"
+  when: service_script is defined and service_script
+
+- name: Create service file
+  become: "{{ _service_scope == 'system' }}"
+  template:
+    src: systemd.service.j2
+    dest: "{{ _service_directory }}/{{ _service_filename }}.service"
+    owner: "{{ _service_owner }}"
+    group: "{{ _service_owner }}"
+  register: _service_file
+
+- name: Create timer file
+  become: "{{ _service_scope == 'system' }}"
+  template:
+    src: systemd.timer.j2
+    dest: "{{ _service_directory }}/{{ _service_filename }}.timer"
+  when: service_schedule is defined
+  register: _timer_file
+
+- name: Set service state
+  become: "{{ _service_scope == 'system' }}"
+  become_user: "{{ _service_owner }}"
+  # become_method: machinectl
+  systemd_service:
+    daemon_reload: "{{ _service_file.changed or _timer_file.changed or (service_state is defined) }}"
+    name: "{{ _service_filename }}{% if service_schedule is defined %}.timer{% endif %}"
+    state: "{{ service_state | default((_service_file.changed or _timer_file.changed) | ternary('restarted', 'started')) }}"
+    enabled: "{{ service_enabled | default(true) }}"
+    scope: "{{ _service_scope }}"

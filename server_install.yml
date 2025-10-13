@@ -11,9 +11,17 @@
       loop: "{{ server_tasks_base + server_tasks }}"
       loop_control:
         loop_var: task
-      tags:
-        - always
+      tags: always
       when: task not in server_tasks_disabled
+    - include_role:
+        name: "{{ item }}"
+        apply:
+          tags:
+            - "{{ item }}"
+      tags: always
+      loop:
+        - backups
+
     # - name: Install Prometheus Node Exporter
     #   include_role:
     #     name: prometheus.prometheus.node_exporter

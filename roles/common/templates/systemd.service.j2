@@ -1,0 +1,42 @@
+[Unit]
+{% if service_description is defined %}
+Description={{ service_description }}
+{% endif %}
+
+{% if service_dependency is defined %}
+After={{ service_dependency }}
+Requires={{ service_dependency }}
+{% endif %}
+
+{% if service_after is defined %}
+After={{ service_after }}.target
+{% endif %}
+
+[Service]
+{% if service_type is defined %}
+Type={{ service_type }}
+{% endif %}
+{% if service_command is defined and service_command %}
+ExecStart=/bin/bash -c "{{ service_command.strip().replace('\n', ' && \\\n').replace('"', '\\"') }}"
+{% endif %}
+{% if service_script is defined and service_script %}
+ExecStart=/bin/bash -c "{{ _service_script_path }}"
+{% endif %}
+
+{% if service_stop is defined and service_stop %}
+ExecStop=/bin/bash -c "{{ service_stop.strip().replace('\n', ' && \\\n').replace('"', '\\"') }}"
+{% endif %}
+
+{% if service_workdir is defined %}
+WorkingDirectory={{ service_workdir }}
+{% endif %}
+
+{% if (service_type | default('') | lower ) != 'oneshot' and (service_schedule | default('')) == '' %}
+Restart=always
+RestartSec=5s
+StartLimitBurst=15
+StartLimitInterval=5m
+{% endif %}
+
+[Install]
+WantedBy=default.target

@@ -113,25 +113,60 @@ repositories_dir: "{{ user_apps_dir }}"
 user_services: {}
 
 
-user_backups_exclude_base:
+backups_exclude_base:
   - "*.db-wal"
   - "*.db-shm"
   - "*.sqlite3-wal"
   - "*.sqlite3-shm"
   - "*/.backup*.db"
-user_backups_exclude_extra: []
-user_backups_exclude: "{{ user_backups_exclude_base + user_backups_exclude_extra }}"
+backups_exclude_extra: []
+backups_exclude: "{{ backups_exclude_base + backups_exclude_extra }}"
 
-user_backups_include_base:
-  - "$HOME/.ssh"
-  - "$HOME/.history"
-  - "$HOME/.config/containers/containers.conf"
-  - "$HOME/.config/containers/hosts"
-  - "$HOME/.config/gh/"
-  - "$HOME/.config/rclone/"
-user_backups_include_extra: []
-user_backups_include: "{{ user_backups_include_base + user_backups_include_extra }}"
+backups_job_machine_paths_base:
+  - "{{ ansible_user_dir }}/.ssh/"
+  - "{{ ansible_user_dir }}/.history"
 
-user_backups_repository: nagato.tina.moe:Backups/Repositories/{{ ansible_host }}::{now}
+  - "{{ ansible_user_dir }}/.config/containers/containers.conf"
+  - "{{ ansible_user_dir }}/.config/containers/hosts"
+  - "{{ ansible_user_dir }}/.config/gh/"
+  - "{{ ansible_user_dir }}/.config/pipus.txt"
+  - "{{ ansible_user_dir }}/.config/rclone/"
 
-user_backups_calendar: weekly
+  - /etc/healthcheck.yml
+  - /etc/login-webhook.env
+  - /etc/profile.d/motd.sh
+  - /srv/www/errors/
+
+  - /etc/cockpit/cockpit.conf
+  - /etc/dnf/dnf.conf
+  - /etc/fstab
+  - /etc/group
+  - /etc/gshadow
+  - /etc/hosts
+  - /etc/mdadm.conf
+  - /etc/modules-load.d/
+  - /etc/passwd
+  - /etc/shadow
+  - /etc/ssh/
+  - /etc/subgid
+  - /etc/subuid
+  - /etc/udev/rules.d/
+  - /etc/wireguard/
+  - /etc/yum.repos.d/
+
+
+backups_job_machine_paths_extra: []
+backups_job_machine_paths: "{{ backups_job_machine_paths_base + backups_job_machine_paths_extra }}"
+
+backups_repository: tina@asashio.tina.moe:Backups/Repositories/{{ ansible_hostname }}
+backups_archive: '{now}'
+
+backups_calendar: weekly
+
+backups_jobs:
+  machine:
+    paths: "{{ backups_job_machine_paths }}"
+    excludes: "{{ backups_exclude }}"
+    repository: "{{ backups_repository }}"
+    archive: "{{ backups_archive }}"
+    calendar: "{{ backups_calendar }}"

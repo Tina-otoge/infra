@@ -25,7 +25,17 @@
   vars:
     path: "{{ backups_borg_config_dir }}"
 
-- name: "Import backup configuration task for {{ job.key }}"
+- set_fact:
+    borg_admin_user: "{{ ansible_env.SUDO_USER or ansible_user_id }}"
+
+- user:
+    name: "{{ borg_admin_user }}"
+  register: backup_user_info
+
+- set_fact:
+    ansible_user_dir: "{{ backup_user_info.home }}"
+
+- name: Import backup configuration task for each job
   include_role:
     name: "{{ role_name }}"
     tasks_from: for_job

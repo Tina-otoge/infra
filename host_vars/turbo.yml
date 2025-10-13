@@ -1,4 +1,10 @@
-hostname: TurboVM
+backups_job_machine_paths_extra:
+  - "{{ ansible_user_dir }}/.config/fstab"
+  - "{{ ansible_user_dir }}/.config/tinyproxy/"
+
+  - /etc/dnsmasq.conf
+  - /etc/dnsmasq.d/
+  - /etc/caddy/
 
 packages:
   - dnsmasq

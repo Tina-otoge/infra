@@ -1,3 +1,6 @@
+backups_job_machine_paths_extra:
+  - "{{ ansible_user_dir }}/.local/share/wg-easy/"
+
 packages_base:
   - borgbackup
   - caddy

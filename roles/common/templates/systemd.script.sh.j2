@@ -1,0 +1,9 @@
+#!/bin/bash
+# {{ ansible_managed }}
+
+{% if service_workdir is defined %}
+mkdir -p {{ service_workdir }}
+cd {{ service_workdir }}
+{% endif %}
+
+{{ service_script }}
