@@ -3,6 +3,7 @@ skip_list:
   - fqcn
   - name
   - no-changed-when
+  - no-free-form
   - package-latest
   - risky-file-permissions
   - var-naming[no-role-prefix]

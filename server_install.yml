@@ -21,6 +21,7 @@
       tags: always
       loop:
         - backups
+        - smart
 
     # - name: Install Prometheus Node Exporter
     #   include_role:
