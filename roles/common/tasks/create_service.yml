@@ -1,6 +1,6 @@
 - set_fact:
     _service_filename: >-
-      {{ service_name | replace(' ', '_') | replace('-', '_') | lower }}
+      {{ service_name | replace(' ', '-') | lower }}
     _service_scope: "{{ service_scope | default('system') }}"
 
 - when: _service_scope == 'system'

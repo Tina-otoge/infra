@@ -2,6 +2,20 @@
   become: true
 
   tasks:
+    - include_role:
+        name: common
+        tasks_from: delete_service
+        apply:
+          tags:
+            - clean
+      vars:
+        service_name: "{{ item.name }}"
+        service_timer: "{{ item.timer | default(omit) }}"
+      loop:
+        - name: backup_machine
+          timer: true
+        - name: smart_check
+      tags: always
     - include_tasks:
         file: "tasks/server/{{ task }}.yml"
         apply:

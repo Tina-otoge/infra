@@ -1,0 +1,33 @@
+# TODO:
+# - user scope support
+
+- name: Disable service {{ service_name }}
+  systemd:
+    name: "{{ service_name }}"
+    enabled: false
+    state: stopped
+  become: true
+
+- name: Disable timer for {{ service_name }}
+  when: service_timer | default(false)
+  systemd:
+    name: "{{ service_name }}.timer"
+    enabled: false
+    state: stopped
+  become: true
+
+- set_fact:
+    _service_path: "{{ service_path | default('/usr/local/lib/systemd/system/' + service_name + '.service') }}"
+
+- name: Remove service files for {{ service_name }}
+  file:
+    path: "{{ _service_path }}"
+    state: absent
+  become: true
+  notify: systemd reload
+
+- name: Remove timer files for {{ service_name }}
+  when: service_timer | default(false)
+  file:
+    path: "{{ _service_path | regex_replace('\\.service$', '.timer') }}"
+    state: absent
