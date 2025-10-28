@@ -1,3 +1,7 @@
+# TODO:
+# - Download https://github.com/intel/intel-linux-firmware to /lib/firmware/i915
+#   as root
+
 backups_job_machine_paths_extra:
   - "{{ repositories_dir }}/aniboard/conf/config.yml"
 
@@ -195,14 +199,16 @@ quadlets:
     exec: /config/lms.conf
   jellyfin:
     image: jellyfin/jellyfin
-    # tag: 10.11.0
-    tag: 10.10.3 # needed for ani-sync
-    # https://github.com/vosmiic/jellyfin-ani-sync/issues/185
+    tag: "{{ versions.jellyfin }}"
     ports:
       - "{{ loopback_ip }}:{{ jellyfin_port }}:{{ jellyfin_port }}"
     volumes:
       - /mnt/sakura/public:/mnt/sakura/public:ro
       - "{{ ansible_user_dir }}/.config/jellyfin:/config"
       - "{{ ansible_user_dir }}/.cache/jellyfin:/cache"
+    devices:
+      - /dev/dri/renderD128
+    groupadds:
+      - 105 # render
     networks:
       - six.network

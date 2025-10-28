@@ -20,6 +20,18 @@ Volume={{ volume }}
 {% endfor %}
 {% endif %}
 
+{% if item.value.devices is defined %}
+{% for device in item.value.devices %}
+AddDevice={{ device }}
+{% endfor %}
+{% endif %}
+
+{% if item.value.groupadds is defined %}
+{% for group in item.value.groupadds %}
+GroupAdd={{ group }}
+{% endfor %}
+{% endif %}
+
 {% if item.value.network is defined %}
 Network={{ item.value.network }}
 {% endif %}
