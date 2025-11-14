@@ -27,6 +27,12 @@
       "*.asso-msn.fr":
         type: CNAME
         value: asso-msn.fr.
+      lelap.in:
+        type: A
+        value: "{{ records['laffey-ii.tina.moe'].value }}"
+      "*.lelap.in":
+        type: CNAME
+        value: lelap.in.
       evertsen.tina.moe:
         type: A
         value: 51.15.34.63
