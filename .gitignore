@@ -1,3 +1,5 @@
+.ansible/
 .venv/
 .vscode/
 /group_vars/all/secrets.yml
+/.env

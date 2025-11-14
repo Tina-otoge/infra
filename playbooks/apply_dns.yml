@@ -1,0 +1,50 @@
+- hosts: localhost
+  vars:
+    records:
+      laffey-ii.tina.moe:
+        type: A
+        value: 51.68.155.121
+      evertsen.tina.moe:
+        type: A
+        value: 51.15.34.63
+      asashio.tina.moe:
+        type: CNAME
+        value: home.tina.moe
+      home.tina.moe:
+        type: CNAME
+        value: cachan.savatier.fr
+      cachan.savatier.fr:
+        type: A
+        value: 82.67.133.52
+
+    hosts_with_caddy_domains:
+      - asashio
+
+  tasks:
+    - name: Apply records
+      ovh_dns:
+        state: present
+        domain: "{{ item.key | domain_from_fqdn }}"
+        name: "{{ item.key | name_from_fqdn }}"
+        type: "{{ item.value.type }}"
+        value: "{{ item.value.value }}"
+        ttl: 0
+      loop: "{{ records | dict2items }}"
+    - name: Add aliases for all caddy domains
+      ovh_dns:
+        state: present
+        domain: "{{ item.domain | domain_from_fqdn }}"
+        name: "{{ item.domain | name_from_fqdn }}"
+        type: CNAME
+        value: "{{ item.host }}.tina.moe"
+        ttl: 0
+      loop: |
+        {% set result = [] %}
+        {% for host in hosts_with_caddy_domains %}
+        {%   for entry in hostvars[host].caddy_entries %}
+        {%     if entry.domain | split(':') | length == 1 and entry.domain != host + '.tina.moe' %}
+        {%       set _ = result.append({'domain': entry.domain, 'host': host}) %}
+        {%     endif %}
+        {%   endfor %}
+        {% endfor %}
+        {{ result }}

@@ -1,0 +1,3 @@
+[submodule "plugins/modules/ovh-dns"]
+	path = plugins/modules/ovh-dns
+	url = https://github.com/gheesh/ansible-ovh-dns
