@@ -6,6 +6,24 @@
       laffey-ii.tina.moe:
         type: A
         value: 51.68.155.121
+      cachan.savatier.fr:
+        type: A
+        value: 82.67.133.52
+      champigny.savatier.fr:
+        type: A
+        value: 82.64.184.254
+      evertsen.tina.moe:
+        type: A
+        value: 51.15.34.63
+      asashio.tina.moe:
+        type: CNAME
+        value: home.tina.moe.
+      turbo.tina.moe:
+        type: CNAME
+        value: champigny.savatier.fr.
+      home.tina.moe:
+        type: CNAME
+        value: cachan.savatier.fr.
       "*.tina.moe":
         type: CNAME
         value: laffey-ii.tina.moe.
@@ -33,18 +51,6 @@
       "*.lelap.in":
         type: CNAME
         value: lelap.in.
-      evertsen.tina.moe:
-        type: A
-        value: 51.15.34.63
-      asashio.tina.moe:
-        type: CNAME
-        value: home.tina.moe.
-      home.tina.moe:
-        type: CNAME
-        value: cachan.savatier.fr.
-      cachan.savatier.fr:
-        type: A
-        value: 82.67.133.52
 
     hosts_with_cnames_for_every_caddy_domain:
       - asashio
