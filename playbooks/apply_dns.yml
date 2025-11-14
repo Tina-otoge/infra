@@ -4,6 +4,27 @@
       laffey-ii.tina.moe:
         type: A
         value: 51.68.155.121
+      "*.tina.moe":
+        type: CNAME
+        value: tina.moe
+      savatier.fr:
+        type: A
+        value: "{{ records['laffey-ii.tina.moe'].value }}"
+      "*.savatier.fr":
+        type: CNAME
+        value: savatier.fr
+      fairyjoke.net:
+        type: A
+        value: "{{ records['laffey-ii.tina.moe'].value }}"
+      "*.fairyjoke.net":
+        type: CNAME
+        value: fairyjoke.net
+      asso-msn.fr:
+        type: A
+        value: "{{ records['laffey-ii.tina.moe'].value }}"
+      "*.asso-msn.fr":
+        type: CNAME
+        value: asso-msn.fr
       evertsen.tina.moe:
         type: A
         value: 51.15.34.63
