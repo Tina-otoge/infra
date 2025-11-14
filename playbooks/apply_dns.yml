@@ -46,7 +46,7 @@
         type: A
         value: 82.67.133.52
 
-    hosts_with_caddy_domains:
+    hosts_with_cnames_for_every_caddy_domain:
       - asashio
 
   tasks:
@@ -69,7 +69,7 @@
         ttl: 0
       loop: |
         {% set result = [] %}
-        {% for host in hosts_with_caddy_domains %}
+        {% for host in hosts_with_cnames_for_every_caddy_domain %}
         {%   for entry in hostvars[host].caddy_entries %}
         {%     if entry.domain | split(':') | length == 1 and entry.domain != host + '.tina.moe' %}
         {%       set _ = result.append({'domain': entry.domain, 'host': host}) %}
