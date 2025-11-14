@@ -135,6 +135,16 @@ caddy_entries:
     robots: false
     reverses:
       - to: "{{ jellyfin_port }}"
+  - domain: kavita.tina.moe
+    file: six
+    robots: false
+    reverses:
+      - to: "{{ kavita_port }}"
+  - domain: komga.tina.moe
+    file: six
+    robots: false
+    reverses:
+      - to: "{{ komga_port }}"
 
 repositories:
   - src: https://github.com/Tina-otoge/AniBoard
@@ -212,3 +222,23 @@ quadlets:
       - 105 # render
     networks:
       - six.network
+  kavita:
+    image: lscr.io/linuxserver/kavita
+    tag: latest
+    ports:
+      - "{{ loopback_ip }}:{{ kavita_port }}:5000"
+    volumes:
+      - "{{ ansible_user_dir }}/.config/kavita:/config"
+      - "{{ ansible_user_dir }}/.local/share/kavita:/data"
+      - /mnt/sakura/public/Works/Books:/mnt/sakura/public/Works/Books:ro
+    env: "{{ linuxserver_env }}"
+  komga:
+    image: gotson/komga
+    tag: latest
+    ports:
+      - "{{ loopback_ip }}:{{ komga_port }}:25600"
+    volumes:
+      - "{{ ansible_user_dir }}/.config/komga:/config"
+      - "{{ ansible_user_dir }}/.local/share/komga:/data"
+      - /mnt/sakura/public/Works/Books:/mnt/sakura/public/Works/Books:ro
+    env: "{{ linuxserver_env }}"

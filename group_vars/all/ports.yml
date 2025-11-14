@@ -7,6 +7,8 @@ foil_port: 10007
 grafana_port: 3003
 infra_webui_port: 10001
 jellyfin_port: 8096
+kavita_port: 10014
+komga_port: 10015
 lapadmin_port: 10009
 loki_port: 3100
 minecraft_port: 25565
