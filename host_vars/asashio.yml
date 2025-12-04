@@ -242,3 +242,10 @@ quadlets:
       - "{{ ansible_user_dir }}/.local/share/komga:/data"
       - /mnt/sakura/public/Works/Books:/mnt/sakura/public/Works/Books:ro
     env: "{{ linuxserver_env }}"
+  rtmp:
+    image: tiangolo/nginx-rtmp
+    tag: latest
+    ports:
+      - "{{ local_ip }}:1935:1935"
+    volumes:
+      - "{{ ansible_user_dir }}/.config/nginx-rtmp:/etc/nginx/"
