@@ -26,8 +26,17 @@
         echo "SMART status for $drive indicates a problem:"
         echo "$details"
         if [ -n "$WEBHOOK_URL" ]; then
-          msg=$(echo "$details" | sed 's/"/\\"/g' | sed "s/'/\\'/g" | tr -d '\n')
-          curl -X POST -H 'Content-type: application/json' -d '{"content":"SMART alert for drive '"$drive"': '"$msg"'"}' $WEBHOOK_URL
+          max=1900
+          msg="$(printf "SMART alert for drive %s on %s:\n%s" "$drive" "$HOSTNAME" "$details")"
+          {% raw %}
+          while [ ${#msg} -gt 0 ]; do
+            part="${msg:0:$max}"
+            curl -X POST -H "Content-Type: application/json" \
+              -d "$(jq -n --arg c "$part" '{content: $c}')" \
+              "$WEBHOOK_URL"
+            msg="${msg:$max}"
+          done
+          {% endraw %}
         fi
       done
 
