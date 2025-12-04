@@ -27,7 +27,7 @@
       time: "{{ item.value.get('calendar') }}"
   loop: "{{ user_services | dict2items }}"
   notify: systemd reload user-mode
-  when: item.value.get('calendar')
+  when: '"calendar" in item.value'
 
 - name: Create user service scripts
   copy:
@@ -38,7 +38,7 @@
 
       {{ item.value.script }}
   loop: "{{ user_services | dict2items }}"
-  when: item.value.get('script')
+  when: '"script" in item.value'
 
 - name: Create volume paths on host for quadlets
   file:

@@ -59,7 +59,7 @@
     mode: u=rwx,g=rx,o=rx
     owner: "{{ _service_owner }}"
     group: "{{ _service_owner }}"
-  when: service_script is defined and service_script
+  when: service_script is defined and service_script != ''
 
 - name: Create service file
   become: "{{ _service_scope == 'system' }}"
