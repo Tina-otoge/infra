@@ -1,4 +1,3 @@
-
 - name: Create ops.json
   copy:
     dest: "{{ server.value.path }}/ops.json"

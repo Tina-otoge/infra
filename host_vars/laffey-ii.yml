@@ -365,6 +365,7 @@ user_services:
     workdir: "{{ repositories_dir }}/couscous"
     cmd: "{{ compose_setup }}"
   gacha_genesis:
+    enabled: false
     workdir: "{{ repositories_dir }}/arcade-tools/sdvx-manual-card-generator"
     cmd: |
       {{ python_setup }}
@@ -374,7 +375,7 @@ user_services:
 quadlets:
   mc:
     image: marctv/minecraft-papermc-server
-    tag: 1.21.7
+    tag: "{{ minecraft_version }}"
     ports:
       - "{{ minecraft_port }}:{{ minecraft_port }}"
     volumes:
@@ -476,9 +477,10 @@ quadlets:
     volumes:
       - "{{ ansible_user_dir }}/.local/share/vaultwarden:/data"
 
+minecraft_version: 1.21.10
 
 # https://essentialsx.net/downloads.html
-minecraft_essentials_version: 2.22.0-dev+19-7bc91f1
+minecraft_essentials_version: 2.22.0-dev+43-9f57b3e
 
 minecraft_servers:
   overdrive:
