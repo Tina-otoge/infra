@@ -27,6 +27,7 @@ packages_base:
   - podman-compose
   # - promtail
   - rclone
+  - rsync
   - screen
   - sshfs
   - tree
