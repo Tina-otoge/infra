@@ -16,32 +16,37 @@
       command: dnf repolist crb
       register: _crb_check
       changed_when: false
+      when: not ansible_distribution == 'Amazon'
 
     - name: Enable CRB
       command: dnf config-manager --set-enabled crb
-      when: not _crb_check.stdout.endswith("enabled")
+      when:
+        - not ansible_distribution == 'Amazon'
+        - not _crb_check.stdout.endswith("enabled")
 
     - name: Check if RPM Fusion is enabled
       command: dnf repolist rpmfusion-free-updates
       register: _rpmfusionfree_check
+      when: ansible_distribution != 'Amazon'
       changed_when: false
 
     - name: Enable RPM Fusion Free
       command: dnf install --nogpgcheck https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-{{ ansible_distribution_major_version }}.noarch.rpm -y
-      when: not _rpmfusionfree_check.stdout.endswith("enabled")
+      when:
+        - ansible_distribution != 'Amazon'
+        - not _rpmfusionfree_check.stdout.endswith("enabled")
 
     - name: Check if RPM Fusion Nonfree is enabled
       command: dnf repolist rpmfusion-nonfree-updates
       register: _rpmfusionnonfree_check
+      when: ansible_distribution != 'Amazon'
       changed_when: false
 
     - name: Enable RPM Fusion Nonfree
       command: dnf install --nogpgcheck https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-{{ ansible_distribution_major_version }}.noarch.rpm -y
-      when: not _rpmfusionnonfree_check.stdout.endswith("enabled")
-
-    - name: Enable CRB
-      command: dnf config-manager --set-enabled crb
-      when: not _crb_check.stdout.endswith("enabled")
+      when:
+        - ansible_distribution != 'Amazon'
+        - not _rpmfusionnonfree_check.stdout.endswith("enabled")
 
     # - name: Check if ELRepo is enabled
     #   command: dnf repolist elrepo
@@ -99,6 +104,11 @@
       command: |
         dnf install -y {{ _packages_to_install_flat | default([]) | join(' ') }}
       when: _packages_to_install is defined
+
+- when: ansible_os_family == 'Debian'
+  name: Update apt cache
+  apt:
+    cache_valid_time: 3600
 
 - name: Install packages
   package:
