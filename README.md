@@ -10,7 +10,7 @@ The server playbook is responsible for OS-level setup, such as setting up the
 hostname and installing packages.
 
 The user playbook is responsible for installing "user apps", such as userland
-systemd services and apps.
+systemd services, apps, and containers.
 
 ## Requirements
 
@@ -60,25 +60,6 @@ molecule converge
    you want to connect to, *8080* is the port you want to bind to on your host,
    and *80* is the port you want to bind to in the VM.
 
-### Shares
+## License
 
-Machine | Share                              | Authentication
-------- | ---------------------------------- | --------------
-Freebox | SMB //mafreebox.freebox.fr/freebox | guest
-Nagato  | SMB //nagato.lan/Public            | guest
-Nagato  | SMB //nagato.lan/tina-data         | password
-
-### Mounts
-
-Machine | Target        | Method
-------- | ------------- | ------
-Turbo   | Freebox       | fstab
-Turbo   | Sakura Public | systemd mount (system in /usr/local)
-Turbo   | Sakura tina   | users-fstab (see Ansible task)
-Laffey  | Turbo ~tina   | user-mount (~/.local/bin)
-
-## TODO
-
-- [ ] Configure network mounts via Ansible
-  - [ ] users-fstab configs
-  - [ ] user-mount script (see Laffey)
+MIT.
