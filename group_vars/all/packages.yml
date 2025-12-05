@@ -4,13 +4,11 @@ packages_base:
   - borgbackup
   - caddy
   - cockpit
-  - cockpit-navigator
   # - cockpit-pcp
   - cockpit-podman
   - cockpit-storaged
   - dhcpdump
   - fail2ban
-  - fastfetch
   - ffmpeg
   # - fzf # moved to server tasks
   - git
@@ -19,9 +17,8 @@ packages_base:
   # - megatools
   - ncdu
   - net-tools
-  - nfs-utils
+  # - nfs-utils
   - nmap
-  - openssl-devel
   - p7zip
   - podman
   - podman-compose
@@ -37,8 +34,6 @@ packages_base:
   - zsh-syntax-highlighting
   # necessary to build Python (pyenv)
   - gcc
-  - sqlite-devel
-  - zlib-devel
 
 packages: []
 
@@ -57,25 +52,39 @@ packages_by_distro:
     "9":
       - name: caddy
         copr: "@caddy/caddy"
+      - name: fastfetch
       - name: megatools
         url: https://www.rpmfind.net/linux/fedora/linux/releases/42/Everything/{{ ansible_architecture }}/os/Packages/m/megatools-1.11.1-7.fc42.{{ ansible_architecture }}.rpm
-      - name: cockpit-identities
-        url: https://github.com/45Drives/cockpit-identities/releases/download/v{{ versions.cockpit_identities }}/cockpit-identities-{{ versions.cockpit_identities }}-1.el8.noarch.rpm
-      - name: cockpit-file-sharing
-        url: https://github.com/45Drives/cockpit-file-sharing/releases/download/v{{ versions.cockpit_file_sharing | split('-') | first }}/cockpit-file-sharing-{{ versions.cockpit_file_sharing }}.el9.noarch.rpm
+      - name: openssl-devel
       - name: sqlite
       - name: util-linux-user # chsh
+      # Cockpit
+      - name: cockpit-file-sharing
+        url: https://github.com/45Drives/cockpit-file-sharing/releases/download/v{{ versions.cockpit_file_sharing | split('-') | first }}/cockpit-file-sharing-{{ versions.cockpit_file_sharing }}.el9.noarch.rpm
+      - name: cockpit-identities
+        url: https://github.com/45Drives/cockpit-identities/releases/download/v{{ versions.cockpit_identities }}/cockpit-identities-{{ versions.cockpit_identities }}-1.el8.noarch.rpm
+      - name: cockpit-navigator
+      # necessary to build Python (pyenv)
+      - name: sqlite-devel
+      - name: zlib-devel
     "10":
       - name: caddy
         copr: "@caddy/caddy"
+      - name: fastfetch
       - name: megatools
         url: https://www.rpmfind.net/linux/fedora/linux/releases/42/Everything/{{ ansible_architecture }}/os/Packages/m/megatools-1.11.1-7.fc42.{{ ansible_architecture }}.rpm
-      - name: cockpit-identities
-        url: https://github.com/45Drives/cockpit-identities/releases/download/v{{ versions.cockpit_identities }}/cockpit-identities-{{ versions.cockpit_identities }}-1.el8.noarch.rpm
-      - name: cockpit-file-sharing
-        url: https://github.com/45Drives/cockpit-file-sharing/releases/download/v{{ versions.cockpit_file_sharing | split('-') | first }}/cockpit-file-sharing-{{ versions.cockpit_file_sharing }}.el9.noarch.rpm
+      - name: openssl-devel
       - name: sqlite
       - name: util-linux-user # chsh
+      # Cockpit
+      - name: cockpit-file-sharing
+        url: https://github.com/45Drives/cockpit-file-sharing/releases/download/v{{ versions.cockpit_file_sharing | split('-') | first }}/cockpit-file-sharing-{{ versions.cockpit_file_sharing }}.el9.noarch.rpm
+      - name: cockpit-identities
+        url: https://github.com/45Drives/cockpit-identities/releases/download/v{{ versions.cockpit_identities }}/cockpit-identities-{{ versions.cockpit_identities }}-1.el8.noarch.rpm
+      - name: cockpit-navigator
+      # necessary to build Python (pyenv)
+      - name: sqlite-devel
+      - name: zlib-devel
   Ubuntu:
     "24":
       - name: sqlite3
