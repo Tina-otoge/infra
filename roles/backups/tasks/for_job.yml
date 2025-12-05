@@ -55,6 +55,11 @@
 
       ssh_key=$(find "{{ ansible_user_dir }}/.ssh/borg_key" "{{ ansible_user_dir }}/.ssh/id_rsa" "{{ ansible_user_dir }}/.ssh/id_ed25519" | head -n 1)
 
+      if [ -z "$ssh_key" ]; then
+        logmsg "No SSH key found for borg backup!"
+        exit 1
+      fi
+
       export BORG_RELOCATED_REPO_ACCESS_IS_OK=yes
       export BORG_REPO="{{ job.value.repository }}"
       export BORG_KEYS_DIR={{ ansible_user_dir }}/.config/borg/keys
