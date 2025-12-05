@@ -1,26 +1,11 @@
 backups_job_machine_paths_extra:
   - "{{ ansible_user_dir }}/.local/share/wg-easy/"
 
-packages_base:
-  - borgbackup
-  - caddy
-  - htop
-  - fail2ban
-  - ncdu
-  - neofetch
-  - net-tools
-  - podman
-  - rclone
-  - screen
-  - sshfs
-  - tree
-  - vim
-  - zsh
-  - zsh-syntax-highlighting
-
 server_tasks_disabled:
   - caddy
   - cockpit
+
+caddy_enabled: false
 
 quadlets:
   wg_easy:

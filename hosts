@@ -1,5 +1,6 @@
 asashio   ansible_host=asashio.tina.moe
 evertsen  ansible_host=evertsen.tina.moe
+i-13      ansible_host=i-13.tina.moe
 laffey    ansible_host=laffey.tina.moe
 laffey-ii ansible_host=laffey-ii.tina.moe
 nagato    ansible_host=nagato.lan ansible_ssh_common_args='-o ProxyJump=asashio.tina.moe' caddy_https=False
