@@ -27,16 +27,15 @@
     service_script: |
       logmsg() {
         # get from stdin if no argument
-        if [ -z "$1" ]; then
-          msg=''
-          read -r line
-          while [ -n "$line" ]; do
-            echo $line
-            msg="$msg$line\n"
-            read -r line
-          done
+          if [ -z "$1" ]; then
+            msg=""
+            while IFS= read -r line; do
+                printf '%s\n' "$line"
+                msg+="$line"$'\n'
+            done
+            msg="${msg//\\n/$'\n'}"
         else
-          echo $1
+          echo "$1"
           msg="$1"
         fi
 
@@ -44,9 +43,7 @@
           return
         fi
 
-        msg=$(echo $msg | sed 's/"/\\"/g' | sed "s/'/\\'/g" | tr -d '\n')
-
-        curl -X POST -H 'Content-type: application/json' -d '{"content":"'"$msg"'"}' $WEBHOOK_URL
+        curl -X POST -H 'Content-type: application/json' -d "$(jq -n --arg m "$msg" '{content: $m}')" $WEBHOOK_URL
       }
 
       if [ -f /etc/backups-webhook.env ]; then
