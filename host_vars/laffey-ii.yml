@@ -65,6 +65,11 @@ caddy_entries:
         path_regexp drs_videos ^/~tina/lap/drs_videos/(.*)\.mp4
       }
       redir @drs_videos https://drs.lelap.in/videos/{re.drs_videos.1}.mp4
+  - domain: laffey.tina.moe
+    file: tina
+    robots: false
+    extra: |
+      redir https://laffey-ii.tina.moe{uri}
 
   # Tina
   - domain: tina.moe

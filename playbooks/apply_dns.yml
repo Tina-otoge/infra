@@ -3,6 +3,11 @@
     # Dots at the end of CNAME are required to target fqdns and not subdomains.
     # See https://docs.dnscontrol.org/language-reference/why-the-dot
     records:
+      laffey.tina.moe:
+        # type: A
+        # value: 198.27.82.171
+        type: CNAME
+        value: laffey-ii.tina.moe.
       laffey-ii.tina.moe:
         type: A
         value: 51.68.155.121
