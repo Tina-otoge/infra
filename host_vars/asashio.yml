@@ -52,12 +52,14 @@ dns_local_suffixes:
   - lan
   - local
 
+local_ip: 192.168.1.80
+
 hosts_map:
   192.168.1.1: nagato.lan
   192.168.1.3: ninox.lan
   192.168.1.5: rootage.lan
   192.168.1.65: pop.lan tv.lan
-  192.168.1.80: asashio.lan
+  "{{ local_ip }}": asashio.lan
   192.168.1.139: kokona.lan
   192.168.1.254: freebox.lan
   127.0.0.2: sddt.amlog.sys-all.net
