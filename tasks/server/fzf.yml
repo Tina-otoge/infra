@@ -1,9 +1,9 @@
 - set_fact:
-    _fzf_version: 0.49.0
+    _fzf_version: 0.67.0
 
 - name: Extract fzf package
   unarchive:
-    src: https://github.com/junegunn/fzf/releases/download/{{ _fzf_version }}/fzf-{{ _fzf_version }}-linux_amd64.tar.gz
+    src: https://github.com/junegunn/fzf/releases/download/v{{ _fzf_version }}/fzf-{{ _fzf_version }}-linux_{{ ansible_architecture | arch }}.tar.gz
     dest: /usr/local/bin
     creates: /usr/local/bin/fzf
     mode: o=rwx,g=rx,u=rx
@@ -15,4 +15,4 @@
   git:
     repo: https://github.com/junegunn/fzf.git
     dest: /usr/local/share/fzf
-    version: "{{ _fzf_version }}"
+    version: "v{{ _fzf_version }}"
