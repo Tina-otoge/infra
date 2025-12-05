@@ -51,24 +51,28 @@
     value: '^.*Authentication request for .* has been denied \(IP: <ADDR>\)\.'
   notify: fail2ban restart
 
-- name: Check if firewalld is installed
+- name: Check if firewalld is installed (Debian)
   when: ansible_os_family == 'Debian'
   command: dpkg -s firewalld
   ignore_errors: true
-  register: _firewalld_check
+  register: _firewalld_check_debian
 
-- name: Check if firewalld is installed
+- name: Check if firewalld is installed (RedHat)
   when: ansible_os_family == 'RedHat'
   command: rpm -q firewalld
   ignore_errors: true
-  register: _firewalld_check
+  register: _firewalld_check_redhat
 
 - name: Ensure firewalld is disabled
   service:
     name: firewalld
     state: stopped
     enabled: false
-  when: _firewalld_check.rc == 0
+  when: |
+    (ansible_os_family == 'Debian' and _firewalld_check_debian.rc == 0)
+    or
+    (ansible_os_family == 'RedHat' and _firewalld_check_redhat.rc == 0)
+
 
 - name: Ensure fail2ban-firewalld config is absent
   file:
