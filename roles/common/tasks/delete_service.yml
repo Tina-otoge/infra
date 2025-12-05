@@ -1,15 +1,24 @@
 # TODO:
 # - user scope support
 
+- name: List services
+  shell: systemctl list-units --all --no-legend | awk '{print $1}'
+  register: service_list
+  changed_when: false
+  become: true
+
 - name: Disable service {{ service_name }}
   systemd:
     name: "{{ service_name }}"
     enabled: false
     state: stopped
   become: true
+  when: service_name + '.service' in service_list.stdout_lines
 
 - name: Disable timer for {{ service_name }}
-  when: service_timer | default(false)
+  when:
+    - service_timer
+    - service_name + '.timer' in service_list.stdout_lines
   systemd:
     name: "{{ service_name }}.timer"
     enabled: false

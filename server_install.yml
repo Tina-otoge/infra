@@ -10,7 +10,7 @@
             - clean
       vars:
         service_name: "{{ item.name }}"
-        service_timer: "{{ item.timer | default(omit) }}"
+        service_timer: "{{ item.timer | default(False) }}"
       loop:
         - name: backup_machine
           timer: true
