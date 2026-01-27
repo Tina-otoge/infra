@@ -232,6 +232,11 @@ caddy_entries:
       handle_path /discord {
         redir https://discord.gg/k4CVGDQ
       }
+  - domain: goty.asso-msn.fr
+    robots: false
+    file: msn
+    reverses:
+      - to: "{{ goty_port }}"
 
   # sayaka
   - domain: mirror.lovelyrad.io
@@ -378,7 +383,12 @@ user_services:
     cmd: |
       {{ python_setup }}
       PORT=15712 DATA_DIR=./data python gacha.py
-
+  msn_goty:
+    workdir: "{{ repositories_dir }}/goty"
+    cmd: |
+      {{ python_setup }}
+      pip install uvicorn
+      uvicorn app.application:app --host 127.0.0.1 --port {{ goty_port }}
 
 quadlets:
   mc:

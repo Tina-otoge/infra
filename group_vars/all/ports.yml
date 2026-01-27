@@ -4,6 +4,7 @@ cockpit_port: 9090
 feishin_port: 9180
 flood_port: 3000
 foil_port: 10007
+goty_port: 10016
 grafana_port: 3003
 infra_webui_port: 10001
 jellyfin_port: 8096
