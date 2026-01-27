@@ -248,6 +248,12 @@ caddy_entries:
     reverses:
       - to: 39614
 
+  # reaxt
+  - domain: poobmap.reaxt.dev
+    file: reaxt
+    extra: |
+      reverse_proxy 127.0.0.1:25578
+
 users:
   - sayaka
   - reaxt
