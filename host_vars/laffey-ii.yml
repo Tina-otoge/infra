@@ -33,6 +33,9 @@ backups_job_machine_paths_extra:
 
 healthchecks: true
 
+packages:
+  - btop # requested by reaxt 2026-01-25
+
 caddy_error_handlers:
   - 502
 
