@@ -12,6 +12,10 @@ on:
         required: false
         default: ''
         type: string
+      healthcheck:
+        required: false
+        default: ''
+        type: string
     secrets:
       user:
         required: true
@@ -58,6 +62,22 @@ jobs:
             -e "deploy_version=${{ github.sha }}" \
             -e "deploy_app=${{ inputs.app }}" \
             -e "deploy_service=${{ inputs.service }}" \
+      - name: Wait for healthcheck
+        if: ${{ inputs.healthcheck }}
+        run: |
+          max=10
+          wait=5
+          attempt=0
+          while ! curl -sSf --max-time 5 --connect-timeout 3 "${{ inputs.healthcheck }}" 2>&1; do
+            attempt=$((attempt + 1))
+            if [ $attempt -ge $max ]; then
+              echo "Healthcheck failed after $max attempts at ${{ inputs.healthcheck }}"
+              exit 1
+            fi
+            echo "Healthcheck attempt $attempt/$max failed. Retrying in ${wait}s..."
+            sleep $wait
+          done
+          echo "✅ Healthcheck passed"
       - name: Notify
         if: ${{ env.WEBHOOK_URL }}
         run: |
