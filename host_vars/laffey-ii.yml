@@ -23,6 +23,9 @@ backups_job_machine_paths_extra:
   - "{{ repositories_dir }}/artcompanion/data.json"
   - "{{ repositories_dir }}/couscous/.env"
   - "{{ repositories_dir }}/couscous/gitea/"
+  - "{{ repositories_dir }}/couscous-orders/.env"
+  - "{{ repositories_dir }}/couscous-orders/aliases.yml"
+  - "{{ repositories_dir }}/couscous-orders/users.json"
 
   - "{{ ansible_user_dir }}/.local/share/wallos/"
   - "{{ ansible_user_dir }}/.local/share/wg-easy/"
@@ -296,6 +299,9 @@ repositories:
     name: artcompanion
   - src: git@github.com:Tina-otoge/couscous-infra.git
     name: couscous
+  - src: https://github.com/asso-msn/discord-couscous-orders
+    name: couscous-orders
+    version: main
 
 user_services:
   mechadon:
@@ -397,6 +403,11 @@ user_services:
       {{ python_setup }}
       pip install uvicorn
       uvicorn app.application:app --host 127.0.0.1 --port {{ goty_port }}
+  couscous_orders:
+    workdir: "{{ repositories_dir }}/couscous-orders"
+    cmd: |
+      {{ python_setup }}
+      python main.py
 
 quadlets:
   mc:
