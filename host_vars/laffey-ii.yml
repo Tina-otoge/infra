@@ -272,10 +272,10 @@ skel:
 repositories:
   - src: https://github.com/asso-msn/msn-web
     name: msnweb-demo
-    version: develop
+    version: main
   - src: https://github.com/asso-msn/msn-web
     name: msnweb
-    version: release
+    version: main
   - src: https://github.com/asso-msn/helloasso-discord-role
     version: main
   - src: https://github.com/LAP-Arcade/lap-web
