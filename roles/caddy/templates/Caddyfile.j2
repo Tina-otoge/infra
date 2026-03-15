@@ -9,56 +9,61 @@
 	log access_log {
 		output file {{ caddy_access_log }}
 	}
-	{% for name, output in (caddy_logs_outputs| default({})).items() %}
+{% for name, output in (caddy_logs_outputs| default({})).items() %}
 	log {{ name }} {
 		output {{ output }}
 		format json
 		level info
 	}
-	{% endfor %}
+{% endfor %}
 
-	{% if caddy_prometheus %}
+{% if caddy_prometheus %}
 	servers {
 		metrics
 	}
-	{% endif %}
+{% endif %}
 
-
-	{% if not caddy_https %}
+{% if not caddy_https %}
 	auto_https off
-	{% endif %}
+{% endif %}
 
-	{% if caddy_email %}
+{% if caddy_email %}
 	email {{ caddy_email }}
-	{% endif %}
+{% endif %}
 
 	{{ caddy_global_extra }}
 }
 
 {% if http_domain %}
 :80 {
-	{% if caddy_https %}
+{% if caddy_https %}
 	redir https://{{ http_domain }}
-	{% else %}
+{% else %}
 	redir http://{{ http_domain }}
-	{% endif %}
+{% endif %}
 }
 {% endif %}
 
 (common) {
 	log stdout
 	log access_log
-	{% for output in caddy_logs_outputs | default({}) %}
+{% for output in caddy_logs_outputs | default({}) %}
 	log {{ output }}
-	{% endfor %}
+{% endfor %}
 
-	{% for code in (caddy_error_handlers | default([])) %}
+{% if caddy_opentelemetry %}
+	tracing {
+		span "caddy"
+	}
+{% endif %}
+
+{% for code in (caddy_error_handlers | default([])) %}
 	handle_errors {{ code }} {
 		rewrite * {{ code }}.html
 		root /srv/www/errors
 		file_server
 	}
-	{% endfor %}
+{% endfor %}
 }
 
 (cors) {

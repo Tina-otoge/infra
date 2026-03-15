@@ -43,7 +43,7 @@
         name: "{{ entry.value.description }} job script"
         after: network-online.target
         cmd: "{{ ansible_facts.user_dir }}/.local/bin/user-mount {{ entry.key }} {{ entry.value.test }}"
-  notify: systemd reload user-mode
+  notify: systemd user reload
 
 - meta: flush_handlers
 

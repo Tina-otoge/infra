@@ -14,19 +14,27 @@
         loop_var: task
       tags:
         - always
+    - include_role:
+        name: "{{ role }}"
+        apply:
+          tags: "{{ role }}"
+      tags: always
+      loop:
+        - containers
+        - loki
+      loop_control:
+        loop_var: role
 
   handlers:
-    - name: systemd reload user-mode
+    - name: systemd reload
+      systemd:
+        daemon_reload: true
+    - name: systemd user reload
       systemd:
         daemon_reload: true
         scope: user
     - name: prometheus restart
       systemd:
         name: prometheus
-        state: restarted
-        scope: user
-    - name: loki restart
-      systemd:
-        name: loki
         state: restarted
         scope: user

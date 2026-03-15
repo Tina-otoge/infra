@@ -36,7 +36,6 @@ server_tasks_disabled: []
 user_tasks_base:
   - dotfiles
   # - websites
-  - containers
   - compose_services
   - repositories
   - mounts

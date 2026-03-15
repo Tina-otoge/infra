@@ -14,6 +14,8 @@ caddy_https: true
 
 caddy_email: false
 
+caddy_opentelemetry: false
+
 caddy_entries: []
 # domain: example.com
 # file: example (optional, if true will be added as a separate file in

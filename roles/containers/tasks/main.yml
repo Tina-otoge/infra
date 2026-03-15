@@ -1,0 +1,116 @@
+- set_fact:
+    _quadlet_scope: "{{ quadlet_scope | default('user') }}"
+    _quadlet_items: >-
+      {{
+        quadlets | dict2items
+        | selectattr('value.scope', 'defined')
+        | selectattr('value.scope', 'equalto', quadlet_scope | default('user'))
+        | list
+        + (
+          quadlets | dict2items
+          | rejectattr('value.scope', 'defined')
+          | list
+          if (quadlet_scope | default('user')) == 'user'
+          else []
+        )
+      }}
+
+- set_fact:
+    _quadlet_dir: >-
+      {{
+        '/etc/containers/systemd'
+        if _quadlet_scope == 'system'
+        else ansible_facts.user_dir + '/.config/containers/systemd'
+      }}
+
+- name: Ensure quadlet directory exists
+  include_role:
+    name: common
+    tasks_from: create_directory
+  vars:
+    path: "{{ _quadlet_dir }}"
+  when: _quadlet_items | length > 0
+
+- name: Create volume paths for quadlets
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop: >-
+    {{
+      _quadlet_items
+      | map(attribute='value.volumes', default=[])
+      | flatten
+      | unique
+      | map('split', ':')
+      | map('first')
+    }}
+  when: |
+    (
+      _quadlet_items | map(attribute='value.volumes', default=[]) | flatten
+      | length > 0
+    )
+
+- name: Create quadlet network files
+  file:
+    path: "{{ _quadlet_dir }}/{{ item.value.network }}"
+    state: touch
+  loop: "{{ _quadlet_items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  when: "'network' in item.value and item.value.network.endswith('.network')"
+
+- name: Create quadlet files
+  template:
+    src: systemd.quadlet.j2
+    dest: "{{ _quadlet_dir }}/{{ item.key | replace('_', '-') }}.container"
+  loop: "{{ _quadlet_items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  notify: >-
+    {{
+      'systemd reload'
+      if _quadlet_scope == 'system'
+      else 'systemd user reload'
+    }}
+
+- meta: flush_handlers
+
+- name: Set configured state for quadlets (system)
+  systemd:
+    name: "{{ item.key | replace('_', '-') }}.service"
+    state: >-
+      {{
+        item.value.state
+        | default(
+          'started'
+          if item.value.enabled | default(true)
+          else 'stopped'
+        )
+      }}
+    enabled: "{{ item.value.enabled | default(true) }}"
+    daemon_reload: true
+    no_block: true
+  loop: "{{ _quadlet_items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  when: _quadlet_scope == 'system'
+
+- name: Set configured state for quadlets (user)
+  systemd:
+    name: "{{ item.key | replace('_', '-') }}.service"
+    state: >-
+      {{
+        item.value.state | default(
+          'started'
+          if item.value.enabled | default(true)
+          else 'stopped'
+        )
+      }}
+    enabled: "{{ item.value.enabled | default(true) }}"
+    daemon_reload: true
+    no_block: true
+    scope: user
+  loop: "{{ _quadlet_items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  when: _quadlet_scope == 'user'

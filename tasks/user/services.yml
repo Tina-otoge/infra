@@ -3,18 +3,12 @@
     path: "{{ ansible_facts.user_dir }}/.config/systemd/user"
     state: directory
 
-- name: Prepare systemd quadlet directory
-  file:
-    path: "{{ ansible_facts.user_dir }}/.config/containers/systemd"
-    state: directory
-  tags: containers
-
 - name: Create user service files
   template:
     src: "systemd.service.j2"
     dest: "{{ ansible_facts.user_dir }}/.config/systemd/user/{{ item.key | replace('_', '-') }}.service"
   loop: "{{ user_services | dict2items }}"
-  notify: systemd reload user-mode
+  notify: systemd user reload
   when: item.value.get('create', True)
 
 - name: Create user timer files
@@ -26,7 +20,7 @@
       name: "{{ item.key }}"
       time: "{{ item.value.get('calendar') }}"
   loop: "{{ user_services | dict2items }}"
-  notify: systemd reload user-mode
+  notify: systemd user reload
   when: '"calendar" in item.value'
 
 - name: Create user service scripts
@@ -40,29 +34,6 @@
   loop: "{{ user_services | dict2items }}"
   when: '"script" in item.value'
 
-- name: Create volume paths on host for quadlets
-  file:
-    path: "{{ item }}"
-    state: directory
-  loop: "{{ quadlets | dict2items | map(attribute='value.volumes') | list | flatten | unique | map('split', ':') | map('first') }}"
-  tags: containers
-
-- name: Create quadlet network files on host for quadlets
-  file:
-    path: "{{ ansible_facts.user_dir }}/.config/containers/systemd/{{ item.value.network }}"
-    state: touch
-  loop: "{{ quadlets | dict2items }}"
-  when: "'network' in item.value and item.value.network.endswith('.network')"
-  tags: containers
-
-- name: Create quadlet files
-  template:
-    src: "systemd.quadlet.j2"
-    dest: "{{ ansible_facts.user_dir }}/.config/containers/systemd/{{ item.key | replace('_', '-') }}.container"
-  loop: "{{ quadlets | dict2items }}"
-  notify: systemd reload user-mode
-  tags: containers
-
 - meta: flush_handlers
 
 - name: Set configured state for user services
@@ -73,6 +44,7 @@
     daemon_reload: true
     no_block: true
     scope: user
-  loop: "{{ (user_services | combine(quadlets)) | dict2items }}"
-  notify: systemd reload user-mode
+  loop: "{{ user_services | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
   tags: containers

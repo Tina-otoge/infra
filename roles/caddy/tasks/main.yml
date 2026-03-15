@@ -64,6 +64,13 @@
     label: "{{ item.file }}"
   notify: restart
 
+- name: Delete Caddy entries
+  file:
+    path: "/etc/caddy/Caddyfile.d/{{ item }}.conf"
+    state: absent
+  loop: "{{ caddy_entries_delete | default([]) }}"
+  notify: restart
+
 - name: Create symlink of Caddy certificates to ssl directory
   file:
     src: /var/lib/caddy/.local/share/caddy/certificates

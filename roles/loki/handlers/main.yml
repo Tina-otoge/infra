@@ -1,0 +1,5 @@
+- name: loki restart
+  systemd:
+    name: loki
+    state: restarted
+    scope: user

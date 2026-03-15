@@ -31,6 +31,7 @@ backups_job_machine_paths_extra:
   - "{{ ansible_facts.user_dir }}/.local/share/wg-easy/"
   - "{{ ansible_facts.user_dir }}/.local/share/uptime-kuma/"
   - "{{ ansible_facts.user_dir }}/.local/share/vaultwarden/"
+  - "{{ ansible_facts.user_dir }}/.local/share/grafana/"
 
   - /etc/motd_laffey_ii_lines.txt
 
@@ -46,6 +47,9 @@ caddy_error_handlers:
 
 caddy_extra: |
   import users.d/*.conf
+
+caddy_entries_delete:
+  - loki
 
 caddy_entries:
   # Machine domain
@@ -135,6 +139,20 @@ caddy_entries:
         root * /home/tina/wwws/private
         file_server
       }
+
+  # Monitoring
+  - domain: dijiang.tina.moe
+    robots: false
+    file: tina
+    reverses:
+      - path: /loki
+        to: 3100
+        remove_path: true
+        auth:
+          username: "{{ secrets.http.loki.username }}"
+          password: "{{ secrets.http.loki.password }}"
+      - path: /grafana
+        to: "{{ ports.grafana }}"
 
   # Six
   - domain: six.tina.moe
@@ -513,6 +531,42 @@ quadlets:
       - "{{ loopback_ip }}:{{ ports.vaultwarden }}:80"
     volumes:
       - "{{ ansible_facts.user_dir }}/.local/share/vaultwarden:/data"
+  loki:
+    image: grafana/loki
+    tag: "{{ versions.loki}}"
+    ports:
+      - "{{ loopback_ip }}:3100:3100"
+    volumes:
+    - "{{ ansible_facts.user_dir }}/.config/loki:/etc/loki"
+  alloy:
+    scope: system
+    image: grafana/alloy
+    tag: latest
+    exec: |
+      run
+        --server.http.listen-addr=0.0.0.0:{{ ports.alloy }}
+        --storage.path=/var/lib/alloy/data
+        /etc/alloy/config.alloy
+    ports:
+      - "{{ loopback_ip }}:{{ ports.alloy }}:{{ ports.alloy }}"
+    volumes:
+      - /etc/alloy:/etc/alloy:ro
+      - /var/log/caddy:/var/log/caddy:ro
+  grafana:
+    image: grafana/grafana
+    tag: latest
+    user: root
+    ports:
+      - "{{ loopback_ip }}:{{ ports.grafana }}:3000"
+    env:
+      GF_SERVER_DOMAIN: "{{ monitoring_domain }}"
+      GF_SERVER_ROOT_URL: "https://{{ monitoring_domain }}/grafana"
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+    volumes:
+      - "{{ ansible_facts.user_dir }}/.local/share/grafana:/var/lib/grafana"
+
+
+monitoring_domain: dijiang.tina.moe
 
 minecraft_version: 1.21.10
 

@@ -1,0 +1,12 @@
+- name: Ensure Alloy config dir exists
+  file:
+    path: /etc/alloy
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+
+- name: Install Alloy config
+  template:
+    src: config.alloy
+    dest: /etc/alloy/config.alloy
+    mode: u=rw,g=,o=
+  notify: alloy restart

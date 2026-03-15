@@ -1,3 +1,7 @@
 - name: systemd reload
   systemd:
     daemon_reload: true
+- name: systemd user reload
+  systemd:
+    daemon_reload: true
+    scope: user

@@ -34,9 +34,11 @@
             - "{{ role }}"
       tags: always
       loop:
+        - containers
         - backups
         - smart
         - caddy
+        - alloy
       loop_control:
         loop_var: role
 

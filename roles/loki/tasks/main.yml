@@ -1,0 +1,12 @@
+- name: Ensure Loki config dir exists
+  import_role:
+    name: common
+    tasks_from: create_directory.yml
+  vars:
+    path: "{{ ansible_facts.user_dir }}/.config/loki"
+
+- name: Install Loki config
+  template:
+    src: config.yaml
+    dest: "{{ ansible_facts.user_dir }}/.config/loki/local-config.yaml"
+  notify: loki restart

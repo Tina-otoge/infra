@@ -1,0 +1,65 @@
+logging {
+  level  = "info"
+  format = "logfmt"
+}
+
+local.file_match "caddy_access_log" {
+  path_targets = [{
+    "__path__" = "/var/log/caddy/access.log",
+    "job"      = "caddy",
+  }]
+}
+
+loki.source.file "caddy_access" {
+  targets    = local.file_match.caddy_access_log.targets
+  forward_to = [loki.process.caddy_access.receiver]
+}
+
+loki.process "caddy_access" {
+  forward_to = [loki.write.tina.receiver]
+
+  // Parse the top-level fields and nested request object
+  stage.json {
+    expressions = {
+      method    = "request.method",
+      host      = "request.host",
+      uri       = "request.uri",
+      client_ip = "request.remote_ip",
+      proto     = "request.proto",
+      status    = "status",
+      duration  = "duration",
+      size      = "size",
+    }
+  }
+
+  // Low-cardinality fields become labels for efficient querying
+  stage.labels {
+    values = {
+      method = "method",
+      host   = "host",
+      status = "status",
+      proto  = "proto",
+    }
+  }
+
+  // Higher-cardinality fields go to structured metadata (queryable but not indexed as labels)
+  stage.structured_metadata {
+    values = {
+      client_ip = "client_ip",
+      uri       = "uri",
+      duration  = "duration",
+      size      = "size",
+    }
+  }
+}
+
+loki.write "tina" {
+  endpoint {
+    url = "https://{{ monitoring_domain }}/loki/loki/api/v1/push"
+
+    basic_auth {
+      username = "{{ secrets.http.loki.username }}"
+      password = "{{ secrets.http.loki.password }}"
+    }
+  }
+}
