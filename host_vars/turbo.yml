@@ -43,9 +43,9 @@ caddy_entries:
     file: turbo
     reverses:
       - path: "{{ cockpit_url_root }}"
-        to: "{{ cockpit_port }}"
+        to: "{{ ports.cockpit }}"
       - path: /flood
-        to: "{{ flood_port }}"
+        to: "{{ ports.flood }}"
       - path: /syncthing
         to: 35315
         extra:

@@ -85,7 +85,7 @@ caddy_entries:
     file: tina
     reverses:
       - path: /infra
-        to: "{{ infra_webui_port }}"
+        to: "{{ ports.infra_webui }}"
         remove_path: true
     extra: |
       handle_path /private/* {
@@ -106,7 +106,7 @@ caddy_entries:
     robots: false
     file: tina
     reverses:
-      - to: "{{ vaultwarden_port }}"
+      - to: "{{ ports.vaultwarden }}"
   - domain: couscous.tina.moe
     robots: false
     file: tina
@@ -116,7 +116,7 @@ caddy_entries:
     robots: false
     file: tina
     reverses:
-      - to: "{{ uptime_kuma_port }}"
+      - to: "{{ ports.uptime_kuma }}"
   - domain: fairyjoke.net
     file: tina
     reverses:
@@ -160,7 +160,7 @@ caddy_entries:
     robots: false
     file: six
     reverses:
-      - to: "{{ feishin_port }}"
+      - to: "{{ ports.feishin }}"
 
 
   # Le LAP
@@ -187,12 +187,12 @@ caddy_entries:
         file_server
       }
     reverses:
-      - to: "{{ shlag_webui_port }}"
+      - to: "{{ ports.shlag_webui }}"
   - domain: admin.lelap.in
     robots: false
     file: lap
     reverses:
-      - to: "{{ lapadmin_port }}"
+      - to: "{{ ports.lapadmin }}"
   # Waiting for DNS
   - domain: replay.lelap.in
     robots: false
@@ -201,11 +201,11 @@ caddy_entries:
       @private remote_ip {{ addresses.lap }} {{ addresses.teapot }} {{ addresses.laffey }} {{ addresses.visian }} {{ addresses.laffey_ii }}
 
       handle @private {
-        reverse_proxy :{{ photongenic_port }}
+        reverse_proxy :{{ ports.photongenic }}
       }
 
       handle /replays/files/* {
-        reverse_proxy :{{ photongenic_port }}
+        reverse_proxy :{{ ports.photongenic }}
       }
 
       handle {
@@ -223,11 +223,11 @@ caddy_entries:
     robots: false
     file: msn
     reverses:
-      - to: "{{ msnweb_demo_port }}"
+      - to: "{{ ports.msnweb_demo }}"
   - domain: asso-msn.fr
     file: msn
     reverses:
-      - to: "{{ msnweb_port }}"
+      - to: "{{ ports.msnweb }}"
     extra: |
       handle_path /assets/* {
         root * /home/tina/wwws/msnweb-assets
@@ -241,7 +241,7 @@ caddy_entries:
     robots: false
     file: msn
     reverses:
-      - to: "{{ goty_port }}"
+      - to: "{{ ports.goty }}"
 
   # sayaka
   - domain: mirror.lovelyrad.io
@@ -320,7 +320,7 @@ user_services:
     workdir: "{{ repositories_dir }}/shlag-webui"
     cmd: |
       {{ python_setup }}
-      flask run -h {{ loopback_ip }} -p {{ shlag_webui_port }}
+      flask run -h {{ loopback_ip }} -p {{ ports.shlag_webui }}
   lap_web:
     workdir: "{{ repositories_dir }}/lap-web"
     type: oneshot
@@ -331,13 +331,13 @@ user_services:
       {{ python_setup }}
       alembic upgrade head
       pip install gunicorn
-      gunicorn 'app:create_app()' -b {{ loopback_ip }}:{{ lapadmin_port }} -w 4
+      gunicorn 'app:create_app()' -b {{ loopback_ip }}:{{ ports.lapadmin }} -w 4
   photon:
     workdir: "{{ repositories_dir }}/photongenic"
     cmd: |
       {{ python_setup }}
       (python archive.py &)
-      flask --app webui.app:app run -h {{ loopback_ip }} -p {{ photongenic_port}} --debug
+      flask --app webui.app:app run -h {{ loopback_ip }} -p {{ ports.photongenic }} --debug
   msn_fa_counter:
     cmd: gh workflow run -R asso-msn/fa-songs-counter cd.yml
     calendar: daily
@@ -351,7 +351,7 @@ user_services:
       pip install gunicorn
       alembic upgrade head
       flask setup
-      RUN_TASKS=1 gunicorn -b {{ loopback_ip }}:{{ msnweb_demo_port }} app:app
+      RUN_TASKS=1 gunicorn -b {{ loopback_ip }}:{{ ports.msnweb_demo }} app:app
   msnweb:
     workdir: "{{ repositories_dir }}/msnweb"
     cmd: |
@@ -359,7 +359,7 @@ user_services:
       pip install gunicorn
       alembic upgrade head
       flask setup
-      RUN_TASKS=1 gunicorn -b {{ loopback_ip }}:{{ msnweb_port }} app:app
+      RUN_TASKS=1 gunicorn -b {{ loopback_ip }}:{{ ports.msnweb }} app:app
   rclone_msn:
     workdir: "{{ ansible_user_dir }}/wwws/msnweb-assets"
     script: |
@@ -402,7 +402,7 @@ user_services:
     cmd: |
       {{ python_setup }}
       pip install uvicorn
-      uvicorn app.application:app --host 127.0.0.1 --port {{ goty_port }}
+      uvicorn app.application:app --host 127.0.0.1 --port {{ ports.goty }}
   couscous_orders:
     workdir: "{{ repositories_dir }}/couscous-orders"
     cmd: |
@@ -414,7 +414,7 @@ quadlets:
     image: marctv/minecraft-papermc-server
     tag: "{{ minecraft_version }}"
     ports:
-      - "{{ minecraft_port }}:{{ minecraft_port }}"
+      - "{{ ports.minecraft }}:{{ ports.minecraft }}"
     volumes:
       - "{{ ansible_user_dir }}/Games/Minecraft/overdrive:/data"
     env:
@@ -449,7 +449,7 @@ quadlets:
     image: ghcr.io/jeffvli/feishin
     tag: latest
     ports:
-      - "{{ loopback_ip }}:{{ feishin_port }}:{{ feishin_port }}"
+      - "{{ loopback_ip }}:{{ ports.feishin }}:{{ ports.feishin }}"
     env:
       SERVER_NAME: Nagato LMS
       SERVER_URL: https://lms.tina.moe
@@ -489,7 +489,7 @@ quadlets:
     image: dockurr/samba
     tag: latest
     ports:
-      - "{{ wireguard.laffey_ii }}:{{ photongenic_share_port }}:445"
+      - "{{ wireguard.laffey_ii }}:{{ ports.photongenic_share }}:445"
     volumes:
       - "{{ ansible_user_dir }}/.local/opt/photongenic/files:/storage"
     env:
@@ -502,7 +502,7 @@ quadlets:
     image: louislam/uptime-kuma
     tag: latest
     ports:
-      - "{{ loopback_ip }}:{{ uptime_kuma_port }}:{{ uptime_kuma_port }}"
+      - "{{ loopback_ip }}:{{ ports.uptime_kuma }}:{{ ports.uptime_kuma }}"
     volumes:
       - "{{ ansible_user_dir }}/.local/share/uptime-kuma:/app/data"
     podman: --no-hosts
@@ -510,7 +510,7 @@ quadlets:
     image: vaultwarden/server
     tag: latest
     ports:
-      - "{{ loopback_ip }}:{{ vaultwarden_port }}:80"
+      - "{{ loopback_ip }}:{{ ports.vaultwarden }}:80"
     volumes:
       - "{{ ansible_user_dir }}/.local/share/vaultwarden:/data"
 

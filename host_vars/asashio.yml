@@ -88,7 +88,7 @@ caddy_entries:
       - path: /fail
         to: 0
       - path: "{{ cockpit_url_root }}"
-        to: "{{ cockpit_port }}"
+        to: "{{ ports.cockpit }}"
       - path: /syncthing
         to: 8384
         extra:
@@ -98,17 +98,17 @@ caddy_entries:
         to: 8989
       - path: /qbit
         remove_path: true
-        to: "{{ qbittorrent_webui_port }}"
+        to: "{{ ports.qbittorrent_webui }}"
       - path: /jackett
         to: 9117
       - path: /prowlarr
-        to: "{{ prowlarr_port }}"
+        to: "{{ ports.prowlarr }}"
       - path: /flood
         to: 3000
       - path: /lidarr
         to: 8686
       - path: /navi
-        to: "{{ navidrome_port }}"
+        to: "{{ ports.navidrome }}"
     extra: |
       handle_path /files/* {
         root * /srv/www/files
@@ -122,11 +122,11 @@ caddy_entries:
       @allow_photon remote_ip private_ranges
 
       handle @allow_photon {
-        reverse_proxy {{ loopback_ip }}:{{ photongenic_port }}
+        reverse_proxy {{ loopback_ip }}:{{ ports.photongenic }}
       }
 
       handle /replays/files/* {
-        reverse_proxy {{ loopback_ip }}:{{ photongenic_port }}
+        reverse_proxy {{ loopback_ip }}:{{ ports.photongenic }}
       }
 
       respond "Private. See you at the Teapot Arcade!" 403
@@ -140,12 +140,12 @@ caddy_entries:
     file: tina
     robots: false
     reverses:
-      - to: "{{ foil_port }}"
+      - to: "{{ ports.foil }}"
   - domain: aniboard.tina.moe
     file: tina
     robots: false
     reverses:
-      - to: "{{ aniboard_port }}"
+      - to: "{{ ports.aniboard }}"
 
   # Six
   - domain: lms.tina.moe
@@ -159,17 +159,17 @@ caddy_entries:
     file: six
     robots: false
     reverses:
-      - to: "{{ jellyfin_port }}"
+      - to: "{{ ports.jellyfin }}"
   - domain: kavita.tina.moe
     file: six
     robots: false
     reverses:
-      - to: "{{ kavita_port }}"
+      - to: "{{ ports.kavita }}"
   - domain: komga.tina.moe
     file: six
     robots: false
     reverses:
-      - to: "{{ komga_port }}"
+      - to: "{{ ports.komga }}"
 
 repositories:
   - src: https://github.com/Tina-otoge/AniBoard
@@ -181,20 +181,20 @@ user_services:
     workdir: "{{ repositories_dir }}/aniboard"
     cmd: |
       {{ python_setup }}
-      gunicorn -w 4 --timeout 120 app:app -b {{ loopback_ip }}:{{ aniboard_port }}
+      gunicorn -w 4 --timeout 120 app:app -b {{ loopback_ip }}:{{ ports.aniboard }}
   teapot_photon:
     workdir: "{{ repositories_dir }}/photongenic"
     cmd: |
       {{ python_setup }}
       (python archive.py &)
-      flask --app webui.app:app run -h {{ loopback_ip }} -p {{ photongenic_port}} --debug
+      flask --app webui.app:app run -h {{ loopback_ip }} -p {{ ports.photongenic }} --debug
 
 
 quadlets:
   ownfoil:
     image: a1ex4/ownfoil
     ports:
-      - "{{ loopback_ip }}:{{ foil_port }}:8465"
+      - "{{ loopback_ip }}:{{ ports.foil }}:8465"
     volumes:
       - "{{ ansible_user_dir }}/.config/ownfoil:/app/config"
       - "{{ ansible_user_dir }}/Games/Console/Switch:/games"
@@ -216,7 +216,7 @@ quadlets:
       - "{{ ansible_user_dir }}/.config/qbittorrent:/config"
       - /mnt/sakura:/mnt/sakura
     ports:
-      - "{{ loopback_ip }}:{{ qbittorrent_webui_port }}:8080"
+      - "{{ loopback_ip }}:{{ ports.qbittorrent_webui }}:8080"
     env: "{{ linuxserver_env }}"
     network: six.network
   prowlarr:
@@ -225,7 +225,7 @@ quadlets:
     volumes:
       - "{{ ansible_user_dir }}/.config/prowlarr:/config"
     ports:
-      - "{{ loopback_ip }}:{{ prowlarr_port }}:{{ prowlarr_port }}"
+      - "{{ loopback_ip }}:{{ ports.prowlarr }}:{{ ports.prowlarr }}"
     env: "{{ linuxserver_env }}"
     network: six.network
   lms:
@@ -243,7 +243,7 @@ quadlets:
     image: jellyfin/jellyfin
     tag: "{{ versions.jellyfin }}"
     ports:
-      - "{{ loopback_ip }}:{{ jellyfin_port }}:{{ jellyfin_port }}"
+      - "{{ loopback_ip }}:{{ ports.jellyfin }}:{{ ports.jellyfin }}"
     volumes:
       - /mnt/sakura/public:/mnt/sakura/public:ro
       - "{{ ansible_user_dir }}/.config/jellyfin:/config"
@@ -258,7 +258,7 @@ quadlets:
     image: lscr.io/linuxserver/kavita
     tag: latest
     ports:
-      - "{{ loopback_ip }}:{{ kavita_port }}:5000"
+      - "{{ loopback_ip }}:{{ ports.kavita }}:5000"
     volumes:
       - "{{ ansible_user_dir }}/.config/kavita:/config"
       - "{{ ansible_user_dir }}/.local/share/kavita:/data"
@@ -268,7 +268,7 @@ quadlets:
     image: gotson/komga
     tag: latest
     ports:
-      - "{{ loopback_ip }}:{{ komga_port }}:25600"
+      - "{{ loopback_ip }}:{{ ports.komga }}:25600"
     volumes:
       - "{{ ansible_user_dir }}/.config/komga:/config"
       - "{{ ansible_user_dir }}/.local/share/komga:/data"

@@ -1,33 +1,36 @@
-aniboard_port: 10008
-caddy_admin_port: 2019
-cockpit_port: 9090
-feishin_port: 9180
-flood_port: 3000
-foil_port: 10007
-goty_port: 10016
-grafana_port: 3003
-infra_webui_port: 10001
-jellyfin_port: 8096
-kavita_port: 10014
-komga_port: 10015
-lapadmin_port: 10009
-loki_port: 3100
-minecraft_port: 25565
-msnweb_demo_port: 10002
-msnweb_port: 10004
-navidrome_port: 4533
-nut_port: 10006
-photongenic_port: 10010
-photongenic_share_port: 10012
-prometheus_node_exporter_port: 9100
-prometheus_port: 9091
-promtail_port: 9080
-prowlarr_port: 9696
-qbittorrent_webui_port: 10013
-radarr_port: 7878
-readarr_port: 8787
-shlag_webui_port: 10005
-sonarr_port: 8989
-uptime_kuma_port: 3001
-vaultwarden_port: 10003
-# 0.0.0.0:10011 taken
+ports_by_value:
+  2019: caddy_admin
+  3000: flood
+  3001: uptime_kuma
+  3003: grafana
+  3100: loki
+  4533: navidrome
+  7878: radarr
+  8096: jellyfin
+  8787: readarr
+  8989: sonarr
+  9080: promtail
+  9090: cockpit
+  9091: prometheus
+  9100: prometheus_node_exporter
+  9180: feishin
+  9696: prowlarr
+  10001: infra_webui
+  10002: msnweb_demo
+  10003: vaultwarden
+  10004: msnweb
+  10005: shlag_webui
+  10006: nut
+  10007: foil
+  10008: aniboard
+  10009: lapadmin
+  10010: photongenic
+  # 10011 taken
+  10012: photongenic_share
+  10013: qbittorrent_webui
+  10014: kavita
+  10015: komga
+  10016: goty
+  25565: minecraft
+
+ports: "{{ ports_by_value | dict2items | items2dict(key_name='value', value_name='key') }}"

@@ -38,8 +38,8 @@ tunnels:
   - user: tina
     ssh_host: laffey.tina.moe
     remote_host: 127.0.0.1
-    remote_port: "{{ jellyfin_port }}"
-    local_port: "{{ jellyfin_port }}"
+    remote_port: "{{ ports.jellyfin }}"
+    local_port: "{{ ports.jellyfin }}"
     local_host: 192.168.1.1
 
 upgrade_then_reboot: false
@@ -69,7 +69,7 @@ caddy_entries:
       - path: /fail
         to: 0
       - path: "{{ cockpit_url_root }}"
-        to: "{{ cockpit_port }}"
+        to: "{{ ports.cockpit }}"
       - path: /syncthing
         to: 8384
         extra:
@@ -79,17 +79,17 @@ caddy_entries:
         to: 8989
       - path: /qbit
         remove_path: true
-        to: "{{ qbittorrent_webui_port }}"
+        to: "{{ ports.qbittorrent_webui }}"
       - path: /jackett
         to: 9117
       - path: /prowlarr
-        to: "{{ prowlarr_port }}"
+        to: "{{ ports.prowlarr }}"
       - path: /flood
         to: 3000
       - path: /lidarr
         to: 8686
       - path: /navi
-        to: "{{ navidrome_port }}"
+        to: "{{ ports.navidrome }}"
     extra: |
       handle_path /files/* {
         root * /srv/www/files
@@ -131,12 +131,12 @@ caddy_entries:
     file: tina
     robots: false
     reverses:
-      - to: "{{ foil_port }}"
+      - to: "{{ ports.foil }}"
   - domain: aniboard.tina.moe
     file: tina
     robots: false
     reverses:
-      - to: "{{ aniboard_port }}"
+      - to: "{{ ports.aniboard }}"
   - domain: fin.nagato.tina.moe
     file: tina
     robots: false
@@ -155,7 +155,7 @@ caddy_entries:
     file: six
     robots: false
     reverses:
-      - to: "{{ jellyfin_port }}"
+      - to: "{{ ports.jellyfin }}"
 
 repositories:
   - src: https://github.com/Tina-otoge/photongenic
@@ -174,14 +174,14 @@ user_services:
     workdir: "{{ repositories_dir }}/AniBoard"
     cmd: |
       {{ python_setup }}
-      gunicorn -w 4 --timeout 120 app:app -b {{ loopback_ip }}:{{ aniboard_port }}
+      gunicorn -w 4 --timeout 120 app:app -b {{ loopback_ip }}:{{ ports.aniboard }}
 
 
 quadlets:
   ownfoil:
     image: a1ex4/ownfoil
     ports:
-      - "{{ loopback_ip }}:{{ foil_port }}:8465"
+      - "{{ loopback_ip }}:{{ ports.foil }}:8465"
     volumes:
       - "{{ ansible_user_dir }}/.config/ownfoil:/app/config"
       - "{{ ansible_user_dir }}/Games/Console/Switch:/games"
@@ -213,7 +213,7 @@ quadlets:
       - "{{ ansible_user_dir }}/.config/qbittorrent:/config"
       - /mnt/sakura:/mnt/sakura
     ports:
-      - "{{ loopback_ip }}:{{ qbittorrent_webui_port }}:8080"
+      - "{{ loopback_ip }}:{{ ports.qbittorrent_webui }}:8080"
     env: "{{ linuxserver_env }}"
     network: six.network
   # jackett:
@@ -232,7 +232,7 @@ quadlets:
     volumes:
       - "{{ ansible_user_dir }}/.config/prowlarr:/config"
     ports:
-      - "{{ loopback_ip }}:{{ prowlarr_port }}:{{ prowlarr_port }}"
+      - "{{ loopback_ip }}:{{ ports.prowlarr }}:{{ ports.prowlarr }}"
     env: "{{ linuxserver_env }}"
     network: six.network
   flood:
@@ -241,14 +241,14 @@ quadlets:
     volumes:
       - "{{ ansible_user_dir }}/.local/share/flood:/data"
     ports:
-      - "{{ loopback_ip }}:{{ flood_port }}:3000"
+      - "{{ loopback_ip }}:{{ ports.flood }}:3000"
     exec: --baseuri /flood
     network: six.network
   navidrome:
     image: deluan/navidrome
     tag: latest
     ports:
-      - "{{ loopback_ip }}:{{ navidrome_port }}:{{ navidrome_port }}"
+      - "{{ loopback_ip }}:{{ ports.navidrome }}:{{ ports.navidrome }}"
     volumes:
      - "{{ ansible_user_dir }}/.local/share/navidrome:/data"
      - /mnt/sakura/public/Works/Music:/music:ro
@@ -272,7 +272,7 @@ quadlets:
     tag: 10.10.3 # needed for ani-sync
     # https://github.com/vosmiic/jellyfin-ani-sync/issues/185
     ports:
-      - "{{ loopback_ip }}:{{ jellyfin_port }}:{{ jellyfin_port }}"
+      - "{{ loopback_ip }}:{{ ports.jellyfin }}:{{ ports.jellyfin }}"
     volumes:
       - /mnt/sakura/public:/mnt/sakura/public:ro
       - "{{ ansible_user_dir }}/.config/jellyfin:/config"

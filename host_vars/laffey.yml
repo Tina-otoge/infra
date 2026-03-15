@@ -14,27 +14,27 @@ packages:
 firewall:
   default: allow
   rules:
-    - port: "{{ prometheus_node_exporter_port }}"
+    - port: "{{ ports.prometheus_node_exporter }}"
       action: deny
-    - port: "{{ prometheus_node_exporter_port }}"
+    - port: "{{ ports.prometheus_node_exporter }}"
       from: "{{ public_ip }}"
       action: allow
 
-    - port: "{{ prometheus_port }}"
+    - port: "{{ ports.prometheus }}"
       action: deny
-    - port: "{{ prometheus_port }}"
+    - port: "{{ ports.prometheus }}"
       from: "{{ public_ip }}"
       action: allow
 
-    - port: "{{ caddy_admin_port }}"
+    - port: "{{ ports.caddy_admin }}"
       action: deny
-    - port: "{{ caddy_admin_port }}"
+    - port: "{{ ports.caddy_admin }}"
       from: "{{ public_ip }}"
       action: allow
 
-    - port: "{{ loki_port }}"
+    - port: "{{ ports.loki }}"
       action: deny
-    - port: "{{ loki_port }}"
+    - port: "{{ ports.loki }}"
       from: "{{ public_ip }}"
       action: allow
 
@@ -53,7 +53,7 @@ skel:
 
 caddy_prometheus: true
 caddy_global_extra: |
-  admin :{{ caddy_admin_port }}
+  admin :{{ ports.caddy_admin }}
 
 # caddy_logs_outputs:
 #   graylog: net localhost:5555
@@ -78,7 +78,7 @@ caddy_entries:
         to: 3000
       - path: /qbit
         remove_path: true
-        to: "{{ qbittorrent_webui_port }}"
+        to: "{{ ports.qbittorrent_webui }}"
       - path: /syncthing
         to: 8384
         extra: header_up Host {upstream_hostport}
@@ -104,7 +104,7 @@ caddy_entries:
     robots: false
     file: tina
     reverses:
-      - to: "{{ grafana_port }}"
+      - to: "{{ ports.grafana }}"
   - domain: pixiv.tina.moe
     file: tina
     robots: false
@@ -133,7 +133,7 @@ caddy_entries:
     robots: false
     file: tina
     reverses:
-      - to: "{{ nut_port }}"
+      - to: "{{ ports.nut }}"
 
 paths:
   /srv/media:
@@ -145,7 +145,7 @@ user_services:
     cmd: |
       {{ python_setup }}
       pip install gunicorn
-      gunicorn src:app -b {{ loopback_ip }}:{{ infra_webui_port }}
+      gunicorn src:app -b {{ loopback_ip }}:{{ ports.infra_webui }}
   six:
     workdir: "{{ compose_dir }}/six"
     cmd: "{{ compose_setup }}"
@@ -206,7 +206,7 @@ user_services:
     enabled: false
     cmd: |
       {{ python_setup }}
-      python nut.py -s -S -m {{ loopback_ip }} -p {{ nut_port }}
+      python nut.py -s -S -m {{ loopback_ip }} -p {{ ports.nut }}
   ownfoil:
     enabled: false
     workdir: "{{ repositories_dir }}/ownfoil"
@@ -214,7 +214,7 @@ user_services:
     # server
     cmd: |
       {{ python_setup }}
-      FLASK_APP=app/app:app flask run -h {{ loopback_ip }} -p {{ foil_port }}
+      FLASK_APP=app/app:app flask run -h {{ loopback_ip }} -p {{ ports.foil }}
 
 quadlets:
   # prometheus:
@@ -225,7 +225,7 @@ quadlets:
   #   exec: |
   #     --config.file=/etc/prometheus/prometheus.yml
   #     --storage.tsdb.path=/prometheus
-  #     --web.listen-address="{{ loopback_ip }}:{{ prometheus_port }}"
+  #     --web.listen-address="{{ loopback_ip }}:{{ ports.prometheus }}"
   #   volumes:
   #     - "{{ ansible_user_dir }}/.config/prometheus:/etc/prometheus"
   #     - "{{ ansible_user_dir }}/.local/share/prometheus:/prometheus"
@@ -235,7 +235,7 @@ quadlets:
   #   network: host
   #   env:
   #     GF_SERVER_HTTP_ADDR: "{{ loopback_ip }}"
-  #     GF_SERVER_HTTP_PORT: "{{ grafana_port }}"
+  #     GF_SERVER_HTTP_PORT: "{{ ports.grafana }}"
   #   user: root
   #   volumes:
   #     - "{{ ansible_user_dir }}/.local/share/grafana:/var/lib/grafana"
@@ -244,7 +244,7 @@ quadlets:
   #   tag: main
   #   user: root
   #   ports:
-  #     - "{{ loki_port }}:3100"
+  #     - "{{ ports.loki }}:3100"
   #   volumes:
   #     - "{{ ansible_user_dir }}/.config/loki:/etc/loki"
   #     - "{{ ansible_user_dir }}/.local/share/loki:/loki"
@@ -252,7 +252,7 @@ quadlets:
     image: lscr.io/linuxserver/qbittorrent
     tag: latest
     ports:
-      - "{{ loopback_ip }}:{{ qbittorrent_webui_port }}:{{ qbittorrent_webui_port }}"
+      - "{{ loopback_ip }}:{{ ports.qbittorrent_webui }}:{{ ports.qbittorrent_webui }}"
     volumes:
       - "{{ ansible_user_dir }}/.config/qbittorrent:/config"
       - "{{ ansible_user_dir }}/mnt/sakura-private/Downloads/torrents:/mnt/downloads"
