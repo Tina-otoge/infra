@@ -1,13 +1,13 @@
 - name: Ensure local bin directory exists
   file:
-    path: "{{ ansible_user_dir }}/.local/bin"
+    path: "{{ ansible_facts.user_dir }}/.local/bin"
     state: directory
     mode: u=rwx,g=rwx,o=rx
 
 - name: Create the mount script
   template:
     src: user-mounts/script.sh.j2
-    dest: "{{ ansible_user_dir }}/.local/bin/user-mount"
+    dest: "{{ ansible_facts.user_dir }}/.local/bin/user-mount"
     mode: u=rwx,g=rwx,o=rx
 
 - set_fact:
@@ -23,7 +23,7 @@
   loop: "{{ _user_mounts | dict2items }}"
   template:
     src: user-mounts/systemd.mount.j2
-    dest: "{{ ansible_user_dir }}/.config/systemd/user/{{ item.key }}.mount"
+    dest: "{{ ansible_facts.user_dir }}/.config/systemd/user/{{ item.key }}.mount"
     mode: u=rw,g=rw,o=r
   vars:
     mount: "{{ item.value }}"
@@ -34,7 +34,7 @@
     loop_var: entry
   template:
     src: systemd.service.j2
-    dest: "{{ ansible_user_dir }}/.config/systemd/user/{{ item.key }}.service"
+    dest: "{{ ansible_facts.user_dir }}/.config/systemd/user/{{ item.key }}.service"
     mode: u=rw,g=rw,o=r
   vars:
     item:
@@ -42,7 +42,7 @@
       value:
         name: "{{ entry.value.description }} job script"
         after: network-online.target
-        cmd: "{{ ansible_user_dir }}/.local/bin/user-mount {{ entry.key }} {{ entry.value.test }}"
+        cmd: "{{ ansible_facts.user_dir }}/.local/bin/user-mount {{ entry.key }} {{ entry.value.test }}"
   notify: systemd reload user-mode
 
 - meta: flush_handlers

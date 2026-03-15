@@ -33,7 +33,7 @@
   register: backup_user_info
 
 - set_fact:
-    ansible_user_dir: "{{ backup_user_info.home }}"
+    ansible_facts.user_dir: "{{ backup_user_info.home }}"
 
 - name: Import backup configuration task for each job
   include_role:

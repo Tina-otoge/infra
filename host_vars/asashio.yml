@@ -8,13 +8,13 @@ backups_job_machine_paths_extra:
   - "{{ repositories_dir }}/photongenic/config.toml"
   - "{{ repositories_dir }}/photongenic/custom/"
 
-  - "{{ ansible_user_dir }}/.config/ownfoil/"
-  - "{{ ansible_user_dir }}/.config/sonarr/"
-  - "{{ ansible_user_dir }}/.config/qbittorrent/"
-  - "{{ ansible_user_dir }}/.config/prowlarr/"
-  - "{{ ansible_user_dir }}/.config/lms/"
-  - "{{ ansible_user_dir }}/.local/share/lms/"
-  - "{{ ansible_user_dir }}/.config/jellyin/"
+  - "{{ ansible_facts.user_dir }}/.config/ownfoil/"
+  - "{{ ansible_facts.user_dir }}/.config/sonarr/"
+  - "{{ ansible_facts.user_dir }}/.config/qbittorrent/"
+  - "{{ ansible_facts.user_dir }}/.config/prowlarr/"
+  - "{{ ansible_facts.user_dir }}/.config/lms/"
+  - "{{ ansible_facts.user_dir }}/.local/share/lms/"
+  - "{{ ansible_facts.user_dir }}/.config/jellyin/"
 
 server_tasks:
   - dnsmasq
@@ -196,14 +196,14 @@ quadlets:
     ports:
       - "{{ loopback_ip }}:{{ ports.foil }}:8465"
     volumes:
-      - "{{ ansible_user_dir }}/.config/ownfoil:/app/config"
-      - "{{ ansible_user_dir }}/Games/Console/Switch:/games"
+      - "{{ ansible_facts.user_dir }}/.config/ownfoil:/app/config"
+      - "{{ ansible_facts.user_dir }}/Games/Console/Switch:/games"
 
   sonarr:
     image: lscr.io/linuxserver/sonarr
     tag: latest
     volumes:
-      - "{{ ansible_user_dir }}/.config/sonarr:/config"
+      - "{{ ansible_facts.user_dir }}/.config/sonarr:/config"
       - "/mnt/sakura:/mnt/sakura"
     ports:
       - "{{ loopback_ip }}:8989:8989"
@@ -213,7 +213,7 @@ quadlets:
     image: lscr.io/linuxserver/qbittorrent
     tag: latest
     volumes:
-      - "{{ ansible_user_dir }}/.config/qbittorrent:/config"
+      - "{{ ansible_facts.user_dir }}/.config/qbittorrent:/config"
       - /mnt/sakura:/mnt/sakura
     ports:
       - "{{ loopback_ip }}:{{ ports.qbittorrent_webui }}:8080"
@@ -223,7 +223,7 @@ quadlets:
     image: lscr.io/linuxserver/prowlarr
     tag: latest
     volumes:
-      - "{{ ansible_user_dir }}/.config/prowlarr:/config"
+      - "{{ ansible_facts.user_dir }}/.config/prowlarr:/config"
     ports:
       - "{{ loopback_ip }}:{{ ports.prowlarr }}:{{ ports.prowlarr }}"
     env: "{{ linuxserver_env }}"
@@ -235,8 +235,8 @@ quadlets:
     ports:
       - "{{ loopback_ip }}:5082:5082"
     volumes:
-      - "{{ ansible_user_dir }}/.config/lms:/config"
-      - "{{ ansible_user_dir }}/.local/share/lms:/var/lms:rw"
+      - "{{ ansible_facts.user_dir }}/.config/lms:/config"
+      - "{{ ansible_facts.user_dir }}/.local/share/lms:/var/lms:rw"
       - /mnt/sakura/public/Works/Music:/music:ro
     exec: /config/lms.conf
   jellyfin:
@@ -246,8 +246,8 @@ quadlets:
       - "{{ loopback_ip }}:{{ ports.jellyfin }}:{{ ports.jellyfin }}"
     volumes:
       - /mnt/sakura/public:/mnt/sakura/public:ro
-      - "{{ ansible_user_dir }}/.config/jellyfin:/config"
-      - "{{ ansible_user_dir }}/.cache/jellyfin:/cache"
+      - "{{ ansible_facts.user_dir }}/.config/jellyfin:/config"
+      - "{{ ansible_facts.user_dir }}/.cache/jellyfin:/cache"
     devices:
       - /dev/dri/renderD128
     groupadds:
@@ -260,8 +260,8 @@ quadlets:
     ports:
       - "{{ loopback_ip }}:{{ ports.kavita }}:5000"
     volumes:
-      - "{{ ansible_user_dir }}/.config/kavita:/config"
-      - "{{ ansible_user_dir }}/.local/share/kavita:/data"
+      - "{{ ansible_facts.user_dir }}/.config/kavita:/config"
+      - "{{ ansible_facts.user_dir }}/.local/share/kavita:/data"
       - /mnt/sakura/public/Works/Books:/mnt/sakura/public/Works/Books:ro
     env: "{{ linuxserver_env }}"
   komga:
@@ -270,8 +270,8 @@ quadlets:
     ports:
       - "{{ loopback_ip }}:{{ ports.komga }}:25600"
     volumes:
-      - "{{ ansible_user_dir }}/.config/komga:/config"
-      - "{{ ansible_user_dir }}/.local/share/komga:/data"
+      - "{{ ansible_facts.user_dir }}/.config/komga:/config"
+      - "{{ ansible_facts.user_dir }}/.local/share/komga:/data"
       - /mnt/sakura/public/Works/Books:/mnt/sakura/public/Works/Books:ro
     env: "{{ linuxserver_env }}"
   rtmp:
@@ -280,4 +280,4 @@ quadlets:
     ports:
       - "{{ local_ip }}:1935:1935"
     volumes:
-      - "{{ ansible_user_dir }}/.config/nginx-rtmp:/etc/nginx/"
+      - "{{ ansible_facts.user_dir }}/.config/nginx-rtmp:/etc/nginx/"

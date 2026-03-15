@@ -1,5 +1,5 @@
 backups_job_machine_paths_extra:
-  - "{{ ansible_user_dir }}/.local/share/wg-easy/"
+  - "{{ ansible_facts.user_dir }}/.local/share/wg-easy/"
 
 packages_base:
   - borgbackup
@@ -27,7 +27,7 @@ quadlets:
     image: ghcr.io/wg-easy/wg-easy
     tag: latest
     volumes:
-      - "{{ ansible_user_dir }}/.local/share/wg-easy:/etc/wireguard"
+      - "{{ ansible_facts.user_dir }}/.local/share/wg-easy:/etc/wireguard"
     ports:
       - "51820:51820/udp"
       - "{{ loopback_ip }}:51821:51821/tcp"

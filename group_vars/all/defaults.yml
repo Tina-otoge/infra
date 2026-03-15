@@ -46,7 +46,7 @@ user_tasks_base:
 user_tasks: []
 
 flood_url_root: /flood
-user_apps_dir: "{{ ansible_user_dir }}/.local/opt"
+user_apps_dir: "{{ ansible_facts.user_dir }}/.local/opt"
 
 selinux_state: disabled
 
@@ -124,14 +124,14 @@ backups_exclude_extra: []
 backups_exclude: "{{ backups_exclude_base + backups_exclude_extra }}"
 
 backups_job_machine_paths_base:
-  - "{{ ansible_user_dir }}/.ssh/"
-  - "{{ ansible_user_dir }}/.history"
+  - "{{ ansible_facts.user_dir }}/.ssh/"
+  - "{{ ansible_facts.user_dir }}/.history"
 
-  - "{{ ansible_user_dir }}/.config/containers/containers.conf"
-  - "{{ ansible_user_dir }}/.config/containers/hosts"
-  - "{{ ansible_user_dir }}/.config/gh/"
-  - "{{ ansible_user_dir }}/.config/pipus.txt"
-  - "{{ ansible_user_dir }}/.config/rclone/"
+  - "{{ ansible_facts.user_dir }}/.config/containers/containers.conf"
+  - "{{ ansible_facts.user_dir }}/.config/containers/hosts"
+  - "{{ ansible_facts.user_dir }}/.config/gh/"
+  - "{{ ansible_facts.user_dir }}/.config/pipus.txt"
+  - "{{ ansible_facts.user_dir }}/.config/rclone/"
 
   - /etc/backups-webhook.env
   - /etc/healthcheck.yml

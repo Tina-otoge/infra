@@ -27,10 +27,10 @@ backups_job_machine_paths_extra:
   - "{{ repositories_dir }}/couscous-orders/aliases.yml"
   - "{{ repositories_dir }}/couscous-orders/users.json"
 
-  - "{{ ansible_user_dir }}/.local/share/wallos/"
-  - "{{ ansible_user_dir }}/.local/share/wg-easy/"
-  - "{{ ansible_user_dir }}/.local/share/uptime-kuma/"
-  - "{{ ansible_user_dir }}/.local/share/vaultwarden/"
+  - "{{ ansible_facts.user_dir }}/.local/share/wallos/"
+  - "{{ ansible_facts.user_dir }}/.local/share/wg-easy/"
+  - "{{ ansible_facts.user_dir }}/.local/share/uptime-kuma/"
+  - "{{ ansible_facts.user_dir }}/.local/share/vaultwarden/"
 
   - /etc/motd_laffey_ii_lines.txt
 
@@ -361,7 +361,7 @@ user_services:
       flask setup
       RUN_TASKS=1 gunicorn -b {{ loopback_ip }}:{{ ports.msnweb }} app:app
   rclone_msn:
-    workdir: "{{ ansible_user_dir }}/wwws/msnweb-assets"
+    workdir: "{{ ansible_facts.user_dir }}/wwws/msnweb-assets"
     script: |
       while true; do
         date
@@ -370,7 +370,7 @@ user_services:
         sleep 60
       done
   rclone_tina:
-    workdir: "{{ ansible_user_dir }}/wwws/tina-assets/"
+    workdir: "{{ ansible_facts.user_dir }}/wwws/tina-assets/"
     script: |
       while true; do
         date
@@ -416,7 +416,7 @@ quadlets:
     ports:
       - "{{ ports.minecraft }}:{{ ports.minecraft }}"
     volumes:
-      - "{{ ansible_user_dir }}/Games/Minecraft/overdrive:/data"
+      - "{{ ansible_facts.user_dir }}/Games/Minecraft/overdrive:/data"
     env:
       SKIP_PERM_CHECK: "true"
       MEMORYSIZE: 3G
@@ -465,13 +465,13 @@ quadlets:
     env:
       TZ: Europe/Paris
     volumes:
-      - "{{ ansible_user_dir }}/.local/share/wallos/db:/var/www/html/db"
-      - "{{ ansible_user_dir }}/.local/share/wallos/uploads/logos:/var/www/html/images/uploads/logos"
+      - "{{ ansible_facts.user_dir }}/.local/share/wallos/db:/var/www/html/db"
+      - "{{ ansible_facts.user_dir }}/.local/share/wallos/uploads/logos:/var/www/html/images/uploads/logos"
   wg_easy:
     image: ghcr.io/wg-easy/wg-easy
     tag: latest
     volumes:
-      - "{{ ansible_user_dir }}/.local/share/wg-easy:/etc/wireguard"
+      - "{{ ansible_facts.user_dir }}/.local/share/wg-easy:/etc/wireguard"
     ports:
       - "51820:51820/udp"
       - "{{ loopback_ip }}:51821:51821/tcp"
@@ -491,7 +491,7 @@ quadlets:
     ports:
       - "{{ wireguard.laffey_ii }}:{{ ports.photongenic_share }}:445"
     volumes:
-      - "{{ ansible_user_dir }}/.local/opt/photongenic/files:/storage"
+      - "{{ ansible_facts.user_dir }}/.local/opt/photongenic/files:/storage"
     env:
       UID: 0
       GID: 0
@@ -504,7 +504,7 @@ quadlets:
     ports:
       - "{{ loopback_ip }}:{{ ports.uptime_kuma }}:{{ ports.uptime_kuma }}"
     volumes:
-      - "{{ ansible_user_dir }}/.local/share/uptime-kuma:/app/data"
+      - "{{ ansible_facts.user_dir }}/.local/share/uptime-kuma:/app/data"
     podman: --no-hosts
   vaultwarden:
     image: vaultwarden/server
@@ -512,7 +512,7 @@ quadlets:
     ports:
       - "{{ loopback_ip }}:{{ ports.vaultwarden }}:80"
     volumes:
-      - "{{ ansible_user_dir }}/.local/share/vaultwarden:/data"
+      - "{{ ansible_facts.user_dir }}/.local/share/vaultwarden:/data"
 
 minecraft_version: 1.21.10
 
@@ -524,7 +524,7 @@ minecraft_servers:
     motd: Survie libre avec Essentials et WorldGuard
     ops:
       "Tina-otoge": cb4b7120-fc7b-49cd-8204-b8574b454dc0
-    path: "{{ ansible_user_dir }}/Games/Minecraft/overdrive"
+    path: "{{ ansible_facts.user_dir }}/Games/Minecraft/overdrive"
     plugins:
       CoreProtect:
         # https://www.patreon.com/cw/coreprotect/posts

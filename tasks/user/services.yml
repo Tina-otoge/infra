@@ -1,18 +1,18 @@
 - name: Prepare systemd user services directory
   file:
-    path: "{{ ansible_user_dir }}/.config/systemd/user"
+    path: "{{ ansible_facts.user_dir }}/.config/systemd/user"
     state: directory
 
 - name: Prepare systemd quadlet directory
   file:
-    path: "{{ ansible_user_dir }}/.config/containers/systemd"
+    path: "{{ ansible_facts.user_dir }}/.config/containers/systemd"
     state: directory
   tags: containers
 
 - name: Create user service files
   template:
     src: "systemd.service.j2"
-    dest: "{{ ansible_user_dir }}/.config/systemd/user/{{ item.key | replace('_', '-') }}.service"
+    dest: "{{ ansible_facts.user_dir }}/.config/systemd/user/{{ item.key | replace('_', '-') }}.service"
   loop: "{{ user_services | dict2items }}"
   notify: systemd reload user-mode
   when: item.value.get('create', True)
@@ -20,7 +20,7 @@
 - name: Create user timer files
   template:
     src: "systemd.timer.j2"
-    dest: "{{ ansible_user_dir }}/.config/systemd/user/{{ item.key | replace('_', '-') }}.timer"
+    dest: "{{ ansible_facts.user_dir }}/.config/systemd/user/{{ item.key | replace('_', '-') }}.timer"
   vars:
     timer:
       name: "{{ item.key }}"
@@ -31,7 +31,7 @@
 
 - name: Create user service scripts
   copy:
-    dest: "{{ ansible_user_dir }}/.local/bin/service_{{ item.key }}.sh"
+    dest: "{{ ansible_facts.user_dir }}/.local/bin/service_{{ item.key }}.sh"
     mode: 'u=rwx,g=rwx,o='
     content: |
       #!/bin/bash -e
@@ -49,7 +49,7 @@
 
 - name: Create quadlet network files on host for quadlets
   file:
-    path: "{{ ansible_user_dir }}/.config/containers/systemd/{{ item.value.network }}"
+    path: "{{ ansible_facts.user_dir }}/.config/containers/systemd/{{ item.value.network }}"
     state: touch
   loop: "{{ quadlets | dict2items }}"
   when: "'network' in item.value and item.value.network.endswith('.network')"
@@ -58,7 +58,7 @@
 - name: Create quadlet files
   template:
     src: "systemd.quadlet.j2"
-    dest: "{{ ansible_user_dir }}/.config/containers/systemd/{{ item.key | replace('_', '-') }}.container"
+    dest: "{{ ansible_facts.user_dir }}/.config/containers/systemd/{{ item.key | replace('_', '-') }}.container"
   loop: "{{ quadlets | dict2items }}"
   notify: systemd reload user-mode
   tags: containers

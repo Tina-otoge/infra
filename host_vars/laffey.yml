@@ -153,7 +153,7 @@ user_services:
   # flood:
   #   workdir: "{{ compose_dir }}/flood"
   #   cmd: |
-  #     rm -rfv {{ ansible_user_dir }}/.config/flood/rtorrent/rtorrent.sock
+  #     rm -rfv {{ ansible_facts.user_dir }}/.config/flood/rtorrent/rtorrent.sock
   #     {{ compose_setup }}
   pixivfe:
     enabled: false
@@ -173,7 +173,7 @@ user_services:
   syncthing:
     create: false
   rclone_msn:
-    workdir: "{{ ansible_user_dir }}/wwws/asso-msn.fr/assets"
+    workdir: "{{ ansible_facts.user_dir }}/wwws/asso-msn.fr/assets"
     script: |
       while true; do
         date
@@ -182,7 +182,7 @@ user_services:
         sleep 60
       done
   rclone_tina:
-    workdir: "{{ ansible_user_dir }}/wwws/tina/assets/"
+    workdir: "{{ ansible_facts.user_dir }}/wwws/tina/assets/"
     script: |
       while true; do
         date
@@ -227,8 +227,8 @@ quadlets:
   #     --storage.tsdb.path=/prometheus
   #     --web.listen-address="{{ loopback_ip }}:{{ ports.prometheus }}"
   #   volumes:
-  #     - "{{ ansible_user_dir }}/.config/prometheus:/etc/prometheus"
-  #     - "{{ ansible_user_dir }}/.local/share/prometheus:/prometheus"
+  #     - "{{ ansible_facts.user_dir }}/.config/prometheus:/etc/prometheus"
+  #     - "{{ ansible_facts.user_dir }}/.local/share/prometheus:/prometheus"
   # grafana:
   #   image: grafana/grafana-oss
   #   tag: main
@@ -238,7 +238,7 @@ quadlets:
   #     GF_SERVER_HTTP_PORT: "{{ ports.grafana }}"
   #   user: root
   #   volumes:
-  #     - "{{ ansible_user_dir }}/.local/share/grafana:/var/lib/grafana"
+  #     - "{{ ansible_facts.user_dir }}/.local/share/grafana:/var/lib/grafana"
   # loki:
   #   image: grafana/loki
   #   tag: main
@@ -246,17 +246,17 @@ quadlets:
   #   ports:
   #     - "{{ ports.loki }}:3100"
   #   volumes:
-  #     - "{{ ansible_user_dir }}/.config/loki:/etc/loki"
-  #     - "{{ ansible_user_dir }}/.local/share/loki:/loki"
+  #     - "{{ ansible_facts.user_dir }}/.config/loki:/etc/loki"
+  #     - "{{ ansible_facts.user_dir }}/.local/share/loki:/loki"
   qbit:
     image: lscr.io/linuxserver/qbittorrent
     tag: latest
     ports:
       - "{{ loopback_ip }}:{{ ports.qbittorrent_webui }}:{{ ports.qbittorrent_webui }}"
     volumes:
-      - "{{ ansible_user_dir }}/.config/qbittorrent:/config"
-      - "{{ ansible_user_dir }}/mnt/sakura-private/Downloads/torrents:/mnt/downloads"
-      - "{{ ansible_user_dir }}/mnt/sakura:/mnt/sakura/public"
+      - "{{ ansible_facts.user_dir }}/.config/qbittorrent:/config"
+      - "{{ ansible_facts.user_dir }}/mnt/sakura-private/Downloads/torrents:/mnt/downloads"
+      - "{{ ansible_facts.user_dir }}/mnt/sakura:/mnt/sakura/public"
     env: "{{ linuxserver_env }}"
   teamspeak:
     image: teamspeak
@@ -268,7 +268,7 @@ quadlets:
     env:
       TS3SERVER_LICENSE: accept
     volumes:
-      - "{{ ansible_user_dir }}/.config/teamspeak:/var/ts3server"
+      - "{{ ansible_facts.user_dir }}/.config/teamspeak:/var/ts3server"
 
 compose_services:
   # - six
@@ -276,14 +276,14 @@ compose_services:
 
 user_mounts:
   - what: tina@turbo.tina.moe:/
-    where: "{{ ansible_user_dir }}/mnt/turbo"
+    where: "{{ ansible_facts.user_dir }}/mnt/turbo"
     type: fuse.sshfs
     description: Savatier Home Freebox VM
-    test: "{{ ansible_user_dir }}/mnt/turbo/mnt/Freebox/Enregistrements"
+    test: "{{ ansible_facts.user_dir }}/mnt/turbo/mnt/Freebox/Enregistrements"
   - what: tina@nagato.tina.moe:/
-    where: "{{ ansible_user_dir }}/mnt/nagato"
+    where: "{{ ansible_facts.user_dir }}/mnt/nagato"
     type: fuse.sshfs
     description: Nagato
-    test: "{{ ansible_user_dir }}/mnt/nagato/home/tina/"
+    test: "{{ ansible_facts.user_dir }}/mnt/nagato/home/tina/"
 
-torrents_dir: "{{ ansible_user_dir }}/mnt/sakura-private/Downloads/torrents"
+torrents_dir: "{{ ansible_facts.user_dir }}/mnt/sakura-private/Downloads/torrents"

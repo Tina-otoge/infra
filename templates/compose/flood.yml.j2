@@ -8,7 +8,7 @@ services:
         environment:
             HOME: /config
         volumes:
-            - "{{ ansible_user_dir }}/.config/flood:/config"
+            - "{{ ansible_facts.user_dir }}/.config/flood:/config"
             - "{{ torrents_dir }}:/data"
         command: --allowedpath /data --baseuri {{ flood_url_root }}
 
@@ -20,5 +20,5 @@ services:
         environment:
             HOME: /config
         volumes:
-            - "{{ ansible_user_dir }}/.config/flood:/config"
+            - "{{ ansible_facts.user_dir }}/.config/flood:/config"
             - "{{ torrents_dir }}:/data"
