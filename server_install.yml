@@ -28,14 +28,17 @@
       tags: always
       when: task not in server_tasks_disabled
     - include_role:
-        name: "{{ item }}"
+        name: "{{ role }}"
         apply:
           tags:
-            - "{{ item }}"
+            - "{{ role }}"
       tags: always
       loop:
         - backups
         - smart
+        - caddy
+      loop_control:
+        loop_var: role
 
     # - name: Install Prometheus Node Exporter
     #   include_role:
@@ -50,11 +53,6 @@
     #     - always
 
   handlers:
-    - name: systemd reload
-      systemd:
-        daemon_reload: true
-    - name: caddy restart
-      include_tasks: tasks/handlers/caddy_restart.yml
     - name: cockpit reload
       systemd:
         name: cockpit.socket

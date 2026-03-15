@@ -6,22 +6,18 @@
 {{ entry }} {
 	import common
 
-	{% if item.get('robots', True) %}
-
+{% if item.get('robots', true) %}
 	import robots_on
-	{% else %}
-
+{% else %}
 	import robots_off
-	{% endif %}
+{% endif %}
 
 {% if 'root' in item %}
-
 	root * {{ item.root }}
-{% if item.get("browser") %}
 
+{% if item.get("browser") %}
 	file_server browse
 {% else %}
-
 	file_server
 {% endif %}
 {% endif %}
@@ -29,25 +25,24 @@
 
 {% set ns = namespace() %}
 {% for reverse_proxy in item.reverses | default([]) %}
-	{% set ns.reverse = reverse_proxy.to | string %}
-	{% if ':' not in ns.reverse %}
-	{% set ns.reverse = ':' + ns.reverse %}
-	{% endif %}
+{% set ns.reverse = reverse_proxy.to | string %}
+{% if ':' not in ns.reverse %}
+{% set ns.reverse = ':' + ns.reverse %}
+{% endif %}
 
-	{% if not 'path' in reverse_proxy %}
-
+{% if not 'path' in reverse_proxy %}
 	reverse_proxy {{ ns.reverse }} {
 		{{ reverse_proxy.extra | default('') }}
 	}
-	{% else %}
+{% else %}
 
-	{% if reverse_proxy.get('redir_slash', true) %}
-	{% set ns.match = reverse_proxy.path + '/*' %}
-	{% else %}
-	{% set ns.match = reverse_proxy.path %}
-	{% endif %}
+{% if reverse_proxy.get('redir_slash', true) %}
+{% set ns.match = reverse_proxy.path + '/*' %}
+{% else %}
+{% set ns.match = reverse_proxy.path %}
+{% endif %}
 
-	{% if reverse_proxy.get("remove_path") %}
+{% if reverse_proxy.get("remove_path") %}
 
 	handle_path {{ ns.match }} {
 		reverse_proxy {{ ns.reverse }} {
@@ -55,20 +50,19 @@
 		}
 		{{ reverse_proxy.extra_handle | default('') }}
 	}
-	{% else %}
+{% else %}
 
 	reverse_proxy {{ ns.match }} {{ ns.reverse }} {
 		{{ reverse_proxy.extra | default('') }}
 	}
-	{% endif %}
+{% endif %}
 
-	{% if reverse_proxy.get("redir_slash", true) %}
-
+{% if reverse_proxy.get("redir_slash", true) %}
 	redir {{ reverse_proxy.path }} {{ reverse_proxy.path }}/
-	{% endif %}
+{% endif %}
 
-	{% endif %}
+{% endif %}
 {% endfor %}
 
-	{{ item.extra | default('') }}
+{{ item.extra | default('') | indent('	', first=True) }}
 }

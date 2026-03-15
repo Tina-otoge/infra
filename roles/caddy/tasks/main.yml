@@ -1,0 +1,87 @@
+- when: caddy_user | bool
+  block:
+    - name: Ensure service config directory exists
+      file:
+        path: /etc/systemd/system/{{ caddy_service }}.service.d
+        state: directory
+
+
+    - name: Ensure desired user is set to run Caddy
+      ini_file:
+        path: /etc/systemd/system/{{ caddy_service }}.service.d/override.conf
+        option: "{{ item }}"
+        section: Service
+        value: "{{ caddy_user }}"
+      loop:
+        - User
+        - Group
+      notify:
+        - systemd reload
+        - restart
+
+    - meta: flush_handlers
+
+- name: Create main Caddyfile
+  template:
+    src: Caddyfile.j2
+    dest: /etc/caddy/Caddyfile
+    mode: "u=rw,g=r,o=r"
+  notify: restart
+
+- name: Create partial Caddyfile entries
+  blockinfile:
+    create: true
+    path: >-
+      {%- if item.file -%}
+      /etc/caddy/Caddyfile.d/{{ item.file }}.conf
+      {%- else -%}
+      /etc/caddy/Caddyfile
+      {%- endif -%}
+    block: "{{ lookup('template', 'entry.j2') }}"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.domain }}"
+  when: item.partial | default(false)
+  notify: restart
+
+- name: Compute full Caddyfile entry groups
+  set_fact:
+    _caddy_file_groups: |
+      {% set non_partial =
+        (caddy_entries | rejectattr('partial', 'defined') | list)
+        + (caddy_entries | selectattr('partial', 'defined') | rejectattr('partial') | list)
+      %}
+      {% for file, entries in non_partial | groupby('file') %}
+      - file: {{ file }}
+        entries: {{ entries | to_json }}
+      {% endfor %}
+
+- name: Create full Caddyfile entries
+  template:
+    src: entries_file.j2
+    dest: "/etc/caddy/Caddyfile.d/{{ item.file }}.conf"
+    mode: "u=rw,g=r,o=r"
+  loop: "{{ (_caddy_file_groups or '[]') | from_yaml }}"
+  loop_control:
+    label: "{{ item.file }}"
+  notify: restart
+
+- name: Create symlink of Caddy certificates to ssl directory
+  file:
+    src: /var/lib/caddy/.local/share/caddy/certificates
+    dest: /etc/ssl/caddy
+    state: link
+    force: true
+
+- name: Check if Caddy completion file exists for zsh
+  stat:
+    path: /usr/local/share/zsh/site-functions/_caddy
+  register: _caddy_completion_check
+  changed_when: false
+
+- when: not _caddy_completion_check.stat.exists
+  block:
+    - name: Ensure zsh plugins directory exists
+      file:
+        path: /usr/local/share/zsh/site-functions
+        state: directory
+    - name: Install Caddy completion file for zsh
+      shell: caddy completion zsh > /usr/local/share/zsh/site-functions/_caddy

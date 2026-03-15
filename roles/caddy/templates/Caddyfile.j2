@@ -7,7 +7,7 @@
 		level debug
 	}
 	log access_log {
-		output file {{ caddy_access_log | default('/var/log/caddy/access.log') }}
+		output file {{ caddy_access_log }}
 	}
 	{% for name, output in (caddy_logs_outputs| default({})).items() %}
 	log {{ name }} {
@@ -32,7 +32,7 @@
 	email {{ caddy_email }}
 	{% endif %}
 
-	{{ caddy_global_extra | default('') }}
+	{{ caddy_global_extra }}
 }
 
 {% if http_domain %}
@@ -93,6 +93,4 @@ Disallow: /
 import Caddyfile.d/*.conf
 {% endif %}
 
-{% if caddy_extra is defined %}
 {{ caddy_extra }}
-{% endif %}

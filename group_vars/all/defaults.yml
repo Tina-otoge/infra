@@ -24,7 +24,6 @@ server_tasks_base:
   - firewall
   - fail2ban
   - login_hook
-  - caddy
   - cockpit
   - users_fstab
   # - promtail

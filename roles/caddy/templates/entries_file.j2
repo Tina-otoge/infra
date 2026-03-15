@@ -1,0 +1,6 @@
+# {{ ansible_managed }}
+
+{% for item in item.entries %}
+{% include "entry.j2" %}
+
+{% endfor %}
