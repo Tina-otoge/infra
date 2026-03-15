@@ -4,6 +4,24 @@
     state: directory
     mode: u=rwx,g=rx,o=rx
 
+- name: Fetch crawler user-agent list
+  ansible.builtin.uri:
+    url: https://raw.githubusercontent.com/monperrus/crawler-user-agents/master/crawler-user-agents.json
+    return_content: true
+  register: crawler_ua_response
+  delegate_to: localhost
+
+- name: Set crawler UA regex fact
+  ansible.builtin.set_fact:
+    crawler_ua_regex: "{{ crawler_ua_response.content | from_json | map(attribute='pattern') | join('|') }}"
+
+- name: Deploy bot detection template
+  ansible.builtin.template:
+    src: is-bot-template.txt.j2
+    dest: /etc/alloy/is-bot-template.txt
+    mode: u=rw,g=r,o=r
+  notify: alloy restart
+
 - name: Install Alloy config
   template:
     src: config.alloy

@@ -3,6 +3,11 @@ logging {
   format = "logfmt"
 }
 
+local.file "is_bot_template" {
+  filename       = "/etc/alloy/is-bot-template.txt"
+  poll_frequency = "24h"
+}
+
 local.file_match "caddy_access_log" {
   path_targets = [{
     "__path__" = "/var/log/caddy/access.log",
@@ -28,8 +33,14 @@ loki.process "caddy_access" {
       proto     = "request.proto",
       status    = "status",
       duration  = "duration",
-      size      = "size",
+      size       = "size",
+      user_agent = "request.headers.\"User-Agent\"[0]",
     }
+  }
+
+  stage.template {
+    source   = "is_bot"
+    template = local.file.is_bot_template.content
   }
 
   // Low-cardinality fields become labels for efficient querying
@@ -39,6 +50,8 @@ loki.process "caddy_access" {
       host   = "host",
       status = "status",
       proto  = "proto",
+      logger = "logger",
+      is_bot = "is_bot",
     }
   }
 
