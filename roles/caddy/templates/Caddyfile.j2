@@ -8,6 +8,7 @@
 	}
 	log access_log {
 		output file {{ caddy_access_log }}
+		level info
 	}
 {% for name, output in (caddy_logs_outputs| default({})).items() %}
 	log {{ name }} {
