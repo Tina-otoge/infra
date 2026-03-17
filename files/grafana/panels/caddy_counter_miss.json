@@ -1,0 +1,276 @@
+{
+    "libraryPanel": {
+        "id": 2,
+        "orgId": 1,
+        "folderId": 0,
+        "folderUid": "",
+        "uid": "efgboq6mbb1mob",
+        "name": "Caddy requests counter (miss)",
+        "kind": 1,
+        "type": "stat",
+        "description": "",
+        "model": {
+            "datasource": {
+                "type": "loki",
+                "uid": "dfg4e2r7nrjswf"
+            },
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "#ccccdc",
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "noValue": "empty",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "text",
+                                "value": null
+                            },
+                            {
+                                "color": "#EAB839",
+                                "value": 1
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "A"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "short"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "B"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "percent"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 1
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 6,
+                "x": 12,
+                "y": 0
+            },
+            "id": 7,
+            "links": [
+                {
+                    "targetBlank": false,
+                    "title": "Filter",
+                    "url": "/d/tij2wcs?${__url_time_range}&${host:queryparam}&var-is_bot=${is_bot}&var-status_filter=[4].."
+                }
+            ],
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value_and_name",
+                "wideLayout": true
+            },
+            "pluginVersion": "12.4.1",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "loki",
+                        "uid": "dfg4e2r7nrjswf"
+                    },
+                    "direction": "backward",
+                    "editorMode": "code",
+                    "expr": "sum(count_over_time({job=\"$job\", host=~\"${host:pipe}\", is_bot=~\"$is_bot\"} | status=~\"[4]..\" [$__range]))",
+                    "legendFormat": "Requests",
+                    "queryType": "range",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "loki",
+                        "uid": "dfg4e2r7nrjswf"
+                    },
+                    "direction": "backward",
+                    "editorMode": "code",
+                    "expr": "sum(count_over_time({job=\"$job\", host=~\"${host:pipe}\", is_bot=~\"$is_bot\"} | status=~\"[4]..\" [$__range])) / sum(count_over_time({job=\"$job\", host=~\"${host:pipe}\", is_bot=~\"$is_bot\"} [$__range])) * 100",
+                    "legendFormat": "Total",
+                    "queryType": "range",
+                    "refId": "B"
+                }
+            ],
+            "title": "400",
+            "type": "stat"
+        },
+        "version": 4,
+        "meta": {
+            "folderName": "",
+            "folderUid": "",
+            "connectedDashboards": 0,
+            "created": "2026-03-17T20:56:29Z",
+            "updated": "2026-03-17T22:57:13.85062226Z",
+            "createdBy": {
+                "id": 2,
+                "name": "tina",
+                "avatarUrl": "/grafana/avatar/ef2afe0ea76c76b6b4b1ee92864c4d5c"
+            },
+            "updatedBy": {
+                "id": 2,
+                "name": "tina",
+                "avatarUrl": "/grafana/avatar/ef2afe0ea76c76b6b4b1ee92864c4d5c"
+            }
+        }
+    },
+    "id": 7,
+    "type": "stat",
+    "title": "400",
+    "gridPos": {
+        "x": 12,
+        "y": 0,
+        "h": 9,
+        "w": 6
+    },
+    "fieldConfig": {
+        "defaults": {
+            "mappings": [],
+            "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                    {
+                        "color": "text",
+                        "value": null
+                    },
+                    {
+                        "color": "#EAB839",
+                        "value": 1
+                    }
+                ]
+            },
+            "color": {
+                "fixedColor": "#ccccdc",
+                "mode": "thresholds"
+            },
+            "noValue": "empty"
+        },
+        "overrides": [
+            {
+                "matcher": {
+                    "id": "byFrameRefID",
+                    "options": "A"
+                },
+                "properties": [
+                    {
+                        "id": "unit",
+                        "value": "short"
+                    },
+                    {
+                        "id": "decimals",
+                        "value": 0
+                    }
+                ]
+            },
+            {
+                "matcher": {
+                    "id": "byFrameRefID",
+                    "options": "B"
+                },
+                "properties": [
+                    {
+                        "id": "unit",
+                        "value": "percent"
+                    },
+                    {
+                        "id": "decimals",
+                        "value": 1
+                    }
+                ]
+            }
+        ]
+    },
+    "pluginVersion": "12.4.1",
+    "targets": [
+        {
+            "datasource": {
+                "type": "loki",
+                "uid": "dfg4e2r7nrjswf"
+            },
+            "direction": "backward",
+            "editorMode": "code",
+            "expr": "sum(count_over_time({job=\"$job\", host=~\"${host:pipe}\", is_bot=~\"$is_bot\"} | status=~\"[4]..\" [$__range]))",
+            "legendFormat": "Requests",
+            "queryType": "range",
+            "refId": "A"
+        },
+        {
+            "datasource": {
+                "type": "loki",
+                "uid": "dfg4e2r7nrjswf"
+            },
+            "direction": "backward",
+            "editorMode": "code",
+            "expr": "sum(count_over_time({job=\"$job\", host=~\"${host:pipe}\", is_bot=~\"$is_bot\"} | status=~\"[4]..\" [$__range])) / sum(count_over_time({job=\"$job\", host=~\"${host:pipe}\", is_bot=~\"$is_bot\"} [$__range])) * 100",
+            "legendFormat": "Total",
+            "queryType": "range",
+            "refId": "B"
+        }
+    ],
+    "datasource": {
+        "type": "loki",
+        "uid": "dfg4e2r7nrjswf"
+    },
+    "options": {
+        "reduceOptions": {
+            "values": false,
+            "calcs": [
+                "lastNotNull"
+            ],
+            "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value_and_name",
+        "wideLayout": true,
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard"
+    },
+    "links": [
+        {
+            "targetBlank": false,
+            "title": "Filter",
+            "url": "/d/tij2wcs?${__url_time_range}&${host:queryparam}&var-is_bot=${is_bot}&var-status_filter=[4].."
+        }
+    ]
+}

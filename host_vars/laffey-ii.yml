@@ -538,6 +538,7 @@ quadlets:
       - "{{ loopback_ip }}:3100:3100"
     volumes:
     - "{{ ansible_facts.user_dir }}/.config/loki:/etc/loki"
+    - "{{ ansible_facts.user_dir }}/.local/share/loki:/tmp/loki"
   alloy:
     scope: system
     image: grafana/alloy

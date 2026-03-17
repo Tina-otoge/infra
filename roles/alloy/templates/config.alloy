@@ -74,5 +74,9 @@ loki.write "tina" {
       username = "{{ secrets.http.loki.username }}"
       password = "{{ secrets.http.loki.password }}"
     }
+
+    min_backoff_period  = "1m"
+    max_backoff_period  = "1m"
+    max_backoff_retries = 0
   }
 }

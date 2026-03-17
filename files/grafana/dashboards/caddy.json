@@ -1,0 +1,643 @@
+{
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": {
+                    "type": "grafana",
+                    "uid": "-- Grafana --"
+                },
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "type": "dashboard"
+            }
+        ]
+    },
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 0,
+    "links": [],
+    "panels": [
+        {
+            "datasource": {
+                "type": "loki",
+                "uid": "dfg4e2r7nrjswf"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        }
+                    },
+                    "mappings": []
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "false"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "green",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "displayName",
+                                "value": "Human"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "true"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#FF7383",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "displayName",
+                                "value": "Bot"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 6,
+                "x": 0,
+                "y": 0
+            },
+            "id": 3,
+            "options": {
+                "displayLabels": [
+                    "percent"
+                ],
+                "legend": {
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "values": [
+                        "value"
+                    ]
+                },
+                "pieType": "pie",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "sort": "desc",
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "12.4.1",
+            "targets": [
+                {
+                    "direction": "backward",
+                    "editorMode": "builder",
+                    "expr": "sum by(is_bot) (count_over_time({job=~\"$job\", host=~\"${host:pipe}\", is_bot=~\"true|false\"} [$__range]))",
+                    "legendFormat": "{{is_bot}}",
+                    "queryType": "range",
+                    "refId": "A"
+                }
+            ],
+            "title": "Bots parity",
+            "type": "piechart"
+        },
+        {
+            "gridPos": {
+                "h": 9,
+                "w": 6,
+                "x": 6,
+                "y": 0
+            },
+            "id": 4,
+            "libraryPanel": {
+                "name": "Caddy requests counter (success)",
+                "uid": "dfgbkvju7pjwgc"
+            },
+            "title": "100 / 200 / 300",
+            "type": "library-panel-ref"
+        },
+        {
+            "gridPos": {
+                "h": 9,
+                "w": 6,
+                "x": 12,
+                "y": 0
+            },
+            "id": 7,
+            "libraryPanel": {
+                "name": "Caddy requests counter (miss)",
+                "uid": "efgboq6mbb1mob"
+            },
+            "title": "400",
+            "type": "library-panel-ref"
+        },
+        {
+            "gridPos": {
+                "h": 9,
+                "w": 6,
+                "x": 18,
+                "y": 0
+            },
+            "id": 8,
+            "libraryPanel": {
+                "name": "Caddy requests counter (fail)",
+                "uid": "ffgbp943ijocgb"
+            },
+            "title": "500",
+            "type": "library-panel-ref"
+        },
+        {
+            "datasource": {
+                "type": "loki",
+                "uid": "dfg4e2r7nrjswf"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "filterable": false,
+                        "footer": {
+                            "reducers": []
+                        },
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": 0
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "host"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Domain"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Value #A"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Requests"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 9
+            },
+            "id": 10,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "frameIndex": 0,
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": true,
+                        "displayName": "Requests"
+                    }
+                ]
+            },
+            "pluginVersion": "12.4.1",
+            "targets": [
+                {
+                    "direction": "backward",
+                    "editorMode": "code",
+                    "expr": "topk(10, sum by(host) (count_over_time($query [$__range])))",
+                    "legendFormat": "{{host}}",
+                    "queryType": "instant",
+                    "refId": "A"
+                }
+            ],
+            "title": "Requests per domain",
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true
+                        },
+                        "renameByName": {}
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "datasource": {
+                "type": "loki",
+                "uid": "dfg4e2r7nrjswf"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "filterable": false,
+                        "footer": {
+                            "reducers": []
+                        },
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": 0
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "path"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Path"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Value #A"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Requests"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 9
+            },
+            "id": 11,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "frameIndex": 0,
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": true,
+                        "displayName": "Requests"
+                    }
+                ]
+            },
+            "pluginVersion": "12.4.1",
+            "targets": [
+                {
+                    "direction": "backward",
+                    "editorMode": "code",
+                    "expr": "topk(50, sum by(path) (count_over_time($query | json uri | __error__=\"\" | line_format \"{{.uri}}\" | regexp \"(?P<uri>[^?#]*)\" | label_format path=\"{{.host}}{{.uri}}\" [$__range])))",
+                    "legendFormat": "{{path}}",
+                    "queryType": "instant",
+                    "refId": "A"
+                }
+            ],
+            "title": "Requests per path",
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true
+                        },
+                        "renameByName": {}
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "datasource": {
+                "type": "loki",
+                "uid": "dfg4e2r7nrjswf"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisGridShow": true,
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineStyle": {
+                            "fill": "solid"
+                        },
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "always",
+                        "showValues": false,
+                        "spanNulls": true,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": 0
+                            }
+                        ]
+                    },
+                    "unit": "reqpm"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 17
+            },
+            "id": 9,
+            "interval": "60s",
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "right",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "pluginVersion": "12.4.1",
+            "targets": [
+                {
+                    "direction": "backward",
+                    "editorMode": "code",
+                    "expr": "topk(10, sum by(host) (rate($query [$__interval]) * 60))",
+                    "legendFormat": "{{host}}",
+                    "queryType": "range",
+                    "refId": "A"
+                }
+            ],
+            "title": "Requests per minute",
+            "transparent": true,
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "loki",
+                "uid": "dfg4e2r7nrjswf"
+            },
+            "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 13,
+                "w": 24,
+                "x": 0,
+                "y": 25
+            },
+            "id": 2,
+            "options": {
+                "dedupStrategy": "none",
+                "detailsMode": "inline",
+                "enableInfiniteScrolling": false,
+                "enableLogDetails": true,
+                "fontSize": "default",
+                "showControls": false,
+                "showTime": true,
+                "sortOrder": "Descending",
+                "timestampResolution": "ms",
+                "unwrappedColumns": false,
+                "wrapLogMessage": false
+            },
+            "pluginVersion": "12.4.1",
+            "targets": [
+                {
+                    "direction": "backward",
+                    "editorMode": "code",
+                    "expr": "$query | line_format `{{.client_ip}} {{.method}} {{.status}} {{.host}}{{.uri}} {{ .msg}} {{.duration}}s {{.size}}B`",
+                    "queryType": "range",
+                    "refId": "A"
+                }
+            ],
+            "title": "Access logs",
+            "type": "logs"
+        }
+    ],
+    "preload": false,
+    "schemaVersion": 42,
+    "tags": [],
+    "templating": {
+        "list": [
+            {
+                "allowCustomValue": false,
+                "current": {
+                    "text": [
+                        "All"
+                    ],
+                    "value": [
+                        "$__all"
+                    ]
+                },
+                "datasource": {
+                    "type": "loki",
+                    "uid": "dfg4e2r7nrjswf"
+                },
+                "definition": "",
+                "includeAll": true,
+                "multi": true,
+                "name": "host",
+                "options": [],
+                "query": {
+                    "label": "host",
+                    "refId": "LokiVariableQueryEditor-VariableQuery",
+                    "stream": "",
+                    "type": 1
+                },
+                "refresh": 1,
+                "regex": "",
+                "regexApplyTo": "value",
+                "type": "query"
+            },
+            {
+                "current": {
+                    "text": "caddy",
+                    "value": "caddy"
+                },
+                "hide": 2,
+                "name": "job",
+                "query": "caddy",
+                "skipUrlSync": true,
+                "type": "constant"
+            },
+            {
+                "allowCustomValue": false,
+                "current": {
+                    "text": "false",
+                    "value": "false"
+                },
+                "description": "",
+                "includeAll": false,
+                "label": "Bot requests",
+                "name": "is_bot",
+                "options": [],
+                "query": "Include : true|false, Only : true, Exclude : false",
+                "type": "custom",
+                "valuesFormat": "csv"
+            },
+            {
+                "allowCustomValue": false,
+                "current": {
+                    "text": ".*",
+                    "value": ".*"
+                },
+                "includeAll": false,
+                "label": "Status",
+                "name": "status_filter",
+                "options": [],
+                "query": "All requests : .*, 2xx / 3xx : [23].., 4xx : 4.., 5xx : 5..",
+                "type": "custom",
+                "valuesFormat": "csv"
+            },
+            {
+                "allowCustomValue": false,
+                "current": {
+                    "text": "{job=\"caddy\", host=~\"asso-msn.fr|couscous.tina.moe|damien.savatier.fr|demo.asso-msn.fr|dijiang.tina.moe|fairyjoke.net|goty.asso-msn.fr|hewwo.lovelyrad.io|kuma.tina.moe|laffey-ii.tina.moe|laffey.tina.moe|lelap.in|loki.tina.moe|mirror.lovelyrad.io|nico.tina.moe|poobmap.reaxt.dev|replay.lelap.in|shin.tina.moe|six.tina.moe|soku.tina.moe|sonic.tina.moe|tina.moe|vault.tina.moe|wallos.tina.moe\", is_bot=~\"false\"} | status=~\".*\"",
+                    "value": "{job=\"caddy\", host=~\"asso-msn.fr|couscous.tina.moe|damien.savatier.fr|demo.asso-msn.fr|dijiang.tina.moe|fairyjoke.net|goty.asso-msn.fr|hewwo.lovelyrad.io|kuma.tina.moe|laffey-ii.tina.moe|laffey.tina.moe|lelap.in|loki.tina.moe|mirror.lovelyrad.io|nico.tina.moe|poobmap.reaxt.dev|replay.lelap.in|shin.tina.moe|six.tina.moe|soku.tina.moe|sonic.tina.moe|tina.moe|vault.tina.moe|wallos.tina.moe\", is_bot=~\"false\"} | status=~\".*\""
+                },
+                "description": "",
+                "hide": 2,
+                "includeAll": false,
+                "name": "query",
+                "options": [],
+                "query": "{job=\"$job\"\\, host=~\"${host:pipe}\"\\, is_bot=~\"$is_bot\"} | status=~\"$status_filter\"",
+                "type": "custom",
+                "valuesFormat": "csv"
+            },
+            {
+                "baseFilters": [],
+                "datasource": {
+                    "type": "loki",
+                    "uid": "dfg4e2r7nrjswf"
+                },
+                "filters": [],
+                "name": "Filters",
+                "type": "adhoc"
+            }
+        ]
+    },
+    "time": {
+        "from": "now-1h",
+        "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "browser",
+    "title": "Dijiang Caddy room",
+    "uid": "tij2wcs",
+    "version": 66,
+    "weekStart": ""
+}

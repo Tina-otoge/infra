@@ -28,6 +28,7 @@ query_range:
 limits_config:
   metric_aggregation_enabled: true
   enable_multi_variant_queries: true
+  max_query_series: {{ loki_max_query_series }}
 
 schema_config:
   configs:
