@@ -1,0 +1,8 @@
+disk_use_report_secrets_file: "/etc/disk_use_report.env"
+disk_use_report_schedule: weekly
+
+disk_use_report_paths: []
+disk_use_report_paths_file: "/etc/disk_use_report.paths.txt"
+
+disk_use_report_biggest_files_paths: []
+disk_use_report_biggest_files_paths_file: "/etc/disk_use_report.biggest_files.paths.txt"

@@ -171,3 +171,19 @@ backups_jobs:
     repository: "{{ backups_repository }}"
     archive: "{{ backups_archive }}"
     calendar: "{{ backups_calendar }}"
+
+disk_use_report_paths:
+  - /*
+  - /home/*
+  - /var/log
+  - /var/cache
+  - /var/lib/dnf
+  - /var/lib/containers
+  - "{{ ansible_facts.user_dir }}/.local/share/*"
+  - "{{ ansible_facts.user_dir }}/.cache/*"
+  - "{{ ansible_facts.user_dir }}/.vscode-server/"
+  - "{{ ansible_facts.user_dir }}/.pyenv/"
+
+disk_use_report_biggest_files_paths:
+  - /var/log
+  - /tmp

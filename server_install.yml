@@ -36,6 +36,7 @@
       loop:
         - containers
         - backups
+        - disk_use_report
         - smart
         - caddy
         - alloy

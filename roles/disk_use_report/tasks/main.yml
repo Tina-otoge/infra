@@ -1,0 +1,109 @@
+- name: Check if env file exists
+  stat:
+    path: "{{ disk_use_report_secrets_file }}"
+  register: env_file
+
+- name: Enforce env file permissions
+  file:
+    path: "{{ disk_use_report_secrets_file }}"
+    owner: root
+    group: root
+    mode: u=rw,g=,o=
+  when: env_file.stat.exists
+
+- set_fact:
+    _disk_use_report_user: "{{ ansible_env.SUDO_USER or ansible_user_id }}"
+
+- user:
+    name: "{{ _disk_use_report_user }}"
+  register: disk_use_report_info
+
+- set_fact:
+    ansible_facts:
+      user_dir: "{{ disk_use_report_info.home }}"
+
+- name: Create paths file
+  copy:
+    content: |
+      {% for include in disk_use_report_paths %}
+      {{ include }}
+      {% endfor %}
+    dest: "{{ disk_use_report_paths_file }}"
+    mode: u=rw,g=r,o=r
+    owner: root
+    group: root
+  when: disk_use_report_paths is defined
+
+- name: Create biggest files paths file
+  copy:
+    content: |
+      {% for include in disk_use_report_biggest_files_paths %}
+      {{ include }}
+      {% endfor %}
+    dest: "{{ disk_use_report_biggest_files_paths_file }}"
+    mode: u=rw,g=r,o=r
+    owner: root
+    group: root
+  when: disk_use_report_biggest_files_paths is defined
+
+- name: Create service file for disk use report
+  include_role:
+    name: common
+    tasks_from: create_service
+  vars:
+    service_name: "disk-use-report"
+    service_schedule: "{{ disk_use_report_schedule }}"
+    service_script: |
+      if [ -f {{ disk_use_report_secrets_file }} ]; then
+        source {{ disk_use_report_secrets_file }}
+      fi
+
+      msg="Disk usage report for $(hostname):\n\n"
+
+      echo 'Running `df`...'
+      msg+='```\n'
+      msg+="$(df -h --output=source,fstype,size,avail,pcent,target -x tmpfs -x devtmpfs -x efivarfs -x overlay)"
+      msg+=$'\n```\n\n'
+      echo Done.
+
+      list_limit=${DISK_USE_REPORT_LIST_LIMIT:-10}
+      while IFS= read -r p; do
+        echo "Running \`du\` for $p..."
+
+        if [[ $p == *'*' ]]; then
+          msg+="\`$p\`:\n"
+        else
+          if ! stat -t "$p" &>/dev/null; then
+            echo "Path $p does not exist, skipping."
+            continue
+          fi
+        fi
+
+        msg+="$(du -shx $p 2>/dev/null | sort -hr | head -n $list_limit)\n\n"
+        echo Done.
+      done < {{ disk_use_report_paths_file }}
+
+      list_limit=${DISK_USE_REPORT_BIGGEST_FILES_LIST_LIMIT:-$list_limit}
+      while IFS= read -r p; do
+        echo "\`find\`ing biggest files in $p..."
+        msg+="Biggest files in \`$p\`:\n"
+        msg+="$(find $p -type f -printf '%s\t%p\n' | sort -nr 2>/dev/null | head -n $list_limit | numfmt --to=iec)\n\n"
+        echo Done.
+      done < {{ disk_use_report_biggest_files_paths_file }}
+
+      echo -e "$msg"
+
+      if [ -n "$WEBHOOK_URL" ]; then
+        echo '`curl`ing report to webhook...'
+        msg="$(printf '%b' "$msg")"
+        {% raw %}
+        while [ ${#msg} -gt 0 ]; do
+          part="${msg:0:1900}"
+          curl -X POST -H 'Content-type: application/json' \
+            -d "$(jq -n --arg m "$part" '{content: $m}')" \
+            "$WEBHOOK_URL"
+          msg="${msg:1900}"
+        done
+        {% endraw %}
+        echo Done.
+      fi
