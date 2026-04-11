@@ -16,6 +16,22 @@ backups_job_machine_paths_extra:
   - "{{ ansible_facts.user_dir }}/.local/share/lms/"
   - "{{ ansible_facts.user_dir }}/.config/jellyin/"
 
+backups_repos:
+  - path: "{{ backups_repos_dir }}/asashio"
+    rclone_remote: "{{ backups_repos_remote_machine }}/asashio"
+  - path: "{{ backups_repos_dir }}/evertsen"
+    rclone_remote: "{{ backups_repos_remote_machine }}/evertsen"
+  - path: "{{ backups_repos_dir }}/i-13"
+    rclone_remote: "{{ backups_repos_remote_machine }}/i-13"
+  - path: "{{ backups_repos_dir }}/laffey"
+    rclone_remote: "{{ backups_repos_remote_machine }}/laffey"
+  - path: "{{ backups_repos_dir }}/laffey-ii"
+    rclone_remote: "{{ backups_repos_remote_machine }}/laffey-ii"
+  - path: "{{ backups_repos_dir }}/nagato"
+    rclone_remote: "{{ backups_repos_remote_machine }}/nagato"
+  - path: "{{ backups_repos_dir }}/turbo"
+    rclone_remote: "{{ backups_repos_remote_machine }}/turbo"
+
 server_tasks:
   - dnsmasq
 
@@ -40,7 +56,6 @@ packages_base_excludes:
   # missing packages in EPEL 10.0
   - cockpit-navigator
   - httpie
-  - rclone
   - zsh-syntax-highlighting
 
 links:

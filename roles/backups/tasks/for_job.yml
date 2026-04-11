@@ -46,8 +46,8 @@
         curl -X POST -H 'Content-type: application/json' -d "$(jq -n --arg m "$msg" '{content: $m}')" $WEBHOOK_URL
       }
 
-      if [ -f /etc/backups-webhook.env ]; then
-        source /etc/backups-webhook.env
+      if [ -f "{{ backups_secrets_file }}" ]; then
+        source "{{ backups_secrets_file }}"
       fi
 
       ssh_key=$(find "{{ ansible_facts.user_dir }}/.ssh/borg_key" "{{ ansible_facts.user_dir }}/.ssh/id_rsa" "{{ ansible_facts.user_dir }}/.ssh/id_ed25519" | head -n 1)

@@ -10,3 +10,20 @@ backups_jobs: {}
 #  cleanup_script: |
 #    #!/bin/bash
 #    echo "Cleaning up after backup..."
+
+backup_repos_housekeeping_schedule: daily
+
+backup_repos_keep_defaults:
+  weekly: 8
+  monthly: 12
+  yearly: 5
+
+backups_repos: []
+# - path: "{{ ansible_facts.user_dir }}/Backups/Repositories/some_machine"
+#   dry_run: true
+#   keep:
+#     weekly: 8
+#     monthly: 12
+#     yearly: 5
+
+backups_secrets_file: /etc/backups-webhook.env

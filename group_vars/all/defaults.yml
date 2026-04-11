@@ -159,6 +159,10 @@ backups_job_machine_paths_base:
 backups_job_machine_paths_extra: []
 backups_job_machine_paths: "{{ backups_job_machine_paths_base + backups_job_machine_paths_extra }}"
 
+backups_repos_dir: "{{ ansible_facts.user_dir }}/Backups/Repositories"
+backups_repos_remote_machine: b2-machine-backups:tina-machine-backups
+
+
 backups_repository: tina@asashio.tina.moe:Backups/Repositories/{{ ansible_hostname }}
 backups_archive: '{now}'
 

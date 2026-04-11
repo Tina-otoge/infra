@@ -36,6 +36,19 @@
     ansible_facts:
       user_dir: "{{ backup_user_info.home }}"
 
+- name: Check if env file exists
+  stat:
+    path: "{{ backups_secrets_file }}"
+  register: env_file
+
+- name: Enforce env file permissions
+  file:
+    path: "{{ backups_secrets_file }}"
+    owner: "{{ borg_admin_user }}"
+    group: "{{ borg_admin_user }}"
+    mode: u=rw,g=,o=
+  when: env_file.stat.exists
+
 - name: Import backup configuration task for each job
   include_role:
     name: "{{ role_name }}"
@@ -43,3 +56,90 @@
   loop: "{{ backups_jobs | dict2items }}"
   loop_control:
     loop_var: job
+
+- name: Create backup housekeeping script
+  include_role:
+    name: common
+    tasks_from: create_service
+  vars:
+    service_name: backup-repos-housekeeping
+    service_scope: user
+    service_user: "{{ borg_admin_user }}"
+    service_schedule: "{{ backup_repos_housekeeping_schedule }}"
+    service_script: |
+      if [ -f {{ backups_secrets_file }} ]; then
+        source {{ backups_secrets_file }}
+      fi
+
+      logmsg() {
+        echo -e "$@"
+
+        if [ -z "$WEBHOOK_URL" ]; then
+          return
+        fi
+
+        {% raw %}
+        local msg="$(printf '%b' "$*")"
+        while [ ${#msg} -gt 0 ]; do
+          part="${msg:0:1900}"
+          curl -X POST -H 'Content-type: application/json' \
+            -d "$(jq -n --arg m "$part" '{content: $m}')" \
+            "$WEBHOOK_URL"
+          msg="${msg:1900}"
+        done
+        {% endraw %}
+      }
+
+      export BORG_RELOCATED_REPO_ACCESS_IS_OK=yes
+
+      {% for repo in backups_repos %}
+
+      {% set keep = repo.get('keep', backup_repos_keep_defaults) %}
+
+      logmsg Performing housekeeping for {{ repo.path }}
+
+      prune_dry=$(
+        borg prune --list \
+        --dry-run \
+        {% for period, value in keep.items() %}
+        --keep-{{ period }} "{{ value }}" \
+        {% endfor %}
+        "{{ repo.path }}" 2>&1
+      )
+      echo "$prune_dry"
+
+      {% if not repo.get('dry_run', False) %}
+      prune_stats=$(
+        borg prune --stats \
+        {% for period, value in keep.items() %}
+        --keep-{{ period }} "{{ value }}" \
+        {% endfor %}
+        "{{ repo.path }}" 2>&1
+      )
+      logmsg "borg prune ({{ keep.items() | map('join', '=') | join(', ') }}):\n"'```'"\n$prune_stats\n"'```'
+      {% endif %}
+
+      deleted_archives=$(echo "$prune_dry" | grep -E "(Pruning archive|Would prune)" | sed 's/.*): *//' | cut -d' ' -f1)
+      if [ -n "$deleted_archives" ]; then
+        logmsg "Deleted archives:\n$deleted_archives"
+      fi
+      kept_archives=$(echo "$prune_dry" | grep -E "(Keeping archive|Would keep)" | sed 's/.*): *//' | cut -d' ' -f1)
+      if [ -n "$kept_archives" ]; then
+        logmsg "Kept archives:\n$kept_archives"
+      fi
+
+      borg compact {% if repo.get('dry_run', False) %}--dry-run{% endif %} \
+       "{{ repo.path }}"
+
+      {% if repo.get('rclone_remote') %}
+      rclone_sync=$(
+        rclone sync -v \
+        {% if repo.get('dry_run', False) %}--dry-run{% endif %} \
+        "{{ repo.path }}/" \
+        "{{ repo.rclone_remote }}" 2>&1 | grep -v -E " (NOTICE:|INFO  :) "
+      )
+      logmsg "rclone ({{ repo.rclone_remote }}):\n"'```'"$rclone_sync"'\n```'
+
+      {% endif %}
+      {% endfor %}
+  when: backups_repos | length > 0
