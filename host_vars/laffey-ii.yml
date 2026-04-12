@@ -583,10 +583,10 @@ quadlets:
 
 monitoring_domain: dijiang.tina.moe
 
-minecraft_version: 1.21.10
+minecraft_version: 1.21.11
 
 # https://essentialsx.net/downloads.html
-minecraft_essentials_version: 2.22.0-dev+43-9f57b3e
+minecraft_essentials_version: 2.22.0-dev+94-63e7c4d
 
 minecraft_servers:
   overdrive:
@@ -597,8 +597,8 @@ minecraft_servers:
     plugins:
       CoreProtect:
         # https://www.patreon.com/cw/coreprotect/posts
-        url: https://www.patreon.com/file?h=136053027&m=513054290
-        version: 23.0
+        url: https://www.patreon.com/file?h=145853143&m=580728422
+        version: 23.1
       EssentialsX:
         url: https://ci.ender.zone/job/EssentialsX/lastSuccessfulBuild/artifact/jars/EssentialsX-{version}.jar
         version: "{{ minecraft_essentials_version }}"
@@ -617,12 +617,14 @@ minecraft_servers:
       ServerSigns:
         url: https://github.com/serversigns/ServerSigns/releases/download/v{version}/ServerSigns-{version}.jar
         version: 4.9.1
+      # https://modrinth.com/plugin/worldedit/versions
       WorldEdit:
-        url: https://cdn.modrinth.com/data/1u6JkXh5/versions/4jRlujfz/worldedit-bukkit-{version}.jar
-        version: 7.3.10
+        url: https://cdn.modrinth.com/data/1u6JkXh5/versions/p8T2aZ8U/worldedit-bukkit-{version}.jar
+        version: 7.4.2
+      # https://github.com/MrMicky-FR/WorldEditSelectionVisualizer/releases
       WorldEditSelectionVisualizer:
         url: https://github.com/MrMicky-FR/WorldEditSelectionVisualizer/releases/download/v{version}/WorldEditSelectionVisualizer-{version}.jar
-        version: 2.1.7
+        version: 2.1.9
       WorldGuard:
         url: https://mediafilez.forgecdn.net/files/6643/567/worldguard-bukkit-{version}-dist.jar
         version: 7.0.14
