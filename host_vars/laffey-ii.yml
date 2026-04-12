@@ -45,7 +45,9 @@ backups_jobs_extra:
     prepare_script: |
       curl -X POST -H 'Content-type: application/json' -d '{"content": "co purge t:30d"}' $MC_WEBHOOK_URL
       curl -X POST -H 'Content-type: application/json' -d '{"content": "say Backup procedure started. Server will restart in 10 minutes."}' $MC_WEBHOOK_URL
+      logmsg "Waiting 10 minutes to ensure CoreProtect finishes purging data and to let time for players to disconnect..." >/dev/null
       sleep 10m
+      logmsg "Done waiting. Stopping Minecraft service."
       systemctl -M tina@ --user stop mc
     cleanup_script: |
       systemctl -M tina@ --user start mc

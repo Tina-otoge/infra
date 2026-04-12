@@ -28,13 +28,13 @@
     service_script: |
       logmsg() {
         # get from stdin if no argument
-          if [ -z "$1" ]; then
-            msg=""
-            while IFS= read -r line; do
-                printf '%s\n' "$line"
-                msg+="$line"$'\n'
-            done
-            msg="${msg//\\n/$'\n'}"
+        if [ -z "$1" ]; then
+          msg=""
+          while IFS= read -r line; do
+              printf '%s\n' "$line"
+              msg+="$line"$'\n'
+          done
+          msg="${msg//\\n/$'\n'}"
         else
           echo "$1"
           msg="$1"
@@ -69,7 +69,7 @@
       {% if job.value.prepare_script is defined %}
       (
         {{ job.value.prepare_script }}
-      ) 2>&1 | logmsg
+      )
       {% endif %}
 
       # no pipefail here is important, we want to capture find's output even
@@ -79,5 +79,5 @@
       {% if job.value.cleanup_script is defined %}
       (
         {{ job.value.cleanup_script }}
-      ) 2>&1 | logmsg
+      ) 2>&1
       {% endif %}
