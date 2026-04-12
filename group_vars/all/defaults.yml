@@ -162,19 +162,23 @@ backups_job_machine_paths: "{{ backups_job_machine_paths_base + backups_job_mach
 backups_repos_dir: "{{ ansible_facts.user_dir }}/Backups/Repositories"
 backups_repos_remote_machine: b2-machine-backups:tina-machine-backups
 
-
-backups_repository: tina@asashio.tina.moe:Backups/Repositories/{{ ansible_hostname }}
+backups_repository_base: tina@asashio.tina.moe:Backups/Repositories
+backups_repository_machine: "{{ backups_repository_base }}/{{ ansible_hostname }}"
 backups_archive: '{now}'
 
 backups_calendar: weekly
 
-backups_jobs:
+backups_jobs_base:
   machine:
     paths: "{{ backups_job_machine_paths }}"
     excludes: "{{ backups_exclude }}"
-    repository: "{{ backups_repository }}"
+    repository: "{{ backups_repository_machine }}"
     archive: "{{ backups_archive }}"
     calendar: "{{ backups_calendar }}"
+
+backups_jobs_extra: {}
+
+backups_jobs: "{{ backups_jobs_base | combine(backups_jobs_extra) }}"
 
 disk_use_report_paths:
   - /*

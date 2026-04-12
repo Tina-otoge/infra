@@ -1,6 +1,7 @@
 - name: "Create backup paths file for {{ job.key }}"
   copy:
     content: |
+      {{ ansible_managed }}
       {% for include in job.value.paths %}
       {{ include }}
       {% endfor %}
@@ -10,11 +11,11 @@
 - name: "Create backup excludes file for {{ job.key }}"
   copy:
     content: |
-      {% for exclude in job.value.excludes %}
+      {{ ansible_managed }}
+      {% for exclude in job.value.get('excludes', []) %}
       {{ exclude }}
       {% endfor %}
     dest: "{{ backups_borg_config_dir }}/{{ job.key }}.excludes.txt"
-  when: job.value.excludes is defined
 
 
 - name: "Create service files for {{ job.key }} backup"
@@ -57,6 +58,7 @@
         exit 1
       fi
 
+      export BORG_UNKNOWN_UNENCRYPTED_REPO_ACCESS_IS_OK=yes
       export BORG_RELOCATED_REPO_ACCESS_IS_OK=yes
       export BORG_REPO="{{ job.value.repository }}"
       export BORG_KEYS_DIR={{ ansible_facts.user_dir }}/.config/borg/keys
@@ -64,6 +66,18 @@
 
       logmsg "Backup job \"{{ job.key }}\" started on {{ ansible_hostname }}."
 
+      {% if job.value.prepare_script is defined %}
+      (
+        {{ job.value.prepare_script }}
+      ) 2>&1 | logmsg
+      {% endif %}
+
       # no pipefail here is important, we want to capture find's output even
       # on exit 1s
       find $(cat "{{ backups_borg_config_dir }}/{{ job.key }}.paths.txt") 2>/dev/null | borg create --stats --paths-from-stdin --exclude-from="{{ backups_borg_config_dir }}/{{ job.key }}.excludes.txt" ::{{ job.value.archive }} 2>&1 | logmsg
+
+      {% if job.value.cleanup_script is defined %}
+      (
+        {{ job.value.cleanup_script }}
+      ) 2>&1 | logmsg
+      {% endif %}

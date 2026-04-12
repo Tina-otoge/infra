@@ -31,6 +31,9 @@ backups_repos:
     rclone_remote: "{{ backups_repos_remote_machine }}/nagato"
   - path: "{{ backups_repos_dir }}/turbo"
     rclone_remote: "{{ backups_repos_remote_machine }}/turbo"
+  - path: "{{ backups_repos_dir }}/mc-overdrive"
+    keep:
+      monthly: 24
 
 server_tasks:
   - dnsmasq

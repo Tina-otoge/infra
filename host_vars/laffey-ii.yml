@@ -35,6 +35,20 @@ backups_job_machine_paths_extra:
 
   - /etc/motd_laffey_ii_lines.txt
 
+backups_jobs_extra:
+  mc-overdrive:
+    paths:
+      - "{{ ansible_facts.user_dir }}/Games/Minecraft/overdrive/"
+    repository: "{{ backups_repository_base }}/mc-overdrive"
+    archive: "{{ backups_archive }}"
+    calendar: monthly
+    prepare_script: |
+      curl -X POST -H 'Content-type: application/json' -d '{"content": "co purge t:30d"}' $MC_WEBHOOK_URL
+      sleep 10m
+      systemctl -M tina@ --user stop mc
+    cleanup_script: |
+      systemctl -M tina@ --user start mc
+
 healthchecks: true
 
 packages:

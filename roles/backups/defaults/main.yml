@@ -5,10 +5,8 @@ backups_jobs: {}
 #  excludes: ["*.db-shm", "*.db-wal"]
 #  repository: user@backupserver:repo::{now}
 #  prepare_script: |
-#    #!/bin/bash
 #    echo "Preparing backup..."
 #  cleanup_script: |
-#    #!/bin/bash
 #    echo "Cleaning up after backup..."
 
 backup_repos_housekeeping_schedule: daily
