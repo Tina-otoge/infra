@@ -56,8 +56,8 @@ healthchecks: true
 
 packages:
   - btop # requested by reaxt 2026-01-25
-  - libffi-devel # needed for PyWand@asso-msn, needs pyenv version recompile
-  - ImageMagick-devel # needed for PyWand@asso-msn
+  - libffi-devel # needed for msn-web@asso-msn:PyWand, needs pyenv version recompile
+  - ImageMagick-devel # needed for msn-web@asso-msn:PyWand
 
 caddy_error_handlers:
   - 502
