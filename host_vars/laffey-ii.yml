@@ -44,6 +44,7 @@ backups_jobs_extra:
     calendar: monthly
     prepare_script: |
       curl -X POST -H 'Content-type: application/json' -d '{"content": "co purge t:30d"}' $MC_WEBHOOK_URL
+      curl -X POST -H 'Content-type: application/json' -d '{"content": "say Backup procedure started. Server will restart in 10 minutes."}' $MC_WEBHOOK_URL
       sleep 10m
       systemctl -M tina@ --user stop mc
     cleanup_script: |
