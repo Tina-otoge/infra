@@ -96,8 +96,6 @@
 
       {% set keep = repo.get('keep', backup_repos_keep_defaults) %}
 
-      logmsg Performing housekeeping for {{ repo.path }}
-
       prune_dry=$(
         borg prune --list \
         --dry-run \
@@ -116,20 +114,35 @@
         {% endfor %}
         "{{ repo.path }}" 2>&1
       )
-      logmsg "borg prune ({{ keep.items() | map('join', '=') | join(', ') }}):\n"'```'"\n$prune_stats\n"'```'
       {% endif %}
 
-      deleted_archives=$(echo "$prune_dry" | grep -E "(Pruning archive|Would prune)" | sed 's/.*): *//' | cut -d' ' -f1)
+      deleted_archives=$(
+        echo "$prune_dry" \
+        | grep -E "(Pruning archive|Would prune)" \
+        | sed -E 's/^(Would prune|Pruning archive):[[:space:]]*//' \
+        | cut -d' ' -f1
+      )
       if [ -n "$deleted_archives" ]; then
-        logmsg "Deleted archives:\n$deleted_archives"
-      fi
-      kept_archives=$(echo "$prune_dry" | grep -E "(Keeping archive|Would keep)" | sed 's/.*): *//' | cut -d' ' -f1)
-      if [ -n "$kept_archives" ]; then
-        logmsg "Kept archives:\n$kept_archives"
-      fi
+        {% if not repo.get('dry_run', False) %}
+        {% set keep_label = keep.items() | map('join', '=') | join(', ') %}
+        logmsg "borg prune ({{ keep_label }}):\n"'```'"\n$prune_stats\n"'```'
+        {% endif %}
 
-      borg compact {% if repo.get('dry_run', False) %}--dry-run{% endif %} \
-       "{{ repo.path }}"
+        logmsg "Deleted archives in {{ repo.path }}:\n$deleted_archives"
+
+        kept_archives=$(
+          echo "$prune_dry" \
+          | grep -E "(Keeping archive|Would keep)" \
+          | sed 's/.*): *//' \
+          | cut -d' ' -f1
+        )
+        if [ -n "$kept_archives" ]; then
+          logmsg "Kept archives in {{ repo.path }}:\n$kept_archives"
+        fi
+
+        borg compact {% if repo.get('dry_run', False) %}--dry-run{% endif %} \
+        "{{ repo.path }}"
+      fi
 
       {% if repo.get('rclone_remote') %}
       rclone_sync=$(
@@ -138,8 +151,10 @@
         "{{ repo.path }}/" \
         "{{ repo.rclone_remote }}" 2>&1 | grep -v -E " (NOTICE:|INFO  :) "
       )
-      logmsg "rclone ({{ repo.rclone_remote }}):\n"'```'"$rclone_sync"'\n```'
-
+      nothing_transferred="INFO  : There was nothing to transfer"
+      if ! echo "$rclone_sync" | grep -q "$nothing_transferred"; then
+        logmsg "rclone ({{ repo.rclone_remote }}):\n"'```'"$rclone_sync"'\n```'
+      fi
       {% endif %}
       {% endfor %}
   when: backups_repos | length > 0
