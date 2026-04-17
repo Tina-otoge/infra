@@ -23,14 +23,8 @@ backups_repos:
     rclone_remote: "{{ backups_repos_remote_machine }}/evertsen"
   - path: "{{ backups_repos_dir }}/i-13"
     rclone_remote: "{{ backups_repos_remote_machine }}/i-13"
-  - path: "{{ backups_repos_dir }}/laffey"
-    rclone_remote: "{{ backups_repos_remote_machine }}/laffey"
   - path: "{{ backups_repos_dir }}/laffey-ii"
     rclone_remote: "{{ backups_repos_remote_machine }}/laffey-ii"
-  - path: "{{ backups_repos_dir }}/nagato"
-    rclone_remote: "{{ backups_repos_remote_machine }}/nagato"
-  - path: "{{ backups_repos_dir }}/turbo"
-    rclone_remote: "{{ backups_repos_remote_machine }}/turbo"
   - path: "{{ backups_repos_dir }}/mc-overdrive"
     keep:
       monthly: 24
