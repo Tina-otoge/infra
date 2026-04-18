@@ -2,6 +2,7 @@
     _service_filename: >-
       {{ service_name | replace(' ', '-') | lower }}
     _service_scope: "{{ service_scope | default('system') }}"
+    _service_ansible_user: "{{ ansible_env.SUDO_USER | default(ansible_facts.user_id) }}"
 
 - when: _service_scope == 'system'
   block:
@@ -27,7 +28,7 @@
 - when: _service_scope == 'user'
   block:
     - set_fact:
-        _service_owner: "{{ service_user | default(ansible_user_id) }}"
+        _service_owner: "{{ service_user | default(_service_ansible_user) }}"
     - set_fact:
         _service_directory: "/home/{{ _service_owner }}/.config/systemd/user"
     - file:
@@ -36,7 +37,7 @@
         owner: "{{ service_user }}"
         group: "{{ service_user }}"
         mode: u=rwX,g=rX,o=rX
-      become: "{{ _service_owner != ansible_user_id }}"
+      become: "{{ _service_owner != _service_ansible_user }}"
       loop:
         - "/home/{{ _service_owner }}/.config"
         - "/home/{{ _service_owner }}/.config/systemd"
@@ -49,7 +50,7 @@
         _service_script_path: "/home/{{ _service_owner }}/.local/bin/systemd_{{ _service_filename }}.sh"
 
 - set_fact:
-    _service_become: "{{ _service_scope == 'system' or _service_owner != ansible_user_id }}"
+    _service_become: "{{ _service_scope == 'system' or _service_owner != _service_ansible_user }}"
 
 - name: Create service script file
   become: "{{ _service_scope == 'system' }}"

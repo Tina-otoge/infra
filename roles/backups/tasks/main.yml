@@ -2,20 +2,20 @@
   package:
     name: borgbackup
     state: present
-  when: ansible_user_id == 'root'
+  when: ansible_facts.user_id == 'root'
 
 - name: Use root borg config directory
   set_fact:
     backups_borg_config_dir: "{{ backups_borg_config_dir_root }}"
   when:
-    - ansible_user_id == 'root'
+    - ansible_facts.user_id == 'root'
     - backups_borg_config_dir is not defined
 
 - name: Use user borg config directory
   set_fact:
     backups_borg_config_dir: "{{ backups_borg_config_dir_user }}"
   when:
-    - ansible_user_id != 'root'
+    - ansible_facts.user_id != 'root'
     - backups_borg_config_dir is not defined
 
 - name: Ensure borg config directory exists
@@ -26,7 +26,8 @@
     path: "{{ backups_borg_config_dir }}"
 
 - set_fact:
-    borg_admin_user: "{{ ansible_env.SUDO_USER or ansible_user_id }}"
+    borg_admin_user: >-
+      {{ ansible_facts.env.SUDO_USER or ansible_facts.user_id }}
 
 - user:
     name: "{{ borg_admin_user }}"
@@ -56,6 +57,7 @@
   loop: "{{ backups_jobs | dict2items }}"
   loop_control:
     loop_var: job
+    label: "{{ job.key }}"
 
 - name: Create backup housekeeping script
   include_role:
