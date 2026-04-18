@@ -1,27 +1,12 @@
-- name: Ensure local systemd folder exists
-  file:
-    path: "/usr/local/lib/systemd/system"
-    state: directory
-    mode: u=rwX,g=rX,o=rX
-
-- name: "Create {{ upgrade_service_name }} service"
-  template:
-    src: periodic-upgrade/systemd.service.j2
-    dest: "/usr/local/lib/systemd/system/{{ upgrade_service_name }}.service"
-    mode: u=rw,g=r,o=r
-  notify:
-    - systemd reload
-
-- meta: flush_handlers
-
-- name: Create timer for {{ upgrade_service_name }}
-  template:
-    src: periodic-upgrade/systemd.timer.j2
-    dest: "/usr/local/lib/systemd/system/{{ upgrade_service_name }}.timer"
-    mode: u=rw,g=r,o=r
-
-- name: Enable {{ upgrade_service_name }} timer
-  systemd:
-    name: "{{ upgrade_service_name }}.timer"
-    enabled: true
-    state: started
+- name: Create service file
+  include_role:
+    name: common
+    tasks_from: create_service
+  vars:
+    service_name: periodic-upgrade
+    service_schedule: "*-*-1,7,14,21,28 04:30:00"
+    service_script: |
+      {{ periodic_upgrade_commands[ansible_pkg_mgr] | join(";") }}
+      {% if periodic_upgrade_then_reboot %}
+      sleep 1m; shutdown -r +15
+      {% endif %}

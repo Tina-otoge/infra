@@ -15,6 +15,10 @@
         - name: backup_machine
           timer: true
         - name: smart_check
+        - name: upgrade-and-restart
+          timer: true
+      loop_control:
+        label: "{{ item.name }}"
       tags: always
     - include_tasks:
         file: "tasks/server/{{ task }}.yml"
@@ -25,6 +29,7 @@
       loop: "{{ server_tasks_base + server_tasks }}"
       loop_control:
         loop_var: task
+        label: "{{ task }}"
       tags: always
       when: task not in server_tasks_disabled
     - include_role:
@@ -42,6 +47,7 @@
         - alloy
       loop_control:
         loop_var: role
+        label: "{{ role }}"
 
     # - name: Install Prometheus Node Exporter
     #   include_role:
@@ -80,3 +86,6 @@
       systemd:
         name: fail2ban
         state: restarted
+    - name: systemd reload
+      systemd:
+        daemon_reload: true

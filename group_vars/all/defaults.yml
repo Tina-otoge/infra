@@ -11,7 +11,7 @@ server_tasks_base:
   - pkg-mgr-conf
   - packages
   - fuse
-  # - periodic-upgrade
+  - periodic-upgrade
   - fzf
 
   # Users
@@ -49,13 +49,14 @@ user_apps_dir: "{{ ansible_facts.user_dir }}/.local/opt"
 
 selinux_state: disabled
 
-upgrade_commands:
+periodic_upgrade_commands:
   dnf:
     - systemctl restart chronyd
     - dnf -y upgrade --refresh
-upgrade_schedule: weekly
-upgrade_then_reboot: true
-upgrade_service_name: upgrade-and-restart
+  apt:
+    - apt-get update -y
+    - apt-get upgrade -y
+periodic_upgrade_then_reboot: true
 
 
 pkgmgr_default_yes: true

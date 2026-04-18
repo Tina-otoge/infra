@@ -42,7 +42,7 @@ tunnels:
     local_port: "{{ ports.jellyfin }}"
     local_host: 192.168.1.1
 
-upgrade_then_reboot: false
+periodic_upgrade_then_reboot: false
 
 user_mounts:
   - what: tina@turbo.tina.moe:/
