@@ -25,5 +25,6 @@
   vars:
     service_name: "backup-{{ job.key }}"
     service_schedule: "{{ job.value.calendar | default(omit) }}"
+    service_random_delay: "{{ job.value.random_delay | default(omit) }}"
     service_script: >-
       {{ lookup('template', 'machine_backup.bash.j2') }}

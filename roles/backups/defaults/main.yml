@@ -4,6 +4,8 @@ backups_jobs: {}
 #  includes: ["/etc", "/home"]
 #  excludes: ["*.db-shm", "*.db-wal"]
 #  repository: user@backupserver:repo::{now}
+#  calendar: weekly
+#  random_delay: 10m
 #  prepare_script: |
 #    echo "Preparing backup..."
 #  cleanup_script: |

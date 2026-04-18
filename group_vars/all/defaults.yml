@@ -168,6 +168,7 @@ backups_repository_machine: "{{ backups_repository_base }}/{{ ansible_hostname }
 backups_archive: '{now}'
 
 backups_calendar: weekly
+backups_random_delay: 10m
 
 backups_jobs_base:
   machine:
@@ -176,6 +177,7 @@ backups_jobs_base:
     repository: "{{ backups_repository_machine }}"
     archive: "{{ backups_archive }}"
     calendar: "{{ backups_calendar }}"
+    random_delay: "{{ backups_random_delay }}"
 
 backups_jobs_extra: {}
 
