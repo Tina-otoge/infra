@@ -21,16 +21,22 @@ get_host() {
             return
         fi
     done
-    echo "Unknown Host"
 }
+
+host=$(get_host "$PAM_RHOST")
+if [ -n "$host" ]; then
+    exit 0
+fi
+
+host='Unknown host'
 
 # Let's capture only open_session and close_session events (login and logout).
 case "$PAM_TYPE" in
     open_session)
-        PAYLOAD=" { \"content\": \"$PAM_USER logged in to $HOSTNAME (remote host: $PAM_RHOST $(get_host "$PAM_RHOST")).\" }"
+        PAYLOAD=" { \"content\": \"$PAM_USER logged in to $HOSTNAME (remote host: $PAM_RHOST $host).\" }"
         ;;
     close_session)
-        PAYLOAD=" { \"content\": \"$PAM_USER logged out from $HOSTNAME (remote host: $PAM_RHOST $(get_host "$PAM_RHOST")).\" }"
+        PAYLOAD=" { \"content\": \"$PAM_USER logged out from $HOSTNAME (remote host: $PAM_RHOST $host).\" }"
         ;;
 esac
 
