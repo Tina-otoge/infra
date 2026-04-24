@@ -54,6 +54,13 @@
         entries: {{ entries | to_json }}
       {% endfor %}
 
+- name: Ensure Caddyfile.d directory exists
+  import_role:
+    name: common
+    tasks_from: create_directory
+  vars:
+    path: /etc/caddy/Caddyfile.d
+
 - name: Create full Caddyfile entries
   template:
     src: entries_file.j2

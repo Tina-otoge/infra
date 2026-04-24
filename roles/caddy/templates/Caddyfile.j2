@@ -46,11 +46,13 @@
 {% endif %}
 
 (common) {
+{% if not caddy_disable_common_loggers %}
 	log stdout
 	log access_log
 {% for output in caddy_logs_outputs | default({}) %}
 	log {{ output }}
 {% endfor %}
+{% endif %}
 
 {% if caddy_opentelemetry %}
 	tracing {
