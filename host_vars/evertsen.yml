@@ -1,5 +1,6 @@
 backups_job_machine_paths_extra:
   - "{{ ansible_facts.user_dir }}/.local/share/wg-easy/"
+  - "{{ ansible_facts.user_dir }}/.config/qbittorrent/"
 
 packages_base:
   - borgbackup
@@ -21,6 +22,16 @@ packages_base:
 server_tasks_disabled:
   - caddy
   - cockpit
+
+caddy_disable_common_loggers: true
+
+caddy_entries:
+  - domain: evertsen.tina.moe
+    file: evertsen
+    reverses:
+      - path: /qbit
+        remove_path: true
+        to: "{{ ports.qbittorrent_webui }}"
 
 quadlets:
   wg_easy:
@@ -44,3 +55,12 @@ quadlets:
     env:
       WG_HOST: "{{ ansible_host }}"
       WG_DEVICE: tap0
+  qbit:
+    image: lscr.io/linuxserver/qbittorrent
+    tag: latest
+    volumes:
+      - "{{ ansible_facts.user_dir }}/.config/qbittorrent:/config"
+      - /mnt/asashio/Downloads:/downloads
+    ports:
+      - "{{ loopback_ip }}:{{ ports.qbittorrent_webui }}:8080"
+    env: "{{ linuxserver_env }}"
