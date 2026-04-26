@@ -376,6 +376,9 @@ user_services:
   msn_fa_counter:
     cmd: gh workflow run -R asso-msn/fa-songs-counter cd.yml
     calendar: daily
+  msn_auto_data_seed_pr:
+    cmd: gh workflow run -R asso-msn/msn-web update-from-seeds.yml
+    calendar: daily
   monkey:
     workdir: "{{ repositories_dir }}/monkey"
     cmd: ./start.sh
