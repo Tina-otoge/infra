@@ -23,6 +23,18 @@
       {% endfor %}
       {% endfor %}
 
+- name: Configure containers.conf
+  copy:
+    dest: "{{ ansible_facts.user_dir }}/.config/containers/containers.conf"
+    content: |
+      [containers]
+      base_hosts_file = "{{ ansible_facts.user_dir }}/.config/containers/hosts"
+
+      [network]
+      default_rootless_network_cmd = "pasta"
+      firewall_driver = "nftables"
+    mode: u=rw,g=r,o=r
+
 - name: Prepare volume mount points
   file:
     path: "{{ item }}"
