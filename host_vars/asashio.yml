@@ -209,6 +209,7 @@ quadlets:
       - "{{ loopback_ip }}:{{ ports.foil }}:8465"
     volumes:
       - "{{ ansible_facts.user_dir }}/.config/ownfoil:/app/config"
+      - "{{ ansible_facts.user_dir }}/.local/share/ownfoil:/app/data"
       - "{{ ansible_facts.user_dir }}/Games/Console/Switch:/games"
 
   sonarr:
