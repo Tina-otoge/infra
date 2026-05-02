@@ -56,7 +56,7 @@ PublishPort={{ port }}
 
 {% if item.value.env is defined %}
 {% for env_key, env_value in item.value.env.items() %}
-Environment={{ env_key }}={{ env_value }}
+Environment={{ env_key }}="{{ env_value }}"
 {% endfor %}
 {% endif %}
 
