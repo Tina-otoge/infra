@@ -591,10 +591,10 @@ quadlets:
 
 monitoring_domain: dijiang.tina.moe
 
-minecraft_version: 1.21.11
+minecraft_version: 26.1.2
 
 # https://essentialsx.net/downloads.html
-minecraft_essentials_version: 2.22.0-dev+94-63e7c4d
+minecraft_essentials_version: 2.22.0-dev+104-87bde72
 
 minecraft_servers:
   overdrive:
@@ -603,10 +603,11 @@ minecraft_servers:
       "Tina-otoge": cb4b7120-fc7b-49cd-8204-b8574b454dc0
     path: "{{ ansible_facts.user_dir }}/Games/Minecraft/overdrive"
     plugins:
-      CoreProtect:
-        # https://www.patreon.com/cw/coreprotect/posts
-        url: https://www.patreon.com/file?h=145853143&m=580728422
-        version: 23.1
+      # built and uploaded manually from https://github.com/Tina-otoge/CoreProtect
+      # CoreProtect:
+      #   # https://www.patreon.com/cw/coreprotect/posts
+      #   url: https://www.patreon.com/file?h=145853143&m=580728422
+      #   version: 23.1
       EssentialsX:
         url: https://ci.ender.zone/job/EssentialsX/lastSuccessfulBuild/artifact/jars/EssentialsX-{version}.jar
         version: "{{ minecraft_essentials_version }}"
@@ -627,12 +628,15 @@ minecraft_servers:
         version: 4.9.1
       # https://modrinth.com/plugin/worldedit/versions
       WorldEdit:
-        url: https://cdn.modrinth.com/data/1u6JkXh5/versions/p8T2aZ8U/worldedit-bukkit-{version}.jar
-        version: 7.4.2
+        # https://cdn.modrinth.com/data/1u6JkXh5/versions/k9KdTr1M/worldedit-bukkit-7.4.3-beta-01.jar
+        url: https://cdn.modrinth.com/data/1u6JkXh5/versions/k9KdTr1M/worldedit-bukkit-{version}.jar
+        version: 7.4.3-beta-01
       # https://github.com/MrMicky-FR/WorldEditSelectionVisualizer/releases
       WorldEditSelectionVisualizer:
         url: https://github.com/MrMicky-FR/WorldEditSelectionVisualizer/releases/download/v{version}/WorldEditSelectionVisualizer-{version}.jar
         version: 2.1.9
+      # https://www.curseforge.com/minecraft/bukkit-plugins/worldguard/files/all
       WorldGuard:
-        url: https://mediafilez.forgecdn.net/files/6643/567/worldguard-bukkit-{version}-dist.jar
-        version: 7.0.14
+        # https://mediafilez.forgecdn.net/files/7803/732/worldguard-bukkit-7.0.16.jar
+        url: https://mediafilez.forgecdn.net/files/7803/732/worldguard-bukkit-{version}.jar
+        version: 7.0.16
