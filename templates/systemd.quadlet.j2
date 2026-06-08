@@ -76,6 +76,9 @@ Restart=always
 {% else %}
 Restart={{ item.value.restart }}
 {% endif %}
+{% if item.value.exec_pre is defined %}
+ExecStartPre=/bin/bash -c "{{ item.value.exec_pre | split('\n') | join(' ') | replace ('"', '\\"') }}"
+{% endif %}
 RestartSec=5s
 StartLimitBurst=15
 StartLimitInterval=5m

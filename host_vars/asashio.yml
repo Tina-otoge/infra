@@ -232,6 +232,9 @@ quadlets:
       - "{{ loopback_ip }}:{{ ports.qbittorrent_webui }}:8080"
     env: "{{ linuxserver_env }}"
     network: six.network
+    exec_pre: |
+      rm -rfv {{ ansible_facts.user_dir }}/.config/qbittorrent/qBittorrent/lockfile;
+      rm -rfv {{ ansible_facts.user_dir }}/.config/qbittorrent/qBittorrent/ipc-socket;
   prowlarr:
     image: lscr.io/linuxserver/prowlarr
     tag: latest
