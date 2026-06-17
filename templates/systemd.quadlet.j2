@@ -20,6 +20,12 @@ Volume={{ volume }}
 {% endfor %}
 {% endif %}
 
+{% if item.value.tmpfs is defined %}
+{% for tmpfs in item.value.tmpfs %}
+Tmpfs={{ tmpfs }}
+{% endfor %}
+{% endif %}
+
 {% if item.value.devices is defined %}
 {% for device in item.value.devices %}
 AddDevice={{ device }}

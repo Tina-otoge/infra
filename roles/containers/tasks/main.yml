@@ -31,10 +31,9 @@
     path: "{{ _quadlet_dir }}"
   when: _quadlet_items | length > 0
 
-- name: Create volume paths for quadlets
-  file:
+- name: Stat volume paths for quadlets
+  stat:
     path: "{{ item }}"
-    state: directory
   loop: >-
     {{
       _quadlet_items
@@ -44,11 +43,20 @@
       | map('split', ':')
       | map('first')
     }}
-  when: |
-    (
-      _quadlet_items | map(attribute='value.volumes', default=[]) | flatten
-      | length > 0
-    )
+  register: _volume_path_stat
+  when: >-
+    _quadlet_items
+    | map(attribute='value.volumes', default=[])
+    | flatten | length > 0
+
+- name: Create volume paths for quadlets
+  file:
+    path: "{{ item.item }}"
+    state: directory
+  loop: "{{ _volume_path_stat.results | default([]) }}"
+  loop_control:
+    label: "{{ item.item }}"
+  when: not item.stat.exists
 
 - name: Create quadlet network files
   file:

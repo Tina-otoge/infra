@@ -32,6 +32,8 @@ ports_by_value:
   10015: komga
   10016: goty
   10017: grafana
+  10018: headscale_http
+  10019: headscale_metrics
   12345: alloy
   25565: minecraft
 

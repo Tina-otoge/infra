@@ -1,8 +1,13 @@
 # TODO:
 # - Download https://github.com/intel/intel-linux-firmware to /lib/firmware/i915
 #   as root
+# - Download RTL8821C Bluetooth firmware to /lib/firmware/rtl_bt/ as root:
+#   rtl8821c_fw.bin + rtl8821c_config.bin from linux-firmware.git
+#   then sudo modprobe -r btusb && sudo modprobe btusb
 
 backups_job_machine_paths_extra:
+  - /etc/homeassistant/
+
   - "{{ repositories_dir }}/aniboard/conf/config.yml"
   - "{{ repositories_dir }}/photongenic/client.yml"
   - "{{ repositories_dir }}/photongenic/config.toml"
@@ -15,6 +20,8 @@ backups_job_machine_paths_extra:
   - "{{ ansible_facts.user_dir }}/.config/lms/"
   - "{{ ansible_facts.user_dir }}/.local/share/lms/"
   - "{{ ansible_facts.user_dir }}/.config/jellyin/"
+  - "{{ ansible_facts.user_dir }}/.config/headscale/"
+  - "{{ ansible_facts.user_dir }}/.local/share/headscale/"
 
 backups_repos:
   - path: "{{ backups_repos_dir }}/asashio"
@@ -158,6 +165,12 @@ caddy_entries:
     robots: false
     reverses:
       - to: "{{ ports.aniboard }}"
+  - domain: scale.tina.moe
+    file: tina
+    robots: false
+    reverses:
+      - to: "{{ ports.headscale_http }}"
+        extra: flush_interval -1
 
   # Six
   - domain: lms.tina.moe
@@ -297,3 +310,31 @@ quadlets:
       - "{{ local_ip }}:1935:1935"
     volumes:
       - "{{ ansible_facts.user_dir }}/.config/nginx-rtmp:/etc/nginx/"
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant
+    tag: stable
+    scope: system
+    ports:
+      - 0.0.0.0:8123:8123
+    volumes:
+      - /etc/homeassistant:/config
+      - /var/run/dbus/system_bus_socket:/run/dbus/system_bus_socket
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    env:
+      TZ: Europe/Paris
+    network: host
+    podman: --privileged
+  headscale:
+    image: docker.io/headscale/headscale
+    tag: unstable
+    tmpfs:
+      - /var/run/headscale
+    volumes:
+      - "{{ ansible_facts.user_dir }}/.config/headscale:/etc/headscale:ro"
+      - "{{ ansible_facts.user_dir }}/.local/share/headscale:/var/lib/headscale"
+    exec: serve
+    ports:
+      - "{{ loopback_ip }}:{{ ports.headscale_http }}:8080"
+      - "{{ loopback_ip }}:{{ ports.headscale_metrics }}:9090"

@@ -1,0 +1,12 @@
+command_line:
+  - sensor:
+      name: Sonarr upcoming
+      unique_id: sonarr_upcoming
+      command: "python3 /config/scripts/get_sonarr_upcoming.py"
+      scan_interval: 3600
+      command_timeout: 30
+      json_attributes:
+        - by_date
+        - days
+        - count
+      value_template: "{{ value_json.count }} episodes"

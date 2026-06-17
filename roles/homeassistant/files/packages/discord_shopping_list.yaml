@@ -1,0 +1,10 @@
+command_line:
+  - sensor:
+      name: Discord shopping list
+      unique_id: discord_shopping_list
+      command: "python3 /config/scripts/get_discord_shopping_list.py"
+      scan_interval: 600
+      json_attributes:
+        - items
+        - count
+      value_template: "{{ value_json.count }} items"

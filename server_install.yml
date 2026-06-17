@@ -45,6 +45,7 @@
         - smart
         - caddy
         - alloy
+        - homeassistant
       loop_control:
         loop_var: role
         label: "{{ role }}"

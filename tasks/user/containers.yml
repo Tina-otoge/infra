@@ -44,9 +44,9 @@
 - set_fact:
     _containers_networks: |
       {% for container in containers | dict2items %}
-      {% if container.value.network | default([]) %}
-      - {{ container.value.network }}
-      {% endif %}
+      {% for network in container.value.get('networks', []) %}
+      - {{ network }}
+      {% endfor %}
       {% endfor %}
 
 # - name: Prepare networks

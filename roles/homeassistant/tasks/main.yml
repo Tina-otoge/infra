@@ -1,0 +1,30 @@
+- name: Ensure config directory exists
+  include_role:
+    name: common
+    tasks_from: create_directory
+  vars:
+    path: /etc/homeassistant
+
+- name: Install configuration.yaml
+  copy:
+    src: configuration.yaml
+    dest: /etc/homeassistant/configuration.yaml
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+
+- name: Install packages
+  copy:
+    src: packages/
+    dest: /etc/homeassistant/packages/
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+
+- name: Install scripts
+  copy:
+    src: scripts/
+    dest: /etc/homeassistant/scripts/
+    owner: root
+    group: root
+    mode: u=rwX,g=rX,o=rX
