@@ -44,9 +44,15 @@ echo Backup job \"{{ job.key }}\" started
 )
 {% endif %}
 
+# Build find -not -path args from borg excludes file
+_excl_args=()
+while IFS= read -r _pat; do
+    _excl_args+=(-not -path "$_pat")
+done < <(grep -vE '^[#;]|^$' "{{ backups_borg_config_dir }}/{{ job.key }}.excludes.txt")
+
 # no pipefail here is important, we want to capture find's output even
 # on exit 1s
-find $(cat "{{ backups_borg_config_dir }}/{{ job.key }}.paths.txt") 2>/dev/null | borg create --stats --paths-from-stdin --exclude-from="{{ backups_borg_config_dir }}/{{ job.key }}.excludes.txt" ::{{ job.value.archive }} 2>&1 | logmsg
+find $(cat "{{ backups_borg_config_dir }}/{{ job.key }}.paths.txt") "${_excl_args[@]}" 2>/dev/null | borg create --stats --paths-from-stdin ::{{ job.value.archive }} 2>&1 | logmsg
 
 {% if job.value.cleanup_script is defined %}
 (
