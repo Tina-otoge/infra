@@ -28,8 +28,8 @@
               - "{{ ansible_facts.user_dir }}/.local/share/vaultwarden:/data"
             env:
               IP_HEADER: X-Forwarded-For
-              SIGNUPS_ALLOWED: false
               LOG_FILE: /data/vaultwarden.log
+              SIGNUPS_ALLOWED: false
               TZ: "{{ timezone }}"
 
   handlers:
