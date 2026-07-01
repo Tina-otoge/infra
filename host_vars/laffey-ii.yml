@@ -1,6 +1,10 @@
 users_admins:
   - tina
 
+fail2ban_vaultwarden_users:
+  - tina
+  - lap
+
 backups_job_machine_paths_extra:
   - "{{ repositories_dir }}/mechadon/app.db"
   - "{{ repositories_dir }}/mechadon/config.json"
@@ -32,6 +36,10 @@ backups_job_machine_paths_extra:
   - "{{ ansible_facts.user_dir }}/.local/share/uptime-kuma/"
   - "{{ ansible_facts.user_dir }}/.local/share/vaultwarden/"
   - "{{ ansible_facts.user_dir }}/.local/share/grafana/"
+
+  - /home/lap/.ssh/
+  - /home/lap/.history
+  - /home/lap/.local/share/vaultwarden/
 
   - /etc/motd_laffey_ii_lines.txt
 
@@ -252,6 +260,11 @@ caddy_entries:
           Password: crazy shuffle
         EOF 403
       }
+  - domain: vault.lelap.in
+    robots: false
+    file: lap
+    reverses:
+      - to: "{{ ports.vaultwarden_lap }}"
 
   # MSN
   - domain: demo.asso-msn.fr
@@ -297,6 +310,7 @@ caddy_entries:
 users:
   - sayaka
   - reaxt
+  - lap
 
 skel:
   - www
@@ -553,6 +567,10 @@ quadlets:
       - "{{ loopback_ip }}:{{ ports.vaultwarden }}:80"
     volumes:
       - "{{ ansible_facts.user_dir }}/.local/share/vaultwarden:/data"
+    env:
+      IP_HEADER: X-Forwarded-For
+      LOG_FILE: /data/vaultwarden.log
+      TZ: "{{ timezone }}"
   loki:
     image: grafana/loki
     tag: "{{ versions.loki}}"

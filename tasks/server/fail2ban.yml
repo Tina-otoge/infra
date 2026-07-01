@@ -95,6 +95,50 @@
     value: '"remote_ip":"<HOST>".*"uri":"[^"]*(?:{{ _caddy_sus_uri_patterns }}).*"status":(?:4\d\d|5\d\d),'
   notify: fail2ban restart
 
+- name: Configure Vaultwarden jails (common options)
+  # Example log:
+  # [YYYY-MM-DD hh:mm:ss][vaultwarden::api::identity][ERROR] Username or password is incorrect. Try again. IP: 1.2.3.4. Username: user@example.com.
+  ini_file:
+    path: "/etc/fail2ban/jail.d/vaultwarden-{{ item.0 }}.conf"
+    section: "vaultwarden-{{ item.0 }}"
+    option: "{{ item.1.0 }}"
+    value: "{{ item.1.1 }}"
+  vars:
+    _options:
+      enabled: "true"
+      filter: vaultwarden
+  loop: "{{ fail2ban_vaultwarden_users | product(_options.items()) | list }}"
+  loop_control:
+    label: "vaultwarden-{{ item.0 }} {{ item.1.0 }}"
+  notify: fail2ban restart
+
+- name: Ensure Vaultwarden log files exist
+  file:
+    path: "/home/{{ item }}/.local/share/vaultwarden/vaultwarden.log"
+    state: touch
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    modification_time: preserve
+    access_time: preserve
+  loop: "{{ fail2ban_vaultwarden_users }}"
+
+- name: Configure Vaultwarden jails (logpath)
+  ini_file:
+    path: "/etc/fail2ban/jail.d/vaultwarden-{{ item }}.conf"
+    section: "vaultwarden-{{ item }}"
+    option: logpath
+    value: "/home/{{ item }}/.local/share/vaultwarden/vaultwarden.log"
+  loop: "{{ fail2ban_vaultwarden_users }}"
+  notify: fail2ban restart
+
+- name: Configure Vaultwarden filter
+  ini_file:
+    path: /etc/fail2ban/filter.d/vaultwarden.conf
+    section: Definition
+    option: failregex
+    value: '^.*?Username or password is incorrect\. Try again\. IP: <ADDR>\. Username:.*$'
+  notify: fail2ban restart
+
 - name: Check if firewalld is installed (Debian)
   when: ansible_os_family == 'Debian'
   command: dpkg -s firewalld

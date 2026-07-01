@@ -1,0 +1,39 @@
+- hosts: all
+  become: true
+  become_user: lap
+
+  tasks:
+    - name: Authorize SSH keys for users
+      authorized_key:
+        user: "{{ ansible_facts.user_id }}"
+        exclusive: true
+        key: "{{ ssh_keys.values() | flatten | join('\n') }}"
+      tags: keys
+      vars:
+        ssh_keys:
+          tina:
+            - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHyFcH2RQ675pprbndcLOhJU0d0mca7T7JTikIGGnLg1 tina@kokona
+
+  roles:
+    - role: containers
+      tags: containers
+      vars:
+        quadlets:
+          vaultwarden:
+            image: vaultwarden/server
+            tag: latest
+            ports:
+              - "{{ loopback_ip }}:{{ ports.vaultwarden_lap }}:80"
+            volumes:
+              - "{{ ansible_facts.user_dir }}/.local/share/vaultwarden:/data"
+            env:
+              IP_HEADER: X-Forwarded-For
+              SIGNUPS_ALLOWED: false
+              LOG_FILE: /data/vaultwarden.log
+              TZ: "{{ timezone }}"
+
+  handlers:
+    - name: systemd user reload
+      systemd:
+        daemon_reload: true
+        scope: user

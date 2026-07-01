@@ -34,6 +34,7 @@ ports_by_value:
   10017: grafana
   10018: headscale_http
   10019: headscale_metrics
+  10020: vaultwarden_lap
   12345: alloy
   25565: minecraft
 
