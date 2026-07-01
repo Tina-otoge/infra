@@ -1,7 +1,6 @@
 - name: "Create backup paths file for {{ job.key }}"
   copy:
     content: |
-      {{ ansible_managed }}
       {% for include in job.value.paths %}
       {{ include }}
       {% endfor %}
@@ -11,7 +10,7 @@
 - name: "Create backup excludes file for {{ job.key }}"
   copy:
     content: |
-      {{ ansible_managed }}
+      # {{ ansible_managed }}
       {% for exclude in job.value.get('excludes', []) %}
       {{ exclude }}
       {% endfor %}
