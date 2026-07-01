@@ -31,3 +31,62 @@ linuxserver_env:
   PUID: 0
   PGID: 0
   UMASK: 002
+
+sus_http_fails:
+  - wp-login.php
+  - wp-admin
+  - wordpress
+  - new
+  - old
+  - wp
+
+  - administrator
+  - admin
+  - login
+  - register
+  - user/login
+  - user/register
+  - backup
+
+  - .git
+  - .aws
+  - .docker
+  - .ssh
+  - _nuxt
+  - dist
+  - vendor
+  - .vite
+  - build-manifest.json
+  - account
+  - health
+  - manifest.webmanifest
+  - swagger.json
+  - __env.js
+  - app-config.json
+  - openapi.json
+  - settings
+  - runtime-config.js
+  - config
+  - jwks.json
+  - laravel.log
+  - settings.*
+  - config.*
+  - init.json
+  - application.properties
+
+  - .env
+  - .env.*
+  - env
+  - sa.json
+  - service-account.json
+  - google-service-account.json
+  - serviceAccountKey.json
+  - firebase-service-account.json
+  - credentials.json
+  - gcp-credentials.json
+  - secrets.*
+  - application.*
+  - key.*
+  - .npmrc
+  - .pypirc
+  - settings.*

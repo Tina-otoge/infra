@@ -51,6 +51,50 @@
     value: '^.*Authentication request for .* has been denied \(IP: <ADDR>\)\.'
   notify: fail2ban restart
 
+- name: Build Caddy suspicious URI matcher regex
+  set_fact:
+    _caddy_sus_uri_patterns: |-
+      {%- set ns = namespace(exact=[], wildcard=[]) -%}
+      {%- for entry in sus_http_fails | default([]) -%}
+      {%- set escaped = entry | regex_escape -%}
+      {%- if '*' in entry -%}
+      {%- set _ = ns.wildcard.append(escaped | replace('\\*', '[^"]*')) -%}
+      {%- else -%}
+      {%- set _ = ns.exact.append(escaped) -%}
+      {%- endif -%}
+      {%- endfor -%}
+      {%- set parts = [] -%}
+      {%- if ns.exact | length > 0 -%}
+      {%- set _ = parts.append('(?:(?<=/)|(?<="))(?:' ~ (ns.exact | join('|')) ~ ')(?=(?:/|\\?|"))') -%}
+      {%- endif -%}
+      {%- if ns.wildcard | length > 0 -%}
+      {%- set _ = parts.append('(?:(?<=/)|(?<="))(?:' ~ (ns.wildcard | join('|')) ~ ')') -%}
+      {%- endif -%}
+      {{ parts | join('|') }}
+
+- name: Configure Caddy suspicious-path jail
+  ini_file:
+    path: /etc/fail2ban/jail.d/caddy-sus-http.conf
+    section: caddy-sus-http
+    option: '{{ item.option }}'
+    value: '{{ item.value }}'
+  loop:
+    - option: enabled
+      value: 'true'
+    - option: logpath
+      value: /var/log/caddy/access.log
+    - option: filter
+      value: caddy-sus-http
+  notify: fail2ban restart
+
+- name: Configure Caddy suspicious-path filter
+  ini_file:
+    path: /etc/fail2ban/filter.d/caddy-sus-http.conf
+    section: Definition
+    option: failregex
+    value: '"remote_ip":"<HOST>".*"uri":"[^"]*(?:{{ _caddy_sus_uri_patterns }}).*"status":(?:4\d\d|5\d\d),'
+  notify: fail2ban restart
+
 - name: Check if firewalld is installed (Debian)
   when: ansible_os_family == 'Debian'
   command: dpkg -s firewalld
