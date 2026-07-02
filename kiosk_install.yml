@@ -1,0 +1,188 @@
+- hosts: nagato
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Install Python
+      raw: apk add --no-cache python3
+      register: install_python
+      changed_when: '" Installing " in install_python.stdout'
+      tags: always
+
+- hosts: nagato
+  become: true
+
+  vars:
+    kiosk_url: "http://asashio.lan:8123/kitchen-dashboard/0"
+    screen_timeout_seconds: 15
+    screen_off_hour_min: 0
+    screen_off_hour_max: 5
+
+  tasks:
+    - name: Install packages
+      package:
+        name:
+          - curl
+          - dbus-x11
+          - firefox-esr
+          - htop
+          - mesa-dri-gallium
+          - sudo
+        state: present
+
+    - name: Write usercfg.txt
+      copy:
+        dest: /boot/usercfg.txt
+        owner: root
+        group: root
+        content: |
+          # Needed to have an actual graphics driver, needed for Sway etc
+
+          # Enable DRM VC4 V3D driver
+          dtoverlay=vc4-kms-v3d
+          max_framebuffers=2
+
+          # Don't have the firmware create an initial video= setting in cmdline.txt.
+          # Use the kernel's default instead.
+          disable_fw_kms_setup=1
+
+    - name: Configure network interfaces
+      copy:
+        dest: /etc/network/interfaces
+        owner: root
+        group: root
+        mode: u=rw,g=r,o=r
+        content: |
+          auto lo
+          iface lo inet loopback
+          iface lo inet6 loopback
+
+          auto eth0
+          iface eth0 inet dhcp
+          iface eth0 inet6 dhcp
+
+          auto wlan0
+          iface wlan0 inet dhcp
+
+    - name: Allow wheel group passwordless sudo
+      lineinfile:
+        path: /etc/sudoers
+        regexp: ^%wheel
+        line: "%wheel ALL=(ALL:ALL) NOPASSWD: ALL"
+        validate: /usr/sbin/visudo -cf %s
+
+    - name: Lock root password
+      user:
+        name: root
+        password_lock: true
+
+    - name: Enable services in default runlevel
+      service:
+        name: "{{ item }}"
+        enabled: true
+      loop:
+        - crond
+        - dbus
+        - ntpd
+        - sshd
+
+    - name: Enable services in boot runlevel
+      command: rc-update add {{ item }} boot
+      args:
+        creates: /etc/runlevels/boot/{{ item }}
+      loop:
+        - networking
+        - wpa_supplicant
+
+    - name: Create kiosk user
+      user:
+        name: kiosk
+        shell: /bin/ash
+        create_home: true
+
+    - name: Create autologin-kiosk script
+      copy:
+        dest: /usr/local/sbin/autologin-kiosk
+        owner: root
+        group: root
+        mode: u=rwx,g=rx,o=rx
+        content: |
+          #!/bin/sh
+
+          for status in /sys/class/drm/*/status; do
+              [ -f "$status" ] || continue
+              read -r state < "$status"
+              [ "$state" = "connected" ] && exec /bin/login -f kiosk
+          done
+          exec /bin/login
+
+    - name: Add autologin-kiosk to /etc/inittab for tty1
+      lineinfile:
+        path: /etc/inittab
+        regexp: "^tty1::"
+        line: tty1::respawn:/sbin/getty -n -l /usr/local/sbin/autologin-kiosk 38400 tty1
+
+    - name: Set ~kiosk/.profile to autorun sway on tty1
+      copy:
+        dest: /home/kiosk/.profile
+        owner: root
+        group: root
+        mode: u=rw,g=r,o=r
+        content: |
+          if [ "$(tty)" = "/dev/tty1" ]; then
+               exec dbus-run-session sway
+          fi
+
+    - name: Create ~kiosk/.config
+      file:
+        path: /home/kiosk/.config
+        state: directory
+        owner: kiosk
+        group: kiosk
+        mode: u=rwx,g=rx,o=rx
+
+    - name: Create ~kiosk/.config/sway
+      file:
+        state: directory
+        path: /home/kiosk/.config/sway
+        owner: root
+        group: root
+        mode: u=rwx,g=rx,o=rx
+
+    - name: Create ~kiosk/.local/bin
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: kiosk
+        group: kiosk
+        mode: u=rwx,g=rx,o=rx
+      loop:
+        - /home/kiosk/.local
+        - /home/kiosk/.local/bin
+
+    - name: Create screen idle script
+      copy:
+        dest: /home/kiosk/.local/bin/sway-turn-off-screen-time-aware.sh
+        owner: root
+        group: root
+        mode: u=rwx,g=rx,o=rx
+        content: |
+          #!/bin/sh
+
+          # Turn the screen off only during {{ screen_off_hour_min }}:00-{{ screen_off_hour_max }}:00
+          hour=$(date +%H)
+          if [ "$hour" -lt {{ screen_off_hour_max }} ] && [ "$hour" -ge {{ screen_off_hour_min }} ]; then
+              swaymsg "output * dpms off"
+          fi
+
+    - name: Create sway config
+      copy:
+        dest: /home/kiosk/.config/sway/config
+        owner: root
+        group: root
+        mode: u=rw,g=r,o=r
+        content: |
+          exec MOZ_USE_XINPUT2=1 firefox --kiosk "{{ kiosk_url }}"
+          exec swayidle -w \
+              timeout {{ screen_timeout_seconds }} /home/kiosk/.local/bin/sway-turn-off-screen-time-aware.sh \
+              resume 'swaymsg "output * dpms on"'
