@@ -17,6 +17,7 @@
     screen_timeout_seconds: 15
     screen_off_hour_min: 0
     screen_off_hour_max: 5
+    sway_restart_timeout_seconds: 3600  # 1 hour
 
   tasks:
     - name: Install packages
@@ -115,12 +116,14 @@
               [ "$state" = "connected" ] && exec /bin/login -f kiosk
           done
           exec /bin/login
+      tags: login
 
     - name: Add autologin-kiosk to /etc/inittab for tty1
       lineinfile:
         path: /etc/inittab
         regexp: "^tty1::"
         line: tty1::respawn:/sbin/getty -n -l /usr/local/sbin/autologin-kiosk 38400 tty1
+      tags: login
 
     - name: Set ~kiosk/.profile to autorun sway on tty1
       copy:
@@ -132,6 +135,7 @@
           if [ "$(tty)" = "/dev/tty1" ]; then
                exec dbus-run-session sway
           fi
+      tags: login
 
     - name: Create ~kiosk/.config
       file:
@@ -140,6 +144,7 @@
         owner: kiosk
         group: kiosk
         mode: u=rwx,g=rx,o=rx
+      tags: sway
 
     - name: Create ~kiosk/.config/sway
       file:
@@ -148,6 +153,7 @@
         owner: root
         group: root
         mode: u=rwx,g=rx,o=rx
+      tags: sway
 
     - name: Create ~kiosk/.local/bin
       file:
@@ -159,6 +165,7 @@
       loop:
         - /home/kiosk/.local
         - /home/kiosk/.local/bin
+      tags: sway
 
     - name: Create screen idle script
       copy:
@@ -169,11 +176,27 @@
         content: |
           #!/bin/sh
 
-          # Turn the screen off only during {{ screen_off_hour_min }}:00-{{ screen_off_hour_max }}:00
           hour=$(date +%H)
           if [ "$hour" -lt {{ screen_off_hour_max }} ] && [ "$hour" -ge {{ screen_off_hour_min }} ]; then
-              swaymsg "output * dpms off"
+              swaymsg output '*' bg '#000000' solid_color
+              swaymsg workspace blank
           fi
+      tags: sway
+
+    - name: Create Firefox kiosk wrapper script
+      copy:
+        dest: /home/kiosk/.local/bin/firefox-kiosk.sh
+        owner: root
+        group: root
+        mode: u=rwx,g=rx,o=rx
+        content: |
+          #!/bin/sh
+
+          while true; do
+              MOZ_USE_XINPUT2=1 firefox --kiosk "{{ kiosk_url }}"
+              sleep 1
+          done
+      tags: sway
 
     - name: Create sway config
       copy:
@@ -182,7 +205,12 @@
         group: root
         mode: u=rw,g=r,o=r
         content: |
-          exec MOZ_USE_XINPUT2=1 firefox --kiosk "{{ kiosk_url }}"
+          output * bg #ffffff solid_color
+          seat * xcursor_theme default 0
+          assign [app_id="firefox"] workspace 1
+          exec /home/kiosk/.local/bin/firefox-kiosk.sh
           exec swayidle -w \
               timeout {{ screen_timeout_seconds }} /home/kiosk/.local/bin/sway-turn-off-screen-time-aware.sh \
-              resume 'swaymsg "output * dpms on"'
+              timeout {{ sway_restart_timeout_seconds }} 'pkill -f /usr/lib/firefox/firefox' \
+              resume 'swaymsg output "*" bg "#ffffff" solid_color; swaymsg workspace 1'
+      tags: sway
