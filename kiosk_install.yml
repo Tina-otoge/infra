@@ -7,7 +7,7 @@
       raw: apk add --no-cache python3
       register: install_python
       changed_when: '" Installing " in install_python.stdout'
-      tags: always
+      tags: setup
 
 - hosts: nagato
   become: true
@@ -20,6 +20,27 @@
     sway_restart_timeout_seconds: 3600  # 1 hour
 
   tasks:
+    - name: Remove packages
+      package:
+        name:
+          - firefox
+          - brightnessctl
+          - brightnessctl-openrc
+          - brightnessctl-udev
+          - foot
+          - foot-openrc
+          - grim
+          - swaylock
+          - swaylock-openrc
+          - swaylockd
+          - i3status
+          - wmenu
+          - wl-clipboard
+          - doas
+          - iw
+        state: absent
+      tags: pkg
+
     - name: Install packages
       package:
         name:
@@ -30,6 +51,7 @@
           - mesa-dri-gallium
           - sudo
         state: present
+      tags: pkg
 
     - name: Write usercfg.txt
       copy:
@@ -132,6 +154,8 @@
         group: root
         mode: u=rw,g=r,o=r
         content: |
+          export PATH="$HOME/.local/bin:$PATH"
+
           if [ "$(tty)" = "/dev/tty1" ]; then
                exec dbus-run-session sway
           fi
@@ -167,9 +191,36 @@
         - /home/kiosk/.local/bin
       tags: sway
 
+    - name: Create screen state script
+      copy:
+        dest: /home/kiosk/.local/bin/sway-set-screen-state
+        owner: root
+        group: root
+        mode: u=rwx,g=rx,o=rx
+        content: |
+          #!/bin/sh
+
+          export XDG_RUNTIME_DIR=/run/user/$(id -u kiosk)
+          export WAYLAND_DISPLAY=wayland-1
+          SWAYSOCK=$(find "$XDG_RUNTIME_DIR" -iname "sway-ipc.$(id -u kiosk).*.sock" 2>/dev/null | head -1)
+          [ -n "$SWAYSOCK" ] || { echo "Sway IPC socket not found"; exit 1; }
+          export SWAYSOCK
+
+          case "$1" in
+              on)
+                  swaymsg output "*" bg "#ffffff" solid_color
+                  swaymsg workspace 1
+                  ;;
+              off)
+                  swaymsg output "*" bg "#000000" solid_color
+                  swaymsg workspace blank
+                  ;;
+          esac
+      tags: sway
+
     - name: Create screen idle script
       copy:
-        dest: /home/kiosk/.local/bin/sway-turn-off-screen-time-aware.sh
+        dest: /home/kiosk/.local/bin/sway-turn-off-screen-time-aware
         owner: root
         group: root
         mode: u=rwx,g=rx,o=rx
@@ -178,14 +229,31 @@
 
           hour=$(date +%H)
           if [ "$hour" -lt {{ screen_off_hour_max }} ] && [ "$hour" -ge {{ screen_off_hour_min }} ]; then
-              swaymsg output '*' bg '#000000' solid_color
-              swaymsg workspace blank
+              sway-set-screen-state off
           fi
       tags: sway
 
-    - name: Create Firefox kiosk wrapper script
+    - name: Add cron to blank screen
+      cron:
+        user: kiosk
+        name: sway-blank-screen
+        minute: "0"
+        hour: "{{ screen_off_hour_min }}"
+        job: /home/kiosk/.local/bin/sway-set-screen-state off
+      tags: sway
+
+    - name: Add cron to wake screen
+      cron:
+        user: kiosk
+        name: sway-wake-screen
+        minute: "0"
+        hour: "{{ screen_off_hour_max }}"
+        job: /home/kiosk/.local/bin/sway-set-screen-state on
+      tags: sway
+
+    - name: Create browser kiosk wrapper script
       copy:
-        dest: /home/kiosk/.local/bin/firefox-kiosk.sh
+        dest: /home/kiosk/.local/bin/browser-kiosk
         owner: root
         group: root
         mode: u=rwx,g=rx,o=rx
@@ -193,7 +261,7 @@
           #!/bin/sh
 
           while true; do
-              MOZ_USE_XINPUT2=1 firefox --kiosk "{{ kiosk_url }}"
+              MOZ_USE_XINPUT2=1 firefox-esr --kiosk "{{ kiosk_url }}"
               sleep 1
           done
       tags: sway
@@ -207,10 +275,10 @@
         content: |
           output * bg #ffffff solid_color
           seat * xcursor_theme default 0
-          assign [app_id="firefox"] workspace 1
-          exec /home/kiosk/.local/bin/firefox-kiosk.sh
+          assign [app_id="^firefox"] workspace 1
+          exec browser-kiosk
           exec swayidle -w \
-              timeout {{ screen_timeout_seconds }} /home/kiosk/.local/bin/sway-turn-off-screen-time-aware.sh \
-              timeout {{ sway_restart_timeout_seconds }} 'pkill -f /usr/lib/firefox/firefox' \
-              resume 'swaymsg output "*" bg "#ffffff" solid_color; swaymsg workspace 1'
+              timeout {{ screen_timeout_seconds }} sway-turn-off-screen-time-aware \
+              timeout {{ sway_restart_timeout_seconds }} 'pkill -f /usr/bin/firefox-esr' \
+              resume 'sway-set-screen-state on'
       tags: sway
