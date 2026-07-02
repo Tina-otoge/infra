@@ -6,12 +6,13 @@
     path: /etc/homeassistant
 
 - name: Install configuration.yaml
-  copy:
-    src: configuration.yaml
+  template:
+    src: configuration.yaml.j2
     dest: /etc/homeassistant/configuration.yaml
     owner: root
     group: root
     mode: u=rw,g=r,o=r
+  notify: restart
 
 - name: Install packages
   copy:
@@ -20,6 +21,7 @@
     owner: root
     group: root
     mode: u=rw,g=r,o=r
+  notify: restart
 
 - name: Install scripts
   copy:
@@ -28,3 +30,4 @@
     owner: root
     group: root
     mode: u=rwX,g=rX,o=rX
+  notify: restart

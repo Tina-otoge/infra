@@ -1,0 +1,5 @@
+- name: restart
+  systemd:
+    name: homeassistant
+    state: restarted
+    enabled: true
