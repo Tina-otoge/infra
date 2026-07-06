@@ -277,6 +277,14 @@ quadlets:
       - /mnt/sakura/public:/mnt/sakura/public:ro
       - "{{ ansible_facts.user_dir }}/.config/jellyfin:/config"
       - "{{ ansible_facts.user_dir }}/.cache/jellyfin:/cache"
+    exec_pre: |
+      plugins={{ ansible_facts.user_dir }}/.config/jellyfin/plugins;
+      if [ ! -d "$plugins" ]; then exit 0; fi;
+      dirs=$(find "$plugins" -maxdepth 1 -type d -name 'Editor*Choice_*' | sort -V);
+      n=$(echo "$dirs" | grep -c .);
+      if [ "$n" -le 1 ]; then exit 0; fi;
+      echo "$n versions of Editor's Choice plugin data detected, this is known to cause issues, deleting older versions...";
+      echo "$dirs" | head -n -1 | xargs -d '\n' -r rm -rfv;
     devices:
       - /dev/dri/renderD128
     groupadds:
