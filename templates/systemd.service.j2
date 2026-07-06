@@ -16,6 +16,11 @@ After={{ item.value.after }}.target
 {% if item.value.type is defined %}
 Type={{ item.value.type }}
 {% endif %}
+{% if item.value.env is defined %}
+{% for env_key, env_value in item.value.env.items() %}
+Environment={{ env_key }}="{{ env_value }}"
+{% endfor %}
+{% endif %}
 {% if item.value.cmd is defined %}
 ExecStart=/bin/bash -c "{{ item.value.cmd.strip().replace('\n', ' && \\\n') }}"
 {% endif %}

@@ -1,2 +1,2 @@
-- name: restart
+- name: restart caddy
   include_tasks: restart.yml

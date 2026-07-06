@@ -34,4 +34,4 @@
     version: "{{ deploy_version }}"
   register: _deploy_git_action
   changed_when: _deploy_git_action.after != _deploy_git_action.before
-  notify: restart
+  notify: restart deploy

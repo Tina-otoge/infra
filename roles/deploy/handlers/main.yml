@@ -3,4 +3,4 @@
     name: "{{ _deploy_service }}"
     state: restarted
     scope: "{{ deploy_service_scope }}"
-  listen: restart
+  listen: restart deploy

@@ -17,7 +17,7 @@
         - Group
       notify:
         - systemd reload
-        - restart
+        - restart caddy
 
     - meta: flush_handlers
 
@@ -26,7 +26,7 @@
     src: Caddyfile.j2
     dest: /etc/caddy/Caddyfile
     mode: "u=rw,g=r,o=r"
-  notify: restart
+  notify: restart caddy
 
 - name: Create partial Caddyfile entries
   blockinfile:
@@ -40,7 +40,7 @@
     block: "{{ lookup('template', 'entry.j2') }}"
     marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.domain }}"
   when: item.partial | default(false)
-  notify: restart
+  notify: restart caddy
 
 - name: Compute full Caddyfile entry groups
   set_fact:
@@ -69,14 +69,14 @@
   loop: "{{ (_caddy_file_groups or '[]') | from_yaml }}"
   loop_control:
     label: "{{ item.file }}"
-  notify: restart
+  notify: restart caddy
 
 - name: Delete Caddy entries
   file:
     path: "/etc/caddy/Caddyfile.d/{{ item }}.conf"
     state: absent
   loop: "{{ caddy_entries_delete | default([]) }}"
-  notify: restart
+  notify: restart caddy
 
 - name: Create symlink of Caddy certificates to ssl directory
   file:

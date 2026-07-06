@@ -12,7 +12,7 @@
     owner: root
     group: root
     mode: u=rw,g=r,o=r
-  notify: restart
+  notify: restart homeassistant
 
 - name: Install packages
   copy:
@@ -21,7 +21,7 @@
     owner: root
     group: root
     mode: u=rw,g=r,o=r
-  notify: restart
+  notify: restart homeassistant
 
 - name: Install scripts
   copy:
@@ -30,4 +30,4 @@
     owner: root
     group: root
     mode: u=rwX,g=rX,o=rX
-  notify: restart
+  notify: restart homeassistant
