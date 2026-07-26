@@ -380,7 +380,7 @@ user_services:
       {{ python_setup }}
       alembic upgrade head
       pip install gunicorn
-      gunicorn 'app:create_app()' -b {{ loopback_ip }}:{{ ports.lapadmin }} -w 4
+      gunicorn 'app:create_app()' -b {{ loopback_ip }}:{{ ports.lapadmin }} -w 1
   photon:
     workdir: "{{ repositories_dir }}/photongenic"
     cmd: |
