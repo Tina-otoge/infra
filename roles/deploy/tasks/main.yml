@@ -32,6 +32,7 @@
     repo: "{{ deploy_git }}"
     dest: "{{ deploy_dir }}"
     version: "{{ deploy_version }}"
+    force: true
   register: _deploy_git_action
   changed_when: _deploy_git_action.after != _deploy_git_action.before
   notify: restart deploy
