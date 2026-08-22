@@ -36,6 +36,7 @@ ports_by_value:
   10019: headscale_metrics
   10020: vaultwarden_lap
   10021: overdrive_backups_frontend
+  10025: romm
   12345: alloy
   25565: minecraft
 

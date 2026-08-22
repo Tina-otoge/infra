@@ -22,6 +22,9 @@ backups_job_machine_paths_extra:
   - "{{ ansible_facts.user_dir }}/.config/jellyin/"
   - "{{ ansible_facts.user_dir }}/.config/headscale/"
   - "{{ ansible_facts.user_dir }}/.local/share/headscale/"
+  - "{{ ansible_facts.user_dir }}/.config/romm/"
+  - "{{ ansible_facts.user_dir }}/.local/share/romm/mysql/"
+  - "{{ ansible_facts.user_dir }}/.local/share/romm/assets/"
 
 backups_repos:
   - path: "{{ backups_repos_dir }}/asashio"
@@ -200,6 +203,11 @@ caddy_entries:
     robots: false
     reverses:
       - to: "{{ ports.komga }}"
+  - domain: romm.tina.moe
+    file: six
+    robots: false
+    reverses:
+      - to: "{{ ports.romm }}"
 
 repositories:
   - src: https://github.com/Tina-otoge/AniBoard
@@ -361,3 +369,38 @@ quadlets:
     ports:
       - "{{ loopback_ip }}:{{ ports.headscale_http }}:8080"
       - "{{ loopback_ip }}:{{ ports.headscale_metrics }}:9090"
+  romm_db:
+    image: docker.io/library/mariadb
+    tag: latest
+    network: romm.network
+    network_alias: romm-db
+    volumes:
+      - "{{ ansible_facts.user_dir }}/.local/share/romm/mysql:/var/lib/mysql"
+    env:
+      MARIADB_ROOT_PASSWORD: romm
+      MARIADB_DATABASE: romm
+      MARIADB_USER: romm-user
+      MARIADB_PASSWORD: romm
+  romm:
+    image: docker.io/rommapp/romm
+    tag: latest
+    depend: romm-db.service
+    network: romm.network
+    network_alias: romm
+    volumes:
+      - "{{ ansible_facts.user_dir }}/.local/share/romm/resources:/romm/resources"
+      - "{{ ansible_facts.user_dir }}/.local/share/romm/redis-data:/redis-data"
+      - "{{ ansible_facts.user_dir }}/.local/share/romm/library:/romm/library"
+      - "{{ ansible_facts.user_dir }}/.local/share/romm/assets:/romm/assets"
+      - /mnt/sakura/public/Works/Games/Console:/mnt/sakura/public/Works/Games/Console:ro
+      - "{{ ansible_facts.user_dir }}/Games/Console:{{ ansible_facts.user_dir }}/Games/Console:ro"
+      - "{{ ansible_facts.user_dir }}/.config/romm:/romm/config"
+    ports:
+      - "{{ loopback_ip }}:{{ ports.romm }}:8080"
+    env_file: "{{ ansible_facts.user_dir }}/.local/share/romm/romm.env"
+    env:
+      DB_HOST: romm-db
+      DB_NAME: romm
+      DB_USER: romm-user
+      DB_PASSWD: romm
+      HASHEOUS_API_ENABLED: "true"
