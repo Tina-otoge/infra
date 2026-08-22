@@ -67,6 +67,8 @@ packages:
   - libffi-devel # needed for msn-web@asso-msn:PyWand, needs pyenv version recompile
   - ImageMagick-devel # needed for msn-web@asso-msn:PyWand
 
+cockpit_origins: https://laffey-ii.tina.moe https://laffey-ii.savatier.fr
+
 caddy_error_handlers:
   - 502
 
@@ -107,6 +109,16 @@ caddy_entries:
     robots: false
     extra: |
       redir https://laffey-ii.tina.moe{uri}
+
+  - domain: laffey-ii.savatier.fr
+    file: tina
+    reverses:
+      - path: "{{ cockpit_url_root }}"
+        to: 9090
+  - domain: vault.savatier.fr
+    file: tina
+    reverses:
+      - to: "{{ ports.vaultwarden }}"
 
   # Tina
   - domain: tina.moe
