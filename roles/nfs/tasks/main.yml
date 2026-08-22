@@ -1,0 +1,28 @@
+- when: nfs_exports | length > 0
+  block:
+    - name: Ensure nfs-utils is installed
+      package:
+        name: nfs-utils
+        state: present
+
+    - name: Ensure exports directory exists
+      include_role:
+        name: common
+        tasks_from: create_directory
+      vars:
+        path: "{{ nfs_exports_file | dirname }}"
+
+    - name: Configure NFS exports
+      template:
+        src: exports.j2
+        dest: "{{ nfs_exports_file }}"
+        owner: root
+        group: root
+        mode: u=rw,g=r,o=r
+      notify: reload nfs exports
+
+    - name: Ensure nfs-server is enabled and running
+      systemd:
+        name: nfs-server
+        state: started
+        enabled: true
