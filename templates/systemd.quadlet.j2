@@ -42,6 +42,12 @@ GroupAdd={{ group }}
 Network={{ item.value.network }}
 {% endif %}
 
+{% if item.value.network_alias is defined %}
+{% for alias in ([item.value.network_alias] if item.value.network_alias is string else item.value.network_alias) %}
+NetworkAlias={{ alias }}
+{% endfor %}
+{% endif %}
+
 {% for cap in item.value.get('cap_add', []) %}
 AddCapability={{ cap }}
 {% endfor %}
@@ -66,6 +72,10 @@ Environment={{ env_key }}="{{ env_value }}"
 {% endfor %}
 {% endif %}
 
+{% if item.value.env_file is defined %}
+EnvironmentFile={{ item.value.env_file }}
+{% endif %}
+
 {% if item.value.user is defined %}
 User={{ item.value.user }}
 {% endif %}
@@ -88,6 +98,7 @@ ExecStartPre=/bin/bash -c "{{ item.value.exec_pre | split('\n') | join(' ') | re
 RestartSec=5s
 StartLimitBurst=15
 StartLimitInterval=5m
+TimeoutStartSec={{ item.value.start_timeout | default(300) }}
 
 [Install]
 WantedBy=default.target
