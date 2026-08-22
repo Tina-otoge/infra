@@ -1,0 +1,11 @@
+- name: restart librechat
+  systemd:
+    name: librechat.service
+    scope: user
+    state: restarted
+
+- name: restart litellm
+  systemd:
+    name: litellm.service
+    scope: user
+    state: restarted

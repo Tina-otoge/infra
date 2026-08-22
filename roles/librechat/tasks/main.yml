@@ -1,0 +1,25 @@
+- name: Ensure LibreChat config directory exists
+  file:
+    path: "{{ librechat_config_dir }}"
+    state: directory
+    mode: 'u=rwx,g=rx,o=rx'
+
+- name: Deploy LibreChat configuration
+  copy:
+    src: librechat.yaml
+    dest: "{{ librechat_config_dir }}/librechat.yaml"
+    mode: 'u=rw,g=r,o=r'
+  notify: restart librechat
+
+- name: Ensure LiteLLM config directory exists
+  file:
+    path: "{{ litellm_config_dir }}"
+    state: directory
+    mode: 'u=rwx,g=rx,o=rx'
+
+- name: Deploy LiteLLM configuration
+  copy:
+    src: litellm.yaml
+    dest: "{{ litellm_config_dir }}/config.yaml"
+    mode: 'u=rw,g=r,o=r'
+  notify: restart litellm

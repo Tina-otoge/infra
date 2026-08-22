@@ -1,0 +1,2 @@
+librechat_config_dir: "{{ ansible_facts.user_dir }}/.config/librechat"
+litellm_config_dir: "{{ ansible_facts.user_dir }}/.config/litellm"

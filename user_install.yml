@@ -21,6 +21,7 @@
       tags: always
       loop:
         - containers
+        - librechat
         - loki
       loop_control:
         loop_var: role
