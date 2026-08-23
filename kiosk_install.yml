@@ -14,6 +14,7 @@
 
   vars:
     kiosk_url: "http://asashio.lan:8123/kitchen-dashboard/0"
+    kiosk_zoom_level: 0.9
     screen_timeout_seconds: 15
     screen_off_hour_min: 0
     screen_off_hour_max: 5
@@ -189,6 +190,16 @@
       loop:
         - /home/kiosk/.local
         - /home/kiosk/.local/bin
+        - /home/kiosk/.local/run
+      tags: sway
+
+    - name: Create Firefox profile directory
+      file:
+        path: /home/kiosk/.mozilla/firefox/kiosk
+        state: directory
+        owner: kiosk
+        group: kiosk
+        mode: u=rwx,g=rx,o=rx
       tags: sway
 
     - name: Create screen state script
@@ -260,11 +271,44 @@
         content: |
           #!/bin/sh
 
+          PIDFILE=/home/kiosk/.local/run/firefox-esr.pid
+
           while true; do
-              MOZ_USE_XINPUT2=1 firefox-esr --kiosk "{{ kiosk_url }}"
+              MOZ_USE_XINPUT2=1 firefox-esr --profile /home/kiosk/.mozilla/firefox/kiosk --kiosk "{{ kiosk_url }}" &
+              echo $! > "$PIDFILE"
+              wait $!
+              rm -f "$PIDFILE"
               sleep 1
           done
       tags: sway
+
+    - name: Create restart browser script
+      copy:
+        dest: /home/kiosk/.local/bin/restart-browser
+        owner: root
+        group: root
+        mode: u=rwx,g=rx,o=rx
+        content: |
+          #!/bin/sh
+
+          PIDFILE=/home/kiosk/.local/run/firefox-esr.pid
+          if [ -f "$PIDFILE" ]; then
+              kill "$(cat "$PIDFILE")"
+          else
+              pkill -x /usr/lib/firefox-esr/firefox-esr
+          fi
+      tags: sway
+
+    - name: Set Firefox zoom level for kiosk URL
+      script:
+        cmd: >-
+          files/set-firefox-zoom.py
+          --db /home/kiosk/.mozilla/firefox/kiosk/content-prefs.sqlite
+          --url "{{ kiosk_url }}"
+          --zoom {{ kiosk_zoom_level }}
+      register: zoom_result
+      changed_when: "'changed' in zoom_result.stdout"
+      tags: firefox
 
     - name: Create sway config
       copy:
@@ -279,6 +323,6 @@
           exec browser-kiosk
           exec swayidle -w \
               timeout {{ screen_timeout_seconds }} sway-turn-off-screen-time-aware \
-              timeout {{ sway_restart_timeout_seconds }} 'pkill -f /usr/bin/firefox-esr' \
+              timeout {{ sway_restart_timeout_seconds }} restart-browser \
               resume 'sway-set-screen-state on'
       tags: sway

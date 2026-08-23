@@ -46,6 +46,7 @@
         - caddy
         - alloy
         - homeassistant
+        - nfs
       loop_control:
         loop_var: role
         label: "{{ role }}"

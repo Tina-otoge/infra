@@ -1,0 +1,2 @@
+nfs_exports: []
+nfs_exports_file: /etc/exports.d/ansible.exports

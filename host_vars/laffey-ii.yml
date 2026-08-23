@@ -36,6 +36,9 @@ backups_job_machine_paths_extra:
   - "{{ ansible_facts.user_dir }}/.local/share/uptime-kuma/"
   - "{{ ansible_facts.user_dir }}/.local/share/vaultwarden/"
   - "{{ ansible_facts.user_dir }}/.local/share/grafana/"
+  - "{{ ansible_facts.user_dir }}/.local/share/librechat/"
+  - "{{ ansible_facts.user_dir }}/.config/librechat/"
+  - "{{ ansible_facts.user_dir }}/.config/searxng/"
 
   - /home/lap/.ssh/
   - /home/lap/.history
@@ -60,12 +63,17 @@ backups_jobs_extra:
     cleanup_script: |
       systemctl -M tina@ --user start mc
 
+
 healthchecks: true
+
 
 packages:
   - btop # requested by reaxt 2026-01-25
   - libffi-devel # needed for msn-web@asso-msn:PyWand, needs pyenv version recompile
   - ImageMagick-devel # needed for msn-web@asso-msn:PyWand
+
+
+cockpit_origins: https://laffey-ii.tina.moe https://laffey-ii.savatier.fr
 
 caddy_error_handlers:
   - 502
@@ -108,6 +116,16 @@ caddy_entries:
     extra: |
       redir https://laffey-ii.tina.moe{uri}
 
+  - domain: laffey-ii.savatier.fr
+    file: tina
+    reverses:
+      - path: "{{ cockpit_url_root }}"
+        to: 9090
+  - domain: vault.savatier.fr
+    file: tina
+    reverses:
+      - to: "{{ ports.vaultwarden }}"
+
   # Tina
   - domain: tina.moe
     root: /home/tina/wwws/tina
@@ -146,6 +164,11 @@ caddy_entries:
     file: tina
     reverses:
       - to: "{{ ports.uptime_kuma }}"
+  - domain: librechat.tina.moe
+    robots: false
+    file: tina
+    reverses:
+      - to: "{{ ports.librechat }}"
   - domain: fairyjoke.net
     file: tina
     reverses:
@@ -204,7 +227,6 @@ caddy_entries:
     file: six
     reverses:
       - to: "{{ ports.feishin }}"
-
 
   # Le LAP
   - domain: lelap.in
@@ -307,16 +329,19 @@ caddy_entries:
     extra: |
       reverse_proxy 127.0.0.1:25578
 
+
 users:
   - sayaka
   - reaxt
   - lap
+
 
 skel:
   - www
   - wwws/example.com
   - .config/systemd/user
   - .config/containers/systemd
+
 
 repositories:
   - src: https://github.com/asso-msn/msn-web
@@ -352,6 +377,7 @@ repositories:
     name: couscous-orders
     version: main
 
+
 user_services:
   mechadon:
     workdir: "{{ repositories_dir }}/mechadon"
@@ -380,6 +406,7 @@ user_services:
       {{ python_setup }}
       alembic upgrade head
       pip install gunicorn
+      (FLASK_APP=app:create_app flask tasks run &)
       gunicorn 'app:create_app()' -b {{ loopback_ip }}:{{ ports.lapadmin }} -w 1
   photon:
     workdir: "{{ repositories_dir }}/photongenic"
@@ -460,6 +487,7 @@ user_services:
     cmd: |
       {{ python_setup }}
       python main.py
+
 
 quadlets:
   mc:
@@ -605,9 +633,91 @@ quadlets:
       GF_SERVER_SERVE_FROM_SUB_PATH: "true"
     volumes:
       - "{{ ansible_facts.user_dir }}/.local/share/grafana:/var/lib/grafana"
+  librechat_mongo:
+    image: docker.io/library/mongo
+    tag: "7"
+    network: librechat.network
+    network_alias: mongodb
+    volumes:
+      - "{{ ansible_facts.user_dir }}/.local/share/librechat/mongo:/data/db"
+  searxng:
+    image: docker.io/searxng/searxng
+    tag: latest
+    network: librechat.network
+    network_alias: searxng
+    user: root
+    ports:
+      - "{{ loopback_ip }}:{{ ports.searxng }}:8080"
+    volumes:
+      - "{{ ansible_facts.user_dir }}/.config/searxng:/etc/searxng"
+    env:
+      SEARXNG_BASE_URL: http://searxng:8080/
+      INSTANCE_NAME: LibreChat SearXNG
+  playwright_mcp:
+    image: mcr.microsoft.com/playwright/mcp
+    tag: latest
+    network: librechat.network
+    network_alias: playwright-mcp
+    podman: --entrypoint node --init
+    exec: |
+      /app/cli.js
+      --headless
+      --browser chromium
+      --no-sandbox
+      --port 8931
+      --host 0.0.0.0
+      --allowed-hosts *
+  searxng_mcp:
+    image: docker.io/isokoliuk/mcp-searxng
+    tag: latest
+    network: librechat.network
+    network_alias: searxng-mcp
+    env:
+      SEARXNG_URL: http://searxng:8080
+      MCP_HTTP_PORT: "3000"
+      MCP_HTTP_HOST: 0.0.0.0
+  litellm:
+    image: ghcr.io/berriai/litellm
+    tag: main-latest
+    network: librechat.network
+    network_alias: litellm
+    env_file: "{{ ansible_facts.user_dir }}/.local/share/litellm/litellm.env"
+    volumes:
+      - "{{ ansible_facts.user_dir }}/.config/litellm:/app/config"
+    exec: --config /app/config/config.yaml --port 4000
+    ports:
+      - "{{ loopback_ip }}:{{ ports.litellm }}:4000"
+  librechat:
+    image: ghcr.io/danny-avila/librechat
+    tag: latest
+    depend: librechat-mongo.service
+    network: librechat.network
+    user: root
+    env_file: "{{ ansible_facts.user_dir }}/.local/share/librechat/librechat.env"
+    ports:
+      - "{{ loopback_ip }}:{{ ports.librechat }}:3080"
+    volumes:
+      - "{{ ansible_facts.user_dir }}/.config/librechat:/config"
+      - "{{ ansible_facts.user_dir }}/.local/share/librechat/images:/app/client/public/images"
+      - "{{ ansible_facts.user_dir }}/.local/share/librechat/uploads:/app/uploads"
+      - "{{ ansible_facts.user_dir }}/.local/share/librechat/logs:/app/logs"
+      - "{{ ansible_facts.user_dir }}/.local/share/librechat/skill:/app/skill"
+    env:
+      HOST: 0.0.0.0
+      PORT: "3080"
+      MONGO_URI: mongodb://mongodb:27017/LibreChat
+      CONFIG_PATH: /config/librechat.yaml
+      DOMAIN_CLIENT: https://librechat.tina.moe
+      DOMAIN_SERVER: https://librechat.tina.moe
+      TRUST_PROXY: "1"
+      SEARCH: "false"
+      ENDPOINTS: bedrock,agents
+      ALLOW_REGISTRATION: "false"
+      ALLOW_EMAIL_LOGIN: "true"
 
 
 monitoring_domain: dijiang.tina.moe
+
 
 minecraft_version: 26.1.2
 

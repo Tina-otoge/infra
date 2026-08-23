@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+{% for export in nfs_exports %}
+{% set specs = [] %}
+{% for client in export.clients %}
+{% set _ = specs.append(client.hosts ~ '(' ~ client.options ~ ')') %}
+{% endfor %}
+{{ export.path }} {{ specs | join(' ') }}
+{% endfor %}
