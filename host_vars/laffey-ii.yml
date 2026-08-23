@@ -63,12 +63,15 @@ backups_jobs_extra:
     cleanup_script: |
       systemctl -M tina@ --user start mc
 
+
 healthchecks: true
+
 
 packages:
   - btop # requested by reaxt 2026-01-25
   - libffi-devel # needed for msn-web@asso-msn:PyWand, needs pyenv version recompile
   - ImageMagick-devel # needed for msn-web@asso-msn:PyWand
+
 
 cockpit_origins: https://laffey-ii.tina.moe https://laffey-ii.savatier.fr
 
@@ -225,7 +228,6 @@ caddy_entries:
     reverses:
       - to: "{{ ports.feishin }}"
 
-
   # Le LAP
   - domain: lelap.in
     file: lap
@@ -327,16 +329,19 @@ caddy_entries:
     extra: |
       reverse_proxy 127.0.0.1:25578
 
+
 users:
   - sayaka
   - reaxt
   - lap
+
 
 skel:
   - www
   - wwws/example.com
   - .config/systemd/user
   - .config/containers/systemd
+
 
 repositories:
   - src: https://github.com/asso-msn/msn-web
@@ -372,6 +377,7 @@ repositories:
     name: couscous-orders
     version: main
 
+
 user_services:
   mechadon:
     workdir: "{{ repositories_dir }}/mechadon"
@@ -400,6 +406,7 @@ user_services:
       {{ python_setup }}
       alembic upgrade head
       pip install gunicorn
+      (FLASK_APP=app:create_app flask tasks run &)
       gunicorn 'app:create_app()' -b {{ loopback_ip }}:{{ ports.lapadmin }} -w 1
   photon:
     workdir: "{{ repositories_dir }}/photongenic"
@@ -480,6 +487,7 @@ user_services:
     cmd: |
       {{ python_setup }}
       python main.py
+
 
 quadlets:
   mc:
@@ -709,6 +717,7 @@ quadlets:
 
 
 monitoring_domain: dijiang.tina.moe
+
 
 minecraft_version: 26.1.2
 
