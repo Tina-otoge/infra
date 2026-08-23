@@ -14,20 +14,38 @@
     mode: u=rw,g=r,o=r
   notify: restart homeassistant
 
+- name: Ensure include files exist
+  copy:
+    content: "{{ item.content }}"
+    dest: "/etc/homeassistant/{{ item.name }}"
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+    force: false
+  loop:
+    - { name: automations.yaml, content: "[]\n" }
+    - { name: scripts.yaml, content: "" }
+    - { name: scenes.yaml, content: "" }
+  loop_control:
+    label: "{{ item.name }}"
+  notify: restart homeassistant
+
 - name: Install packages
   copy:
-    src: packages/
+    src: homeassistant/packages/
     dest: /etc/homeassistant/packages/
     owner: root
     group: root
     mode: u=rw,g=r,o=r
   notify: restart homeassistant
+  when: (playbook_dir ~ '/files/homeassistant/packages') is directory
 
 - name: Install scripts
   copy:
-    src: scripts/
+    src: homeassistant/scripts/
     dest: /etc/homeassistant/scripts/
     owner: root
     group: root
     mode: u=rwX,g=rX,o=rX
   notify: restart homeassistant
+  when: (playbook_dir ~ '/files/homeassistant/scripts') is directory

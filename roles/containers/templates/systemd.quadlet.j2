@@ -66,6 +66,14 @@ Environment={{ env_key }}="{{ env_value }}"
 {% endfor %}
 {% endif %}
 
+{% if item.value.env_file is defined %}
+EnvironmentFile={{ item.value.env_file }}
+{% endif %}
+
+{% if item.value.entrypoint is defined %}
+Entrypoint={{ item.value.entrypoint }}
+{% endif %}
+
 {% if item.value.user is defined %}
 User={{ item.value.user }}
 {% endif %}
