@@ -5,3 +5,11 @@
     line: '{{ item.key }} {{ item.value }}'
   loop: '{{ hosts_map | default({}) | dict2items }}'
   notify: dnsmasq restart
+
+- name: Remove /etc/hosts entries
+  lineinfile:
+    path: /etc/hosts
+    regexp: '^{{ item.key }} {{ item.value }}$'
+    state: absent
+  loop: '{{ hosts_map_to_delete | default({}) | dict2items }}'
+  notify: dnsmasq restart

@@ -1,3 +1,8 @@
+- name: Ensure dnsmasq is installed
+  package:
+    name: dnsmasq
+    state: present
+
 - name: Disable Firefox doh
   copy:
     content: address=/use-application-dns.net/
@@ -11,11 +16,25 @@
     regexp: "^interface="
   notify: dnsmasq restart
 
-- name: Listen on all interfaces by address
+- name: Listen on all interfaces
   lineinfile:
-    line: listen-address=0.0.0.0
+    line: "#listen-address="
     dest: /etc/dnsmasq.conf
-    regexp: ".*listen-address=$"
+    regexp: "^listen-address="
+  notify: dnsmasq restart
+
+- name: Answer queries from any subnet/interface
+  lineinfile:
+    line: "#local-service"
+    dest: /etc/dnsmasq.conf
+    regexp: "^#?local-service"
+  notify: dnsmasq restart
+
+- name: Resolve names with multiple addresses by using the requester's subnet
+  lineinfile:
+    line: localise-queries
+    dest: /etc/dnsmasq.conf
+    regexp: "^#?localise-queries"
   notify: dnsmasq restart
 
 - name: Add DNS servers

@@ -10,7 +10,7 @@ packages:
   - dnsmasq
   - syncthing
 
-server_tasks:
+server_roles_extra:
   - dnsmasq
 
 http_domain: turbo.tina.moe

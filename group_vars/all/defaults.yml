@@ -5,7 +5,6 @@ server_tasks_base:
   - hostname
   - selinux
   - timezone
-  - hosts
 
   # Packages
   - pkg-mgr-conf
@@ -32,6 +31,21 @@ server_tasks_base:
 
 server_tasks: []
 server_tasks_disabled: []
+
+server_roles_base:
+  - hosts
+  - containers
+  - backups
+  - disk_use_report
+  - smart
+  - caddy
+  - alloy
+  - homeassistant
+  - nfs
+
+server_roles_extra: []
+
+server_roles: "{{ server_roles_base + server_roles_extra }}"
 
 user_tasks_base:
   - dotfiles

@@ -39,7 +39,7 @@ backups_repos:
     keep:
       monthly: 24
 
-server_tasks:
+server_roles_extra:
   - dnsmasq
 
 packages:

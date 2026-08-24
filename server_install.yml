@@ -38,15 +38,7 @@
           tags:
             - "{{ role }}"
       tags: always
-      loop:
-        - containers
-        - backups
-        - disk_use_report
-        - smart
-        - caddy
-        - alloy
-        - homeassistant
-        - nfs
+      loop: "{{ server_roles }}"
       loop_control:
         loop_var: role
         label: "{{ role }}"
@@ -71,10 +63,6 @@
     - name: wsdd restart
       systemd:
         name: wsdd
-        state: restarted
-    - name: dnsmasq restart
-      systemd:
-        name: dnsmasq
         state: restarted
     - name: promtail restart
       systemd:

@@ -1,0 +1,5 @@
+# fallback DNS servers
+dns_servers: []
+
+# these suffixes always resolve locally, never proxied
+dns_local_suffixes: []
