@@ -16,9 +16,9 @@ homeassistant:
         - 10.0.0.0/8
         - 100.64.0.0/10
       trusted_users:
-        "192.168.0.0/16": "{{ kiosk_user_id }}"
-        "10.0.0.0/8": "{{ kiosk_user_id }}"
-        "100.64.0.0/10": "{{ kiosk_user_id }}"
+        "192.168.0.0/16": "{{ homeassistant_kiosk_user_id }}"
+        "10.0.0.0/8": "{{ homeassistant_kiosk_user_id }}"
+        "100.64.0.0/10": "{{ homeassistant_kiosk_user_id }}"
 
 automation: !include automations.yaml
 script: !include scripts.yaml
