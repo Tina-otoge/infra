@@ -84,14 +84,16 @@
     dest: /etc/ssl/caddy
     state: link
     force: true
+  when: caddy_command == 'caddy'
 
 - name: Check if Caddy completion file exists for zsh
   stat:
     path: /usr/local/share/zsh/site-functions/_caddy
   register: _caddy_completion_check
   changed_when: false
+  when: caddy_command == 'caddy'
 
-- when: not _caddy_completion_check.stat.exists
+- when: caddy_command == 'caddy' and not _caddy_completion_check.stat.exists
   block:
     - name: Ensure zsh plugins directory exists
       file:

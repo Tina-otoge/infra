@@ -1,4 +1,4 @@
-- command: caddy validate --config /etc/caddy/Caddyfile
+- command: "{{ caddy_command }} validate --config /etc/caddy/Caddyfile"
 - systemd:
     name: "{{ caddy_service }}"
     state: restarted

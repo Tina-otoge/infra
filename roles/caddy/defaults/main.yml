@@ -44,3 +44,6 @@ caddy_error_handlers: []
 # - 502
 
 caddy_disable_common_loggers: false
+
+# Override when Caddy runs as a container, e.g. "podman run --rm caddy:2".
+caddy_command: caddy
