@@ -21,10 +21,20 @@
       tags: always
       loop:
         - containers
+      loop_control:
+        loop_var: role
+
+    - include_role:
+        name: "{{ role }}"
+        apply:
+          tags: "{{ role }}"
+      tags: always
+      loop:
         - librechat
         - loki
       loop_control:
         loop_var: role
+      when: inventory_hostname == 'laffey-ii'
 
   handlers:
     - name: systemd reload
