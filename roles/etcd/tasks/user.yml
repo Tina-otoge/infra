@@ -1,0 +1,71 @@
+- name: "Manage the etcd user: {{ etcd_user.key }}"
+  no_log: true
+  vars:
+    _etcd_username: "{{ etcd_user.key }}"
+    _etcd_prefix: "{{ etcd_user.key }}"
+    _etcd_password: "{{ etcd_user.value }}"
+  block:
+    - name: Check if the etcd role exists
+      command:
+        argv: "{{ _etcd_auth_cmd + ['role', 'get', _etcd_username] }}"
+      register: _etcd_role_get
+      changed_when: false
+      failed_when: false
+
+    - name: Create the etcd role
+      command:
+        argv: "{{ _etcd_auth_cmd + ['role', 'add', _etcd_username] }}"
+      when: _etcd_role_get.rc != 0
+
+    - name: Grant the role read/write access to its prefix
+      command:
+        argv: >-
+          {{
+            _etcd_auth_cmd + [
+              'role', 'grant-permission', '--prefix',
+              _etcd_username, 'readwrite', _etcd_prefix
+            ]
+          }}
+      changed_when: false
+
+    - name: Check if the etcd user exists
+      command:
+        argv: "{{ _etcd_auth_cmd + ['user', 'get', _etcd_username] }}"
+      register: _etcd_user_get
+      changed_when: false
+      failed_when: false
+
+    - name: Create the etcd user
+      command:
+        argv: >-
+          {{
+            _etcd_auth_cmd + [
+              'user', 'add', _etcd_username,
+              '--new-user-password=' + _etcd_password,
+              '--interactive=false'
+            ]
+          }}
+      when: _etcd_user_get.rc != 0
+
+    - name: Grant the role to the etcd user
+      command:
+        argv: >-
+          {{
+            _etcd_auth_cmd + [
+              'user', 'grant-role', _etcd_username, _etcd_username
+            ]
+          }}
+      when: _etcd_user_get.rc != 0
+
+    - name: Keep the etcd user's password in sync with the secrets file
+      command:
+        argv: >-
+          {{
+            _etcd_auth_cmd + [
+              'user', 'passwd', _etcd_username,
+              '--interactive=false'
+            ]
+          }}
+        stdin: "{{ _etcd_password }}"
+      changed_when: false
+      when: _etcd_user_get.rc == 0

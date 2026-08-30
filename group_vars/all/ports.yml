@@ -1,5 +1,6 @@
 ports_by_value:
   2019: caddy_admin
+  2379: etcd_client
   3000: flood
   3001: uptime_kuma
   3003: grafana
@@ -40,6 +41,8 @@ ports_by_value:
   10023: searxng
   10024: litellm
   10025: romm
+  10026: embyserver
+  10027: versitygw
   12345: alloy
   25565: minecraft
 

@@ -1,0 +1,4 @@
+# Override when etcd runs as a container, e.g.
+# "podman exec systemd-etcd etcdctl".
+etcdctl_command: etcdctl
+etcd_secrets_file: "{{ ansible_facts.user_dir }}/.config/etcd/users.passwd"

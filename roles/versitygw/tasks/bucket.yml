@@ -1,0 +1,43 @@
+- name: "Manage the versitygw bucket: {{ versitygw_bucket }}"
+  no_log: true
+  vars:
+    _versitygw_access: "{{ versitygw_bucket }}-owner"
+    _versitygw_user_exists: >-
+      {{ _versitygw_users.stdout is regex('(?m)^' ~ _versitygw_access ~ '\s') }}
+    _versitygw_bucket_exists: >-
+      {{
+        _versitygw_bucket_list.stdout
+        is regex('(?m)^' ~ versitygw_bucket ~ '\s')
+      }}
+  block:
+    - name: Generate a secret access key for the {{ versitygw_bucket }} owner
+      set_fact:
+        _versitygw_secret: >-
+          {{
+            lookup(
+              'password', '/dev/null length=40 chars=ascii_letters,digits'
+            )
+          }}
+      when: not _versitygw_user_exists
+
+    - name: Create the versitygw bucket owner user
+      command:
+        argv: >-
+          {{
+            _versitygw_admin_cmd + [
+              'create-user', '--access', _versitygw_access,
+              '--secret', _versitygw_secret, '--role', 'user'
+            ]
+          }}
+      when: not _versitygw_user_exists
+
+    - name: Create the versitygw bucket
+      command:
+        argv: >-
+          {{
+            _versitygw_admin_cmd + [
+              'create-bucket', '--bucket', versitygw_bucket,
+              '--owner', _versitygw_access
+            ]
+          }}
+      when: not _versitygw_bucket_exists

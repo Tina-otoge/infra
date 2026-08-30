@@ -1,0 +1,27 @@
+- name: "Manage the versitygw role: {{ versitygw_role.key }}"
+  no_log: true
+  vars:
+    _versitygw_access: "{{ versitygw_role.key }}"
+    _versitygw_user_exists: >-
+      {{ _versitygw_users.stdout is regex('(?m)^' ~ _versitygw_access ~ '\s') }}
+  block:
+    - name: Generate a secret access key for {{ versitygw_role.key }}
+      set_fact:
+        _versitygw_secret: >-
+          {{
+            lookup(
+              'password', '/dev/null length=40 chars=ascii_letters,digits'
+            )
+          }}
+      when: not _versitygw_user_exists
+
+    - name: Create the versitygw user
+      command:
+        argv: >-
+          {{
+            _versitygw_admin_cmd + [
+              'create-user', '--access', _versitygw_access,
+              '--secret', _versitygw_secret, '--role', 'user'
+            ]
+          }}
+      when: not _versitygw_user_exists

@@ -1,0 +1,134 @@
+- name: Check for the versitygw root secrets file
+  stat:
+    path: "{{ versitygw_root_secrets_file }}"
+  register: _versitygw_root_stat
+
+- name: Skip versitygw setup without a root secrets file
+  debug:
+    msg: >-
+      {{ versitygw_root_secrets_file }} does not exist, skipping
+      versitygw bucket/user configuration. Create it (chmod 600,
+      "ROOT_ACCESS_KEY=..." and "ROOT_SECRET_KEY=..." lines) to
+      enable it.
+  when: not _versitygw_root_stat.stat.exists
+
+- name: Configure versitygw buckets and users
+  when: _versitygw_root_stat.stat.exists
+  no_log: true
+  block:
+    - name: Enforce restrictive permissions on the root secrets file
+      file:
+        path: "{{ versitygw_root_secrets_file }}"
+        mode: "0600"
+
+    - name: Read the versitygw root secrets file
+      slurp:
+        path: "{{ versitygw_root_secrets_file }}"
+      register: _versitygw_root_raw
+
+    - name: Parse the versitygw root secrets file
+      set_fact:
+        _versitygw_root: >-
+          {{
+            dict(
+              (_versitygw_root_raw.content | b64decode).splitlines()
+              | select
+              | map('trim')
+              | reject('equalto', '')
+              | reject('match', '^#')
+              | map('split', '=', 1)
+            )
+          }}
+
+    - name: Require root credentials in the secrets file
+      fail:
+        msg: >-
+          {{ versitygw_root_secrets_file }} must contain
+          ROOT_ACCESS_KEY and ROOT_SECRET_KEY lines.
+      when: >-
+        'ROOT_ACCESS_KEY' not in _versitygw_root
+        or 'ROOT_SECRET_KEY' not in _versitygw_root
+
+    - name: Build the versitygw admin command prefix
+      set_fact:
+        _versitygw_admin_cmd: >-
+          {{
+            (versitygw_command | split(' ')) + [
+              'admin',
+              '--access', _versitygw_root.ROOT_ACCESS_KEY,
+              '--secret', _versitygw_root.ROOT_SECRET_KEY,
+              '--region', versitygw_s3_region,
+              '--endpoint-url', versitygw_admin_endpoint
+            ]
+          }}
+
+    - name: List existing versitygw users
+      command:
+        argv: "{{ _versitygw_admin_cmd + ['list-users'] }}"
+      register: _versitygw_users
+      changed_when: false
+
+    - name: List existing versitygw buckets
+      command:
+        argv: "{{ _versitygw_admin_cmd + ['list-buckets'] }}"
+      register: _versitygw_bucket_list
+      changed_when: false
+
+    - name: Determine the desired versitygw access keys
+      set_fact:
+        _versitygw_desired_users: >-
+          {{
+            (versitygw_roles.keys() | list)
+            + (versitygw_buckets | map('regex_replace', '$', '-owner') | list)
+          }}
+
+    - name: Determine the existing versitygw access keys
+      set_fact:
+        _versitygw_existing_users: >-
+          {{
+            _versitygw_users.stdout_lines[2:] | map('split') | map('first')
+          }}
+
+    - name: Configure versitygw buckets
+      include_tasks: bucket.yml
+      loop: "{{ versitygw_buckets }}"
+      loop_control:
+        loop_var: versitygw_bucket
+
+    - name: Configure versitygw roles
+      include_tasks: role.yml
+      loop: "{{ versitygw_roles | dict2items }}"
+      loop_control:
+        loop_var: versitygw_role
+        label: "{{ versitygw_role.key }}"
+
+    - name: Delete undeclared versitygw users
+      command:
+        argv: >-
+          {{
+            _versitygw_admin_cmd + [
+              'delete-user', '--access', versitygw_extra_user
+            ]
+          }}
+      loop: >-
+        {{ _versitygw_existing_users | difference(_versitygw_desired_users) }}
+      loop_control:
+        loop_var: versitygw_extra_user
+
+    - name: Reset the list of versitygw policy statements
+      set_fact:
+        _versitygw_statements: []
+
+    - name: Add a policy statement per role grant
+      include_tasks: grant.yml
+      loop: "{{ versitygw_roles | dict2items | subelements('value') }}"
+      loop_control:
+        loop_var: versitygw_grant
+        label: >-
+          {{ versitygw_grant.0.key }}: {{ versitygw_grant.1.keys() | first }}
+
+    - name: Apply versitygw bucket policies
+      include_tasks: policy.yml
+      loop: "{{ versitygw_buckets }}"
+      loop_control:
+        loop_var: versitygw_bucket

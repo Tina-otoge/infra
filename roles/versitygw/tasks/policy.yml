@@ -1,0 +1,27 @@
+- name: "Manage the versitygw bucket policy: {{ versitygw_bucket }}"
+  vars:
+    _versitygw_bucket_statements: >-
+      {{
+        _versitygw_statements
+        | selectattr('bucket', 'equalto', versitygw_bucket)
+        | map(attribute='statement') | list
+      }}
+  block:
+    - name: Apply the versitygw bucket policy
+      amazon.aws.s3_bucket:
+        name: "{{ versitygw_bucket }}"
+        endpoint_url: "{{ versitygw_s3_endpoint }}"
+        access_key: "{{ _versitygw_root.ROOT_ACCESS_KEY }}"
+        secret_key: "{{ _versitygw_root.ROOT_SECRET_KEY }}"
+        region: "{{ versitygw_s3_region }}"
+        policy: >-
+          {{
+            {
+              'Version': '2012-10-17',
+              'Statement': _versitygw_bucket_statements
+            } | to_json
+          }}
+        state: present
+      delegate_to: localhost
+      no_log: true
+      when: _versitygw_bucket_statements | length > 0
