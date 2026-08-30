@@ -320,6 +320,20 @@ quadlets:
       - 105 # render
     networks:
       - six.network
+  embyserver:
+    image: emby/embyserver
+    tag: latest
+    ports:
+      - "{{ loopback_ip }}:{{ ports.embyserver }}:8096"
+    volumes:
+      - "{{ ansible_facts.user_dir }}/.config/embyserver:/config"
+      - /mnt/sakura/public:/mnt/sakura/public:ro
+    devices:
+      - /dev/dri/renderD128
+    groupadds:
+      - 105 # render
+    networks:
+      - six.network
   kavita:
     image: lscr.io/linuxserver/kavita
     tag: latest

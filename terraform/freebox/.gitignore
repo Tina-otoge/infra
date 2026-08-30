@@ -1,0 +1,5 @@
+/bin
+/.env
+*.tfstate*
+.terraform/
+.terraform.lock.hcl

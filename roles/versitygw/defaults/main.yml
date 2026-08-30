@@ -1,0 +1,33 @@
+# Override when versitygw runs as a container, e.g.
+# "podman exec systemd-versitygw versitygw".
+versitygw_command: versitygw
+versitygw_root_secrets_file: >-
+  {{ ansible_facts.user_dir }}/.config/versitygw/root.env
+versitygw_admin_endpoint: http://127.0.0.1:7070
+# Public S3 endpoint used for bucket policy management via boto3,
+# run on the Ansible controller (not the target host).
+versitygw_s3_endpoint: http://127.0.0.1:7070
+# Must match the VGW_REGION set on the quadlet (see host_vars). The
+# quadlet's own env can't reference this default directly, since
+# "containers" runs before "versitygw" in the role loop and won't have
+# it loaded yet, so it repeats the same "hostname" fallback inline.
+versitygw_s3_region: "{{ ansible_facts.hostname }}"
+versitygw_buckets: []
+versitygw_roles: {}
+
+# read intentionally omits ListBucket: with multiple roles sharing a
+# bucket, ListBucket can't be scoped to a prefix and would leak sibling
+# tenants' object keys.
+versitygw_action_sets:
+  read:
+    - s3:GetObject
+    - s3:GetObjectAttributes
+    - s3:GetObjectTagging
+    - s3:GetObjectRetention
+    - s3:ListMultipartUploadParts
+  write:
+    - s3:PutObject
+    - s3:DeleteObject
+    - s3:PutObjectTagging
+    - s3:PutObjectRetention
+    - s3:AbortMultipartUpload

@@ -35,6 +35,18 @@
       loop_control:
         loop_var: role
       when: inventory_hostname == 'laffey-ii'
+    - include_role:
+        name: etcd
+        apply:
+          tags: etcd
+      tags: always
+      when: "'etcd' in quadlets"
+    - include_role:
+        name: versitygw
+        apply:
+          tags: versitygw
+      tags: always
+      when: "'versitygw' in quadlets"
 
   handlers:
     - name: systemd reload
