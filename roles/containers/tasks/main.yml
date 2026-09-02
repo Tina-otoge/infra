@@ -1,3 +1,17 @@
+- name: Set short-name-mode value
+  lineinfile:
+    path: /etc/containers/registries.conf.d/99-local.conf
+    regexp: '^short-name-mode ='
+    line: 'short-name-mode = "disabled"'
+    create: true
+
+- name: Set unqualified-search-registries value
+  lineinfile:
+    path: /etc/containers/registries.conf.d/99-local.conf
+    regexp: '^unqualified-search-registries ='
+    line: "unqualified-search-registries = {{ containers_registries }}"
+    create: true
+
 - set_fact:
     _quadlet_scope: "{{ quadlet_scope | default('user') }}"
     _quadlet_items: >-
