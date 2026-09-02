@@ -185,6 +185,11 @@ caddy_entries:
     file: tina
     reverses:
       - to: "{{ ports.librechat }}"
+  - domain: litellm.tina.moe
+    robots: false
+    file: tina
+    reverses:
+      - to: "{{ ports.litellm }}"
   - domain: fairyjoke.net
     file: tina
     reverses:
