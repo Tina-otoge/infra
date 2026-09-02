@@ -26,6 +26,10 @@ Tmpfs={{ tmpfs }}
 {% endfor %}
 {% endif %}
 
+{% if item.value.shm_size is defined %}
+ShmSize={{ item.value.shm_size }}
+{% endif %}
+
 {% if item.value.devices is defined %}
 {% for device in item.value.devices %}
 AddDevice={{ device }}
