@@ -37,6 +37,8 @@ backups_job_machine_paths_extra:
   - "{{ ansible_facts.user_dir }}/.local/share/vaultwarden/"
   - "{{ ansible_facts.user_dir }}/.local/share/grafana/"
   - "{{ ansible_facts.user_dir }}/.local/share/librechat/"
+  - "{{ ansible_facts.user_dir }}/.local/share/etcd/"
+  - "{{ ansible_facts.user_dir }}/.config/etcd/users.env"
   - "{{ ansible_facts.user_dir }}/.config/librechat/"
   - "{{ ansible_facts.user_dir }}/.config/searxng/"
 
@@ -125,6 +127,20 @@ caddy_entries:
     file: tina
     reverses:
       - to: "{{ ports.vaultwarden }}"
+  - domain: etcd.tina.moe
+    robots: false
+    file: tina
+    reverses:
+      - to: "{{ ports.etcd_client }}"
+        extra: |
+          transport http {
+            versions h2c
+          }
+  - domain: s3.tina.moe
+    robots: false
+    file: tina
+    reverses:
+      - to: "{{ ports.versitygw }}"
 
   # Tina
   - domain: tina.moe
@@ -714,6 +730,46 @@ quadlets:
       ENDPOINTS: bedrock,agents
       ALLOW_REGISTRATION: "false"
       ALLOW_EMAIL_LOGIN: "true"
+  etcd:
+    image: gcr.io/etcd-development/etcd
+    tag: v3.7.1
+    ports:
+      - "{{ loopback_ip }}:{{ ports.etcd_client }}:2379"
+    volumes:
+      - "{{ ansible_facts.user_dir }}/.local/share/etcd:/etcd-data"
+    env:
+      ETCD_DATA_DIR: /etcd-data
+      ETCD_LISTEN_CLIENT_URLS: http://0.0.0.0:2379
+      ETCD_ADVERTISE_CLIENT_URLS: http://127.0.0.1:2379
+  versitygw:
+    image: docker.io/versity/versitygw
+    tag: latest
+    env_file: "{{ ansible_facts.user_dir }}/.config/versitygw/root.env"
+    ports:
+      - "{{ loopback_ip }}:{{ ports.versitygw }}:7070"
+    volumes:
+      - "{{ ansible_facts.user_dir }}/.local/share/versitygw/data:/data"
+      - "{{ ansible_facts.user_dir }}/.local/share/versitygw/iam:/iam"
+    env:
+      VGW_IAM_DIR: /iam
+      VGW_REGION: "{{ versitygw_s3_region | default(ansible_facts.hostname) }}"
+    exec: posix /data
+
+
+etcdctl_command: podman exec systemd-etcd etcdctl
+
+versitygw_command: podman exec systemd-versitygw versitygw
+versitygw_s3_endpoint: https://s3.tina.moe
+
+versitygw_buckets:
+  - terraform
+
+versitygw_roles:
+  tina:
+    - "terraform:tina/*": [read, write]
+    - "terraform:lap/*": [read, write]
+  lap:
+    - "terraform:lap/*": [read, write]
 
 
 monitoring_domain: dijiang.tina.moe

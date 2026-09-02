@@ -1,0 +1,108 @@
+- name: Check for the etcd secrets file
+  stat:
+    path: "{{ etcd_secrets_file }}"
+  register: _etcd_secrets_stat
+
+- name: Skip etcd auth setup without a secrets file
+  debug:
+    msg: >-
+      {{ etcd_secrets_file }} does not exist, skipping etcd
+      user/auth configuration. Create it (chmod 600, one
+      "user:password" per line, must include a "root" entry)
+      to enable it.
+  when: not _etcd_secrets_stat.stat.exists
+
+- name: Configure etcd authentication and users
+  when: _etcd_secrets_stat.stat.exists
+  no_log: true
+  block:
+    - name: Enforce restrictive permissions on the etcd secrets file
+      file:
+        path: "{{ etcd_secrets_file }}"
+        mode: "0600"
+
+    - name: Read the etcd secrets file
+      slurp:
+        path: "{{ etcd_secrets_file }}"
+      register: _etcd_secrets_raw
+
+    - name: Parse the etcd secrets file
+      set_fact:
+        _etcd_secrets: >-
+          {{
+            dict(
+              (_etcd_secrets_raw.content | b64decode).splitlines()
+              | select
+              | map('trim')
+              | reject('equalto', '')
+              | reject('match', '^#')
+              | map('split', ':', 1)
+            )
+          }}
+
+    - name: Require a root entry in the etcd secrets file
+      fail:
+        msg: >-
+          {{ etcd_secrets_file }} must contain
+          a "root:<password>" line.
+      when: "'root' not in _etcd_secrets"
+
+    - name: Build the etcdctl command prefix
+      set_fact:
+        _etcd_cmd: "{{ etcdctl_command | split(' ') }}"
+
+    - name: Check the current etcd auth status
+      command:
+        argv: "{{ _etcd_cmd + ['auth', 'status'] }}"
+      register: _etcd_auth_status
+      changed_when: false
+
+    - name: Create the etcd root user
+      command:
+        argv: >-
+          {{
+            _etcd_cmd + [
+              'user', 'add', 'root',
+              '--new-user-password=' + _etcd_secrets.root,
+              '--interactive=false'
+            ]
+          }}
+      when: "'Authentication Status: false' in _etcd_auth_status.stdout"
+
+    - name: Enable etcd authentication
+      command:
+        argv: "{{ _etcd_cmd + ['auth', 'enable'] }}"
+      when: "'Authentication Status: false' in _etcd_auth_status.stdout"
+
+    - name: Build the root-authenticated etcdctl command prefix
+      set_fact:
+        _etcd_auth_cmd: >-
+          {{ _etcd_cmd + ['--user', 'root:' + _etcd_secrets.root] }}
+
+    - name: Check that the secrets file's root password is current
+      command:
+        argv: "{{ _etcd_auth_cmd + ['role', 'list'] }}"
+      register: _etcd_root_check
+      changed_when: false
+      failed_when: false
+
+    - name: Fail on a stale root password
+      fail:
+        msg: >-
+          Could not authenticate to etcd as root using the password
+          in {{ etcd_secrets_file }}. Root's password can only be
+          rotated by first authenticating with its current (old)
+          password, e.g. via "etcdctl --user root:<old password>
+          user passwd root", then updating the file to match.
+      when: _etcd_root_check.rc != 0
+
+    - name: Configure etcd users
+      include_tasks: user.yml
+      loop: >-
+        {{
+          _etcd_secrets | dict2items
+          | rejectattr('key', 'equalto', 'root')
+        }}
+      loop_control:
+        loop_var: etcd_user
+        label: "{{ etcd_user.key }}"
