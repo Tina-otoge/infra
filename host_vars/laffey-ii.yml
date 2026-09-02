@@ -392,6 +392,9 @@ repositories:
   - src: https://github.com/asso-msn/discord-couscous-orders
     name: couscous-orders
     version: main
+  - src: https://github.com/LAP-Arcade/infra
+    name: infra@lap
+    version: main
 
 
 user_services:
@@ -503,6 +506,11 @@ user_services:
     cmd: |
       {{ python_setup }}
       python main.py
+  lap_vpn_bot:
+    workdir: "{{ repositories_dir }}/infra@lap/terraform/freebox"
+    cmd: |
+      {{ python_setup }}
+      python discord_bot.py
 
 
 quadlets:
