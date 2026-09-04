@@ -1,26 +1,26 @@
 model_list:
-  - model_name: bedrock-eu-minimax-2.5
+  - model_name: Minimax M2.5 (AWS)
     litellm_params:
       model: bedrock/minimax.minimax-m2.5
       aws_region_name: eu-west-2
-  - model_name: bedrock-eu-qwen-coder-next
+  - model_name: Qwen3 Coder Next (AWS)
     litellm_params:
       model: bedrock/qwen.qwen3-coder-next
       aws_region_name: eu-west-2
-  - model_name: bedrock-eu-kimi-2.5
+  - model_name: Kimi K2.5 (AWS)
     litellm_params:
       model: bedrock/moonshotai.kimi-k2.5
       aws_region_name: eu-west-2
 
-  - model_name: coding-cheap
+  - model_name: Cheap (DeepSeek V4 Flash)
     litellm_params:
       model: deepseek/deepseek-v4-flash
       api_key: os.environ/DEEPSEEK_API_KEY
-  - model_name: coding-smart
+  - model_name: Smart (GLM 5.2)
     litellm_params:
       model: zai/glm-5.2
       api_key: os.environ/ZAI_API_KEY
-  - model_name: coding-max
+  - model_name: Max (Kimi K3)
     litellm_params:
       model: moonshot/kimi-k3
       api_key: os.environ/MOONSHOT_API_KEY
