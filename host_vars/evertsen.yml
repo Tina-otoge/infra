@@ -58,9 +58,18 @@ quadlets:
   qbit:
     image: lscr.io/linuxserver/qbittorrent
     tag: latest
+    depend: mnt-asashio.mount
     volumes:
       - "{{ ansible_facts.user_dir }}/.config/qbittorrent:/config"
       - /mnt/asashio/Downloads:/downloads
     ports:
       - "{{ loopback_ip }}:{{ ports.qbittorrent_webui }}:8080"
     env: "{{ linuxserver_env }}"
+
+user_mounts:
+  - what: "tina@asashio.tina.moe:"
+    where: /mnt/asashio
+    type: fuse.sshfs
+    description: Asashio home
+    test: /mnt/asashio/Downloads
+    options: "idmap=user,follow_symlinks,allow_other"

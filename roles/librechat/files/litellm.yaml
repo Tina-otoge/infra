@@ -1,169 +1,29 @@
 model_list:
-  # ---- eu-west-1 ----
-  # answers without calling tools
-  # - model_name: mixtral-8x7b-eu
-  #   litellm_params:
-  #     model: bedrock/mistral.mixtral-8x7b-instruct-v0:1
-  #     aws_region_name: eu-west-1
-  # answers without calling tools
-  # - model_name: mistral-7b-eu
-  #   litellm_params:
-  #     model: bedrock/mistral.mistral-7b-instruct-v0:2
-  #     aws_region_name: eu-west-1
-  - model_name: mistral-large-2402-eu
+  - model_name: Minimax M2.5 (AWS)
     litellm_params:
-      model: bedrock/mistral.mistral-large-2402-v1:0
-      aws_region_name: eu-west-1
-  - model_name: ministral-3-3b-eu
+      model: bedrock/minimax.minimax-m2.5
+      aws_region_name: eu-west-2
+  - model_name: Qwen3 Coder Next (AWS)
     litellm_params:
-      model: bedrock/mistral.ministral-3-3b-instruct
-      aws_region_name: eu-west-1
-  - model_name: ministral-3-8b-eu
+      model: bedrock/qwen.qwen3-coder-next
+      aws_region_name: eu-west-2
+  - model_name: Kimi K2.5 (AWS)
     litellm_params:
-      model: bedrock/mistral.ministral-3-8b-instruct
-      aws_region_name: eu-west-1
-  - model_name: ministral-3-14b-eu
-    litellm_params:
-      model: bedrock/mistral.ministral-3-14b-instruct
-      aws_region_name: eu-west-1
-  # leaks [TOOL_CALLS] as plain text instead of a tool call
-  # - model_name: magistral-small-eu
-  #   litellm_params:
-  #     model: bedrock/mistral.magistral-small-2509
-  #     aws_region_name: eu-west-1
-  - model_name: devstral-2-eu
-    litellm_params:
-      model: bedrock/mistral.devstral-2-123b
-      aws_region_name: eu-west-1
-  # cannot call tools
-  # - model_name: voxtral-mini-eu
-  #   litellm_params:
-  #     model: bedrock/mistral.voxtral-mini-3b-2507
-  #     aws_region_name: eu-west-1
-  - model_name: voxtral-small-eu
-    litellm_params:
-      model: bedrock/mistral.voxtral-small-24b-2507
-      aws_region_name: eu-west-1
-  # HTTP 400 (needs image input)
-  # - model_name: pixtral-large-eu
-  #   litellm_params:
-  #     model: bedrock/mistral.pixtral-large-2502-v1:0
-  #     aws_region_name: eu-west-1
-  - model_name: nova-micro-eu
-    litellm_params:
-      model: bedrock/eu.amazon.nova-micro-v1:0
-      aws_region_name: eu-west-1
-  - model_name: nova-lite-eu
-    litellm_params:
-      model: bedrock/eu.amazon.nova-lite-v1:0
-      aws_region_name: eu-west-1
-  - model_name: qwen3-32b-eu
-    litellm_params:
-      model: bedrock/qwen.qwen3-32b-v1:0
-      aws_region_name: eu-west-1
+      model: bedrock/moonshotai.kimi-k2.5
+      aws_region_name: eu-west-2
 
-  # reasoning tier (above the usual price cap)
-  - model_name: gpt-oss-120b-eu
+  - model_name: Cheap (DeepSeek V4 Flash)
     litellm_params:
-      model: bedrock/openai.gpt-oss-120b-1:0
-      aws_region_name: eu-west-1
-      reasoning_effort: high
-  - model_name: claude-sonnet-4-5-eu
+      model: deepseek/deepseek-v4-flash
+      api_key: os.environ/DEEPSEEK_API_KEY
+  - model_name: Smart (GLM 5.2)
     litellm_params:
-      model: bedrock/eu.anthropic.claude-sonnet-4-5-20250929-v1:0
-      aws_region_name: eu-west-1
-      thinking: { "type": "enabled", "budget_tokens": 2048 }
-
-  # ---- us-east-1 ----
-  - model_name: mistral-large-3-us
+      model: zai/glm-5.2
+      api_key: os.environ/ZAI_API_KEY
+  - model_name: Max (Kimi K3)
     litellm_params:
-      model: bedrock/mistral.mistral-large-3-675b-instruct
-      aws_region_name: us-east-1
-  - model_name: mistral-small-us
-    litellm_params:
-      model: bedrock/mistral.mistral-small-2402-v1:0
-      aws_region_name: us-east-1
-  # HTTP 400 (needs image input)
-  # - model_name: pixtral-large-us
-  #   litellm_params:
-  #     model: bedrock/mistral.pixtral-large-2502-v1:0
-  #     aws_region_name: us-east-1
-  # cannot call tools
-  # - model_name: voxtral-mini-us
-  #   litellm_params:
-  #     model: bedrock/mistral.voxtral-mini-3b-2507
-  #     aws_region_name: us-east-1
-  - model_name: voxtral-small-us
-    litellm_params:
-      model: bedrock/mistral.voxtral-small-24b-2507
-      aws_region_name: us-east-1
-  # answers without calling tools
-  # - model_name: mixtral-8x7b-us
-  #   litellm_params:
-  #     model: bedrock/mistral.mixtral-8x7b-instruct-v0:1
-  #     aws_region_name: us-east-1
-  # answers without calling tools
-  # - model_name: mistral-7b-us
-  #   litellm_params:
-  #     model: bedrock/mistral.mistral-7b-instruct-v0:2
-  #     aws_region_name: us-east-1
-  - model_name: mistral-large-2402-us
-    litellm_params:
-      model: bedrock/mistral.mistral-large-2402-v1:0
-      aws_region_name: us-east-1
-  - model_name: ministral-3-3b-us
-    litellm_params:
-      model: bedrock/mistral.ministral-3-3b-instruct
-      aws_region_name: us-east-1
-  - model_name: ministral-3-8b-us
-    litellm_params:
-      model: bedrock/mistral.ministral-3-8b-instruct
-      aws_region_name: us-east-1
-  - model_name: ministral-3-14b-us
-    litellm_params:
-      model: bedrock/mistral.ministral-3-14b-instruct
-      aws_region_name: us-east-1
-  # answers without calling tools
-  # - model_name: magistral-small-us
-  #   litellm_params:
-  #     model: bedrock/mistral.magistral-small-2509
-  #     aws_region_name: us-east-1
-  - model_name: devstral-2-us
-    litellm_params:
-      model: bedrock/mistral.devstral-2-123b
-      aws_region_name: us-east-1
-  - model_name: nova-micro-us
-    litellm_params:
-      model: bedrock/us.amazon.nova-micro-v1:0
-      aws_region_name: us-east-1
-  - model_name: nova-lite-us
-    litellm_params:
-      model: bedrock/us.amazon.nova-lite-v1:0
-      aws_region_name: us-east-1
-  - model_name: llama-3-1-8b-us
-    litellm_params:
-      model: bedrock/us.meta.llama3-1-8b-instruct-v1:0
-      aws_region_name: us-east-1
-  - model_name: qwen3-32b-us
-    litellm_params:
-      model: bedrock/qwen.qwen3-32b-v1:0
-      aws_region_name: us-east-1
-
-  # reasoning tier (above the usual price cap)
-  - model_name: gpt-oss-120b-us
-    litellm_params:
-      model: bedrock/openai.gpt-oss-120b-1:0
-      aws_region_name: us-east-1
-      reasoning_effort: high
-  - model_name: deepseek-v3-2-us
-    litellm_params:
-      model: bedrock/deepseek.v3.2
-      aws_region_name: us-east-1
-  - model_name: claude-sonnet-4-5-us
-    litellm_params:
-      model: bedrock/us.anthropic.claude-sonnet-4-5-20250929-v1:0
-      aws_region_name: us-east-1
-      thinking: { "type": "enabled", "budget_tokens": 2048 }
+      model: moonshot/kimi-k3
+      api_key: os.environ/MOONSHOT_API_KEY
 
 litellm_settings:
   # Drop OpenAI params the target model doesn't support instead of erroring

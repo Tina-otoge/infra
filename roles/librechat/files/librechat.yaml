@@ -3,116 +3,26 @@ cache: true
 endpoints:
   bedrock:
     availableRegions:
-      - eu-west-1
-      - us-east-1
+      - eu-west-2
     models:
-      - amazon.nova-micro-v1:0
-      - mistral.ministral-3-3b-instruct
-      - amazon.nova-lite-v1:0
-      - mistral.ministral-3-8b-instruct
-      - mistral.ministral-3-14b-instruct
-      - mistral.voxtral-small-24b-2507
-      - meta.llama3-1-8b-instruct-v1:0 # us-east-1 only
-      - qwen.qwen3-32b-v1:0
-      - mistral.mistral-large-3-675b-instruct # us-east-1 only
-      - mistral.devstral-2-123b
-      - mistral.mistral-small-2402-v1:0
-      - mistral.pixtral-large-2502-v1:0
-
-      # reasoning tier (above the usual price cap)
-      - openai.gpt-oss-120b-1:0
-      - deepseek.v3.2 # us-east-1 only
-      - us.anthropic.claude-sonnet-4-5-20250929-v1:0 # us-east-1 only
-
-      # too expensive
-      # - mistral.mistral-large-2402-v1:0
-
-      # cannot call tools
-      # - mistral.voxtral-mini-3b-2507
-
-      # did not try to call tools implicitly
-      # - mistral.mixtral-8x7b-instruct-v0:1
-      # - mistral.mistral-7b-instruct-v0:2
-
-      # leaks [TOOL_CALLS] as plain text
-      # - mistral.magistral-small-2509
+      - minimax.minimax-m2.5
+      - qwen.qwen3-coder-next
+      - moonshotai.kimi-k2.5
   custom:
-    - name: LiteLLM Bedrock EU
+    - name: LiteLLM
       apiKey: ${LITELLM_MASTER_KEY}
       baseURL: http://litellm:4000/v1
       models:
         default:
-          - nova-micro-eu
-          - ministral-3-3b-eu
-          - nova-lite-eu
-          - ministral-3-8b-eu
-          - ministral-3-14b-eu
-          - voxtral-small-eu
-          - qwen3-32b-eu
-          - devstral-2-eu
-
-          # reasoning tier (above the usual price cap)
-          - gpt-oss-120b-eu
-          - claude-sonnet-4-5-eu
-
-          # too expensive
-          # - mistral-large-2402-eu
-
-          # cannot call tools
-          # - voxtral-mini-eu
-
-          # did not try to call tools implicitly
-          # - mixtral-8x7b-eu
-          # - mistral-7b-eu
-
-          # leaks [TOOL_CALLS] as plain text
-          # - magistral-small-eu
-
-          # images only
-          # - pixtral-large-eu
+          - bedrock-eu-minimax-2.5
+          - bedrock-eu-qwen-coder-next
+          - bedrock-eu-kimi-2.5
+          - coding-cheap
+          - coding-smart
+          - coding-max
         fetch: false
       titleConvo: true
-      titleModel: ministral-3-3b-eu
-    - name: LiteLLM Bedrock US
-      apiKey: ${LITELLM_MASTER_KEY}
-      baseURL: http://litellm:4000/v1
-      models:
-        default:
-          - nova-micro-us
-          - ministral-3-3b-us
-          - nova-lite-us
-          - ministral-3-8b-us
-          - ministral-3-14b-us
-          - voxtral-small-us
-          - llama-3-1-8b-us
-          - qwen3-32b-us
-          - mistral-large-3-us
-          - devstral-2-us
-          - mistral-small-us
-
-          # reasoning tier (above the usual price cap)
-          - gpt-oss-120b-us
-          - deepseek-v3-2-us
-          - claude-sonnet-4-5-us
-
-          # too expensive
-          # - mistral-large-2402-us
-
-          # cannot call tools
-          # - voxtral-mini-us
-
-          # did not try to call tools implicitly
-          # - mixtral-8x7b-us
-          # - mistral-7b-us
-
-          # leaks [TOOL_CALLS] as plain text
-          # - magistral-small-us
-
-          # images only
-          # - pixtral-large-us
-        fetch: false
-      titleConvo: true
-      titleModel: ministral-3-3b-us
+      titleModel: coding-cheap
   allowedAddresses:
     - litellm:4000
 mcpServers:

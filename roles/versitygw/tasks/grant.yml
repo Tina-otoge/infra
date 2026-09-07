@@ -1,0 +1,31 @@
+- name: "Add a policy statement: {{ versitygw_grant.0.key }}"
+  vars:
+    _versitygw_role_name: "{{ versitygw_grant.0.key }}"
+    _versitygw_bucket_path: "{{ versitygw_grant.1.keys() | first }}"
+    _versitygw_split: "{{ _versitygw_bucket_path | split(':', 1) }}"
+    _versitygw_bucket: "{{ _versitygw_split[0] }}"
+    _versitygw_path: "{{ _versitygw_split[1] }}"
+    _versitygw_perms: "{{ versitygw_grant.1[_versitygw_bucket_path] }}"
+    _versitygw_actions: >-
+      {{
+        _versitygw_perms
+        | map('extract', versitygw_action_sets) | flatten | unique
+      }}
+  set_fact:
+    _versitygw_statements: >-
+      {{
+        _versitygw_statements + [{
+          'bucket': _versitygw_bucket,
+          'statement': {
+            'Sid': (
+              _versitygw_role_name ~ '-' ~ (_versitygw_statements | length)
+            ),
+            'Effect': 'Allow',
+            'Principal': _versitygw_role_name,
+            'Action': _versitygw_actions,
+            'Resource': (
+              'arn:aws:s3:::' ~ _versitygw_bucket ~ '/' ~ _versitygw_path
+            )
+          }
+        }]
+      }}
