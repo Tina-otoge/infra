@@ -117,5 +117,7 @@ StartLimitBurst=15
 StartLimitInterval=5m
 TimeoutStartSec={{ item.value.start_timeout | default(300) }}
 
+{% if item.value.enabled | default(true) %}
 [Install]
 WantedBy=default.target
+{% endif %}
