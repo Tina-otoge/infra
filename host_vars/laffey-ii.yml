@@ -516,7 +516,17 @@ user_services:
     workdir: "{{ repositories_dir }}/infra@lap/terraform/freebox"
     cmd: |
       {{ python_setup }}
+      ./setup.sh
+      set -a
+      source .env
+      set +a
+      tofu init -input=false
       python discord_bot.py
+  lap_freebox_dns:
+    workdir: "{{ repositories_dir }}/infra@lap/terraform/freebox"
+    cmd: |
+      {{ python_setup }}
+      python force_dns_servers.py
 
 
 quadlets:

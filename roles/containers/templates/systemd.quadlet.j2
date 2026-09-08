@@ -100,6 +100,15 @@ Restart=always
 {% else %}
 Restart={{ item.value.restart }}
 {% endif %}
+{% if item.value.memory_max is defined %}
+MemoryMax={{ item.value.memory_max }}
+{% endif %}
+{% if item.value.memory_high is defined %}
+MemoryHigh={{ item.value.memory_high }}
+{% endif %}
+{% if item.value.memory_swap_max is defined %}
+MemorySwapMax={{ item.value.memory_swap_max }}
+{% endif %}
 {% if item.value.exec_pre is defined %}
 ExecStartPre=/bin/bash -c "{{ item.value.exec_pre | split('\n') | join(' ') | replace ('"', '\\"') }}"
 {% endif %}
@@ -108,5 +117,7 @@ StartLimitBurst=15
 StartLimitInterval=5m
 TimeoutStartSec={{ item.value.start_timeout | default(300) }}
 
+{% if item.value.enabled | default(true) %}
 [Install]
 WantedBy=default.target
+{% endif %}
