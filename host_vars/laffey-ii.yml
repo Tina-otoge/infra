@@ -191,6 +191,12 @@ caddy_entries:
     file: tina
     reverses:
       - to: "{{ ports.litellm }}"
+  - domain: twitter-notes.tina.moe
+    robots: false
+    file: tina
+    reverses:
+      - to: "{{ ports.twitter_notes }}"
+
   - domain: fairyjoke.net
     file: tina
     reverses:
@@ -401,6 +407,8 @@ repositories:
   - src: https://github.com/LAP-Arcade/infra
     name: infra@lap
     version: main
+  - src: https://github.com/Tina-otoge/twitter-notes
+    name: twitter-notes@tina
 
 
 user_services:
@@ -527,6 +535,13 @@ user_services:
     cmd: |
       {{ python_setup }}
       python force_dns_servers.py
+  twitter_notes:
+    workdir: "{{ repositories_dir }}/twitter-notes"
+    cmd: |
+      {{ python_setup }}
+      alembic upgrade head
+      pip install gunicorn
+      gunicorn 'app:create_app()' -b {{ loopback_ip }}:{{ ports.twitter_notes }}
 
 
 quadlets:
