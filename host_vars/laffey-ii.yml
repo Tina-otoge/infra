@@ -536,7 +536,7 @@ user_services:
       {{ python_setup }}
       python force_dns_servers.py
   twitter_notes:
-    workdir: "{{ repositories_dir }}/twitter-notes"
+    workdir: "{{ repositories_dir }}/twitter-notes@tina"
     cmd: |
       {{ python_setup }}
       alembic upgrade head

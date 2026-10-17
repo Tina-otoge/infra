@@ -25,6 +25,7 @@ backups_job_machine_paths_extra:
   - "{{ ansible_facts.user_dir }}/.config/romm/"
   - "{{ ansible_facts.user_dir }}/.local/share/romm/mysql/"
   - "{{ ansible_facts.user_dir }}/.local/share/romm/assets/"
+  - "{{ ansible_facts.user_dir }}/.local/share/immich/"
 
 backups_repos:
   - path: "{{ backups_repos_dir }}/asashio"
@@ -214,6 +215,11 @@ caddy_entries:
     robots: false
     reverses:
       - to: "{{ ports.romm }}"
+  - domain: immich.savatier.fr
+    file: six
+    robots: false
+    reverses:
+      - to: "{{ ports.immich }}"
 
 repositories:
   - src: https://github.com/Tina-otoge/AniBoard
@@ -424,3 +430,59 @@ quadlets:
       DB_USER: romm-user
       DB_PASSWD: romm
       HASHEOUS_API_ENABLED: "true"
+  immich_db:
+    image: ghcr.io/immich-app/postgres
+    tag: 14-vectorchord0.4.3-pgvectors0.2.0@sha256:bcf63357191b76a916ae5eb93464d65c07511da41e3bf7a8416db519b40b1c23
+    network: immich.network
+    network_alias: immich-db
+    volumes:
+      - "{{ ansible_facts.user_dir }}/.local/share/immich/postgres:/var/lib/postgresql/data"
+    shm_size: 128m
+    env:
+      POSTGRES_PASSWORD: immich
+      POSTGRES_USER: immich
+      POSTGRES_DB: immich
+      POSTGRES_INITDB_ARGS: --data-checksums
+  immich_redis:
+    image: docker.io/valkey/valkey
+    tag: 9@sha256:c123e3715db63d06d4ad6964884037aa0d5d4d703939b9929954112889708e1d
+    network: immich.network
+    network_alias: immich-redis
+    podman: >-
+      --health-cmd='redis-cli ping | grep -q PONG || exit 1'
+  immich_machine_learning:
+    image: ghcr.io/immich-app/immich-machine-learning
+    tag: v3-openvino
+    network: immich.network
+    network_alias: immich-machine-learning
+    env:
+      MACHINE_LEARNING_HTTP_KEEPALIVE_TIMEOUT_S: 30
+    volumes:
+      - "{{ ansible_facts.user_dir }}/.local/share/immich/model-cache:/cache"
+    devices:
+      - /dev/dri:/dev/dri
+    groupadds:
+      - 105
+  immich:
+    image: ghcr.io/immich-app/immich-server
+    tag: v3
+    depend: immich-db.service immich-redis.service immich-machine-learning.service
+    network: immich.network
+    network_alias: immich-server
+    volumes:
+      - "{{ ansible_facts.user_dir }}/Backups/Camera/Immich:/data"
+      - "{{ ansible_facts.user_dir }}/.local/share/immich/backups:/data/backups"
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "{{ loopback_ip }}:{{ ports.immich }}:2283"
+    devices:
+      - /dev/dri:/dev/dri
+    groupadds:
+      - 105
+    env:
+      DB_HOSTNAME: immich-db
+      DB_USERNAME: immich
+      DB_PASSWORD: immich
+      DB_DATABASE_NAME: immich
+      REDIS_HOSTNAME: immich-redis
+      IMMICH_MACHINE_LEARNING_URL: http://immich-machine-learning:3003

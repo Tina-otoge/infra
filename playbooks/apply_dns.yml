@@ -17,6 +17,9 @@
       savatier.fr:
         type: A
         value: "{{ records['laffey-ii.tina.moe'].value }}"
+      immich.savatier.fr:
+        type: CNAME
+        value: home.tina.moe.
       "*.savatier.fr":
         type: CNAME
         value: savatier.fr.

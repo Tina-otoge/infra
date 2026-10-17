@@ -43,6 +43,8 @@ ports_by_value:
   10025: romm
   10026: embyserver
   10027: versitygw
+  10028: twitter_notes
+  10029: immich
   12345: alloy
   25565: minecraft
 
