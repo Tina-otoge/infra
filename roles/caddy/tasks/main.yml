@@ -1,4 +1,4 @@
-- when: caddy_user | bool
+- when: caddy_user is string and caddy_user | length > 0
   block:
     - name: Ensure service config directory exists
       file:
@@ -32,11 +32,8 @@
   blockinfile:
     create: true
     path: >-
-      {%- if item.file -%}
-      /etc/caddy/Caddyfile.d/{{ item.file }}.conf
-      {%- else -%}
-      /etc/caddy/Caddyfile
-      {%- endif -%}
+      {{ '/etc/caddy/Caddyfile.d/' ~ item.file ~ '.conf'
+         if item.file else '/etc/caddy/Caddyfile' }}
     block: "{{ lookup('template', 'entry.j2') }}"
     marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.domain }}"
   when: item.partial | default(false)
@@ -47,7 +44,8 @@
     _caddy_file_groups: |
       {% set non_partial =
         (caddy_entries | rejectattr('partial', 'defined') | list)
-        + (caddy_entries | selectattr('partial', 'defined') | rejectattr('partial') | list)
+        + (caddy_entries | selectattr('partial', 'defined')
+           | rejectattr('partial') | list)
       %}
       {% for file, entries in non_partial | groupby('file') %}
       - file: {{ file }}

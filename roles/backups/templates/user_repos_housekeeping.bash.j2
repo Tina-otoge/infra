@@ -25,55 +25,55 @@ logmsg() {
 }
 
 export BORG_RELOCATED_REPO_ACCESS_IS_OK=yes
-sync_status=0
+housekeeping_status=0
 
 {% for repo in backups_repos %}
 
 {% set keep = repo.get('keep', backup_repos_keep_defaults) %}
 
+(
 check_output=$(borg check "{{ repo.path }}" 2>&1)
 check_status=$?
 if (( check_status != 0 )); then
-  sync_status=$check_status
-  logmsg "borg check failed (status=$check_status) for {{ repo.path }}, offsite sync skipped:\n"'```'"\n$(tail -c 1500 <<< "$check_output")\n"'```'
+  logmsg "borg check failed (status=$check_status) for {{ repo.path }}, remaining housekeeping skipped:\n"'```'"\n$(tail -c 1500 <<< "$check_output")\n"'```'
+  exit "$check_status"
 fi
 
-prune_dry=$(
-  borg prune --list \
-  --dry-run \
+prune_output=$(
+  borg prune --list --stats \
+  {% if repo.get('dry_run', False) %}--dry-run{% endif %} \
   {% for period, value in keep.items() %}
   --keep-{{ period }} "{{ value }}" \
   {% endfor %}
   "{{ repo.path }}" 2>&1
 )
-echo "$prune_dry"
-
-{% if not repo.get('dry_run', False) %}
-prune_stats=$(
-  borg prune --stats \
-  {% for period, value in keep.items() %}
-  --keep-{{ period }} "{{ value }}" \
-  {% endfor %}
-  "{{ repo.path }}" 2>&1
-)
-{% endif %}
+prune_status=$?
+echo "$prune_output"
+if (( prune_status != 0 )); then
+  logmsg "borg prune failed (status=$prune_status) for {{ repo.path }}, remaining housekeeping skipped:\n"'```'"\n$prune_output\n"'```'
+  exit "$prune_status"
+fi
 
 deleted_archives=$(
-  echo "$prune_dry" \
+  echo "$prune_output" \
   | grep -E "(Pruning archive|Would prune)" \
-  | sed -E 's/^(Would prune|Pruning archive):[[:space:]]*//' \
+  | sed -E 's/^[^:]*:[[:space:]]*//' \
   | cut -d' ' -f1
 )
 if [ -n "$deleted_archives" ]; then
   {% if not repo.get('dry_run', False) %}
   {% set keep_label = keep.items() | map('join', '=') | join(', ') %}
-  logmsg "borg prune ({{ keep_label }}) in {{ repo.path }}:\n"'```'"\n$prune_stats\n"'```'
+  logmsg "borg prune ({{ keep_label }}) in {{ repo.path }}:\n"'```'"\n$prune_output\n"'```'
   {% endif %}
 
+  {% if repo.get('dry_run', False) %}
+  logmsg "Would delete archives in {{ repo.path }}:\n$deleted_archives"
+  {% else %}
   logmsg "Deleted archives in {{ repo.path }}:\n$deleted_archives"
+  {% endif %}
 
   kept_archives=$(
-    echo "$prune_dry" \
+    echo "$prune_output" \
     | grep -E "(Keeping archive|Would keep)" \
     | sed 's/.*): *//' \
     | cut -d' ' -f1
@@ -81,13 +81,20 @@ if [ -n "$deleted_archives" ]; then
   if [ -n "$kept_archives" ]; then
     logmsg "Kept archives in {{ repo.path }}:\n$kept_archives"
   fi
+fi
 
+compact_output=$(
   borg compact {% if repo.get('dry_run', False) %}--dry-run{% endif %} \
-  "{{ repo.path }}"
+  "{{ repo.path }}" 2>&1
+)
+compact_status=$?
+echo "$compact_output"
+if (( compact_status != 0 )); then
+  logmsg "borg compact failed (status=$compact_status) for {{ repo.path }}, offsite sync skipped:\n"'```'"\n$compact_output\n"'```'
+  exit "$compact_status"
 fi
 
 {% if repo.get('rclone_remote') %}
-if (( check_status == 0 )); then
 rclone_sync=$(
   borg with-lock --lock-wait 600 "{{ repo.path }}" \
   rclone sync -v \
@@ -97,9 +104,6 @@ rclone_sync=$(
   "{{ repo.rclone_remote }}" 2>&1
 )
 transfer_status=$?
-if (( transfer_status != 0 )); then
-  sync_status=$transfer_status
-fi
 nothing_transferred="INFO  : There was nothing to transfer"
 if (( transfer_status != 0 )) || ! echo "$rclone_sync" | grep -q "$nothing_transferred"; then
   echo "$rclone_sync"
@@ -109,8 +113,15 @@ if (( transfer_status != 0 )) || ! echo "$rclone_sync" | grep -q "$nothing_trans
   )
   send_webhook "rclone ({{ repo.rclone_remote }}, status=$transfer_status):\n"'```'"$rclone_sync"'\n```' >/dev/null
 fi
-fi
+exit "$transfer_status"
+{% else %}
+exit 0
 {% endif %}
+)
+repository_status=$?
+if (( repository_status != 0 )); then
+  housekeeping_status=$repository_status
+fi
 {% endfor %}
 
-exit "$sync_status"
+exit "$housekeeping_status"

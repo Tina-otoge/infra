@@ -1,0 +1,280 @@
+caddy_error_handlers:
+  - 502
+
+caddy_extra: |
+  import users.d/*.conf
+
+caddy_entries_delete:
+  - loki
+
+caddy_entries:
+  # Machine domain
+  - domain: laffey-ii.tina.moe
+    file: tina
+    root: /home/tina/wwws/laffey-ii
+    reverses:
+      - path: /fail
+        to: 0
+      - path: "{{ cockpit_url_root }}"
+        to: 9090
+    extra: |
+      # TODO: redirect ~user to ~user/
+      @userdir {
+        path_regexp userdir ^/~(\w+)/
+      }
+      handle @userdir {
+        uri strip_prefix /~{re.userdir.1}/
+        file_server browse {
+          root /home/{re.userdir.1}/www/
+        }
+      }
+
+      @drs_videos {
+        path_regexp drs_videos ^/~tina/lap/drs_videos/(.*)\.mp4
+      }
+      redir @drs_videos https://drs.lelap.in/videos/{re.drs_videos.1}.mp4
+  - domain: laffey.tina.moe
+    file: tina
+    robots: false
+    extra: |
+      redir https://laffey-ii.tina.moe{uri}
+
+  - domain: laffey-ii.savatier.fr
+    file: tina
+    reverses:
+      - path: "{{ cockpit_url_root }}"
+        to: 9090
+  - domain: vault.savatier.fr
+    file: tina
+    reverses:
+      - to: "{{ ports.vaultwarden }}"
+  - domain: etcd.tina.moe
+    robots: false
+    file: tina
+    reverses:
+      - to: "{{ ports.etcd_client }}"
+        extra: |
+          transport http {
+            versions h2c
+          }
+  - domain: s3.tina.moe
+    robots: false
+    file: tina
+    reverses:
+      - to: "{{ ports.versitygw }}"
+
+  # Tina
+  - domain: tina.moe
+    root: /home/tina/wwws/tina
+    file: tina
+    reverses:
+      - path: /infra
+        to: "{{ ports.infra_webui }}"
+        remove_path: true
+    extra: |
+      handle_path /private/* {
+        root * /home/tina/wwws/private
+        file_server
+      }
+      redir /private /private/
+      handle_path /assets/cloud/* {
+        root * /home/tina/wwws/tina-assets
+        file_server
+      }
+  - domain: wallos.tina.moe
+    robots: false
+    file: tina
+    reverses:
+      - to: 8003
+  - domain: vault.tina.moe
+    robots: false
+    file: tina
+    reverses:
+      - to: "{{ ports.vaultwarden }}"
+  - domain: couscous.tina.moe
+    robots: false
+    file: tina
+    reverses:
+      - to: 57348
+  - domain: kuma.tina.moe
+    robots: false
+    file: tina
+    reverses:
+      - to: "{{ ports.uptime_kuma }}"
+  - domain: librechat.tina.moe
+    robots: false
+    file: tina
+    reverses:
+      - to: "{{ ports.librechat }}"
+  - domain: litellm.tina.moe
+    robots: false
+    file: tina
+    reverses:
+      - to: "{{ ports.litellm }}"
+  - domain: twitter-notes.tina.moe
+    robots: false
+    file: tina
+    reverses:
+      - to: "{{ ports.twitter_notes }}"
+
+  - domain: fairyjoke.net
+    file: tina
+    reverses:
+      - to: 57302
+      - path: /sdvx/genesis/gacha
+        to: 15712
+        remove_path: true
+  - domain: nico.tina.moe
+    file: tina
+    root: /home/tina/wwws/nico
+  - domain: damien.savatier.fr
+    file: tina
+    root: /home/tina/wwws/damien
+    extra: |
+      handle_path /private/* {
+        root * /home/tina/wwws/private
+        file_server
+      }
+
+  # Monitoring
+  - domain: dijiang.tina.moe
+    robots: false
+    file: tina
+    reverses:
+      - path: /loki
+        to: 3100
+        remove_path: true
+        auth:
+          username: "{{ secrets.http.loki.username }}"
+          password: "{{ secrets.http.loki.password }}"
+      - path: /grafana
+        to: "{{ ports.grafana }}"
+
+  # Six
+  - domain: six.tina.moe
+    robots: false
+    root: /home/tina/wwws/six
+    file: six
+    extra: |
+      file_server
+      handle /jellyfin/* {
+        redir https://fin.tina.moe
+      }
+  - domain: sonic.tina.moe
+    robots: false
+    file: six
+    reverses:
+      - to: 8001
+  - domain: soku.tina.moe
+    robots: false
+    file: six
+    reverses:
+      - to: 8002
+  - domain: shin.tina.moe
+    robots: false
+    file: six
+    reverses:
+      - to: "{{ ports.feishin }}"
+
+  # Le LAP
+  - domain: lelap.in
+    file: lap
+    root: /home/tina/wwws/lap
+    extra: |
+      handle_path /discord {
+        redir https://discord.gg/4RNagv4pfh
+      }
+      redir /discord/ /discord
+
+      handle_path /contest/scores/ {
+        redir https://docs.google.com/spreadsheets/d/e/2PACX-1vS-mV03DXECeFQ942PkemeGT4e4_h4NYOypMFakGxMbL8EkiO6H-Srf1Md-GBKrLuA7qVt6p0La3qwC/pubhtml
+      }
+      redir /contest/scores /contest/scores/
+  - domain: drs.lelap.in
+    file: lap
+    robots: false
+    root: /home/tina/wwws/lap
+    extra: |
+      handle_path /videos/* {
+        root * /home/tina/www/lap/drs_videos
+        file_server
+      }
+    reverses:
+      - to: "{{ ports.shlag_webui }}"
+  - domain: admin.lelap.in
+    robots: false
+    file: lap
+    reverses:
+      - to: "{{ ports.lapadmin }}"
+  # Waiting for DNS
+  - domain: replay.lelap.in
+    robots: false
+    file: lap
+    extra: |
+      @private remote_ip {{ addresses.lap }} {{ addresses.teapot }} {{ addresses.laffey }} {{ addresses.visian }} {{ addresses.laffey_ii }}
+
+      handle @private {
+        reverse_proxy :{{ ports.photongenic }}
+      }
+
+      handle /replays/files/* {
+        reverse_proxy :{{ ports.photongenic }}
+      }
+
+      handle {
+        respond <<EOF
+          You must be on the LAP network to access this page.
+          Please connect to the WiFi.
+
+          SSID: LAP Guest
+          Password: crazy shuffle
+        EOF 403
+      }
+  - domain: vault.lelap.in
+    robots: false
+    file: lap
+    reverses:
+      - to: "{{ ports.vaultwarden_lap }}"
+
+  # MSN
+  - domain: demo.asso-msn.fr
+    robots: false
+    file: msn
+    reverses:
+      - to: "{{ ports.msnweb_demo }}"
+  - domain: asso-msn.fr
+    file: msn
+    reverses:
+      - to: "{{ ports.msnweb }}"
+    extra: |
+      handle_path /assets/* {
+        root * /home/tina/wwws/msnweb-assets
+        file_server
+      }
+
+      handle_path /discord {
+        redir https://discord.gg/k4CVGDQ
+      }
+  - domain: goty.asso-msn.fr
+    robots: false
+    file: msn
+    reverses:
+      - to: "{{ ports.goty }}"
+
+  # sayaka
+  - domain: mirror.lovelyrad.io
+    file: sayaka
+    root: /home/sayaka/www/mirror
+    browser: true
+  - domain: hewwo.lovelyrad.io
+    file: sayaka
+    reverses:
+      - to: 39614
+
+  # reaxt
+  - domain: poobmap.reaxt.dev
+    file: reaxt
+    extra: |
+      reverse_proxy 127.0.0.1:25578
+
+

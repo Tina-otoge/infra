@@ -12,6 +12,7 @@
       loop: "{{ user_tasks_base + user_tasks }}"
       loop_control:
         loop_var: task
+        label: "{{ task }}"
       tags:
         - always
     - include_role:
@@ -23,6 +24,7 @@
         - containers
       loop_control:
         loop_var: role
+        label: "{{ role }}"
 
     - include_role:
         name: "{{ role }}"
@@ -34,6 +36,7 @@
         - loki
       loop_control:
         loop_var: role
+        label: "{{ role }}"
       when: inventory_hostname == 'laffey-ii'
     - include_role:
         name: etcd
@@ -55,9 +58,4 @@
     - name: systemd user reload
       systemd:
         daemon_reload: true
-        scope: user
-    - name: prometheus restart
-      systemd:
-        name: prometheus
-        state: restarted
         scope: user

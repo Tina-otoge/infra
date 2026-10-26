@@ -843,9 +843,6 @@ versitygw_roles:
     - "terraform:lap/*": [read, write]
 
 
-monitoring_domain: dijiang.tina.moe
-
-
 minecraft_version: 26.1.2
 
 # https://essentialsx.net/downloads.html

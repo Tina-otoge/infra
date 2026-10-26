@@ -2,6 +2,8 @@ loopback_ip: 127.0.0.1
 podman_host_loopback_ip: 10.0.2.2
 podman_host_address: host.containers.internal
 
+monitoring_domain: dijiang.tina.moe
+
 python_setup: |-
   [ -d .venv ] || python -m venv .venv
   source .venv/bin/activate
@@ -31,6 +33,10 @@ linuxserver_env:
   PUID: 0
   PGID: 0
   UMASK: 002
+
+# Shared between install_aws_bedrock_cost_watcher.yml (creates it) and
+# reenable_aws_bedrock.yml (detaches it): the Deny-bedrock:* kill-switch policy.
+bedrock_kill_switch_policy_name: BedrockCostWatcherKillSwitch
 
 sus_http_fails:
   - wp-login.php

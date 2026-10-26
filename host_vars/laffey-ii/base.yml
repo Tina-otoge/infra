@@ -1,0 +1,31 @@
+users_admins:
+  - tina
+
+fail2ban_vaultwarden_users:
+  - tina
+  - lap
+
+healthchecks: true
+
+
+packages:
+  - btop # requested by reaxt 2026-01-25
+  - libffi-devel # needed for msn-web@asso-msn:PyWand, needs pyenv version recompile
+  - ImageMagick-devel # needed for msn-web@asso-msn:PyWand
+
+
+cockpit_origins: https://laffey-ii.tina.moe https://laffey-ii.savatier.fr
+
+users:
+  - sayaka
+  - reaxt
+  - lap
+
+
+skel:
+  - www
+  - wwws/example.com
+  - .config/systemd/user
+  - .config/containers/systemd
+
+

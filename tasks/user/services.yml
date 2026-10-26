@@ -8,6 +8,8 @@
     src: "systemd.service.j2"
     dest: "{{ ansible_facts.user_dir }}/.config/systemd/user/{{ item.key | replace('_', '-') }}.service"
   loop: "{{ user_services | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
   notify: systemd user reload
   when: item.value.get('create', True)
 
@@ -20,6 +22,8 @@
       name: "{{ item.key }}"
       time: "{{ item.value.get('calendar') }}"
   loop: "{{ user_services | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
   notify: systemd user reload
   when: '"calendar" in item.value'
 
@@ -32,6 +36,8 @@
 
       {{ item.value.script }}
   loop: "{{ user_services | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
   when: '"script" in item.value'
 
 - meta: flush_handlers

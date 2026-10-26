@@ -1,0 +1,120 @@
+caddy_error_handlers:
+  - 502
+
+caddy_entries:
+  - domain: http://asashio.lan
+    file: asashio
+    extra: |
+      redir /* https://asashio.tina.moe{uri}
+  - domain: "{{ http_domain }}"
+    root: /srv/www/asashio
+    file: asashio
+    robots: false
+    reverses:
+      - path: /fail
+        to: 0
+      - path: "{{ cockpit_url_root }}"
+        to: "{{ ports.cockpit }}"
+      - path: /syncthing
+        to: 8384
+        extra:
+          header_up Host {upstream_hostport}
+        remove_path: true
+      - path: /sonarr
+        to: 8989
+      - path: /qbit
+        remove_path: true
+        to: "{{ ports.qbittorrent_webui }}"
+      - path: /jackett
+        to: 9117
+      - path: /prowlarr
+        to: "{{ ports.prowlarr }}"
+      - path: /flood
+        to: 3000
+      - path: /lidarr
+        to: 8686
+      - path: /navi
+        to: "{{ ports.navidrome }}"
+    extra: |
+      handle_path /files/* {
+        root * /srv/www/files
+        file_server browse
+      }
+
+  - domain: replay.tina.moe
+    robots: false
+    file: teapot
+    extra: |
+      @allow_photon remote_ip private_ranges
+
+      handle @allow_photon {
+        reverse_proxy {{ loopback_ip }}:{{ ports.photongenic }}
+      }
+
+      handle /replays/files/* {
+        reverse_proxy {{ loopback_ip }}:{{ ports.photongenic }}
+      }
+
+      respond "Private. See you at the Teapot Arcade!" 403
+
+  - domain: nagato.tina.moe
+    file: nagato
+    extra: |
+      redir /* https://asashio.tina.moe{uri}
+
+  - domain: foil.tina.moe
+    file: tina
+    robots: false
+    reverses:
+      - to: "{{ ports.foil }}"
+  - domain: aniboard.tina.moe
+    file: tina
+    robots: false
+    reverses:
+      - to: "{{ ports.aniboard }}"
+  - domain: scale.tina.moe
+    file: tina
+    robots: false
+    reverses:
+      - to: "{{ ports.headscale_http }}"
+        extra: flush_interval -1
+  - domain: backups.mc.tina.moe
+    file: tina
+    robots: false
+    reverses:
+      - to: "{{ ports.overdrive_backups_frontend }}"
+
+  # Six
+  - domain: lms.tina.moe
+    file: six
+    robots: false
+    reverses:
+      - to: 5082
+    extra: |
+      import cors
+  - domain: fin.tina.moe
+    file: six
+    robots: false
+    reverses:
+      - to: "{{ ports.jellyfin }}"
+  - domain: kavita.tina.moe
+    file: six
+    robots: false
+    reverses:
+      - to: "{{ ports.kavita }}"
+  - domain: komga.tina.moe
+    file: six
+    robots: false
+    reverses:
+      - to: "{{ ports.komga }}"
+  - domain: romm.tina.moe
+    file: six
+    robots: false
+    reverses:
+      - to: "{{ ports.romm }}"
+  - domain: immich.savatier.fr
+    file: six
+    robots: false
+    reverses:
+      - to: "{{ ports.immich }}"
+

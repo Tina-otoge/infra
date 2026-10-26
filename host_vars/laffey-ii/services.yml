@@ -1,0 +1,173 @@
+repositories:
+  - src: https://github.com/asso-msn/msn-web
+    name: msnweb-demo
+    version: main
+  - src: https://github.com/asso-msn/msn-web
+    name: msnweb
+    version: main
+  - src: https://github.com/asso-msn/helloasso-discord-role
+    version: main
+  - src: https://github.com/LAP-Arcade/lap-web
+    version: main
+  - src: https://github.com/LAP-Arcade/lapadmin
+    name: lapadmin
+    version: main
+  - src: git@github.com:LAP-Arcade/MonkeyShlag.git
+    name: monkey
+    version: main
+  - src: git@github.com:LAP-Arcade/shlag-webui.git
+    version: main
+  - src: https://github.com/asso-msn/MechaDon2
+    name: mechadon
+  - src: https://github.com/Tina-otoge/photongenic
+  - src: https://github.com/Tina-otoge/tina-simp
+  - src: https://github.com/FairyJoke/fairyjoke-legacy
+    name: fairyjoke
+  - src: git@github.com:Tina-otoge/arcade-tools.git
+  - src: https://github.com/Tina-otoge/ArtCompanion
+    name: artcompanion
+  - src: git@github.com:Tina-otoge/couscous-infra.git
+    name: couscous
+  - src: https://github.com/asso-msn/discord-couscous-orders
+    name: couscous-orders
+    version: main
+  - src: https://github.com/LAP-Arcade/infra
+    name: infra@lap
+    version: main
+  - src: https://github.com/Tina-otoge/twitter-notes
+    name: twitter-notes@tina
+
+
+user_services:
+  mechadon:
+    workdir: "{{ repositories_dir }}/mechadon"
+    cmd: |
+      {{ python_setup }}
+      alembic upgrade head
+      python -m mechadon
+  helloasso_discord_role:
+    workdir: "{{ repositories_dir }}/helloasso-discord-role"
+    cmd: |
+      {{ python_setup }}
+      python main.py
+    calendar: "*-*-* *:00/5"
+  shlag_webui:
+    workdir: "{{ repositories_dir }}/shlag-webui"
+    cmd: |
+      {{ python_setup }}
+      flask run -h {{ loopback_ip }} -p {{ ports.shlag_webui }}
+  lap_web:
+    workdir: "{{ repositories_dir }}/lap-web"
+    type: oneshot
+    cmd: "{{ sssimp_setup }}"
+  lapadmin:
+    workdir: "{{ repositories_dir }}/lapadmin"
+    cmd: |
+      {{ python_setup }}
+      alembic upgrade head
+      pip install gunicorn
+      (FLASK_APP=app:create_app flask tasks run &)
+      gunicorn 'app:create_app()' -b {{ loopback_ip }}:{{ ports.lapadmin }} -w 1
+  photon:
+    workdir: "{{ repositories_dir }}/photongenic"
+    cmd: |
+      {{ python_setup }}
+      (python archive.py &)
+      flask --app webui.app:app run -h {{ loopback_ip }} -p {{ ports.photongenic }} --debug
+  msn_fa_counter:
+    cmd: gh workflow run -R asso-msn/fa-songs-counter cd.yml
+    calendar: daily
+  msn_auto_data_seed_pr:
+    cmd: gh workflow run -R asso-msn/msn-web update-from-seeds.yml
+    calendar: daily
+  monkey:
+    workdir: "{{ repositories_dir }}/monkey"
+    cmd: ./start.sh
+  msnweb_demo:
+    workdir: "{{ repositories_dir }}/msnweb-demo"
+    cmd: |
+      {{ python_setup }}
+      pip install gunicorn
+      alembic upgrade head
+      flask setup
+      RUN_TASKS=1 gunicorn -b {{ loopback_ip }}:{{ ports.msnweb_demo }} app:app
+  msnweb:
+    workdir: "{{ repositories_dir }}/msnweb"
+    cmd: |
+      {{ python_setup }}
+      pip install gunicorn
+      alembic upgrade head
+      flask setup
+      RUN_TASKS=1 gunicorn -b {{ loopback_ip }}:{{ ports.msnweb }} app:app
+  rclone_msn:
+    workdir: "{{ ansible_facts.user_dir }}/wwws/msnweb-assets"
+    script: |
+      while true; do
+        date
+        rclone sync -v msn:Website/Assets/ .
+        echo Waiting 60s
+        sleep 60
+      done
+  rclone_tina:
+    workdir: "{{ ansible_facts.user_dir }}/wwws/tina-assets/"
+    script: |
+      while true; do
+        date
+        rclone sync -v tina:/ .
+        echo Waiting 60s
+        sleep 60
+      done
+  tina_simp:
+    workdir: "{{ repositories_dir }}/tina-simp"
+    cmd: "{{ sssimp_setup }}"
+    type: oneshot
+  fairyjoke:
+    workdir: "{{ repositories_dir }}/fairyjoke"
+    cmd: ./run_laffey.sh
+  artcompanion:
+    workdir: "{{ repositories_dir }}/artcompanion"
+    cmd: ./scripts/run.sh
+  couscous_infra:
+    workdir: "{{ repositories_dir }}/couscous"
+    cmd: "{{ compose_setup }}"
+  gacha_genesis:
+    enabled: false
+    workdir: "{{ repositories_dir }}/arcade-tools/sdvx-manual-card-generator"
+    cmd: |
+      {{ python_setup }}
+      PORT=15712 DATA_DIR=./data python gacha.py
+  msn_goty:
+    workdir: "{{ repositories_dir }}/goty"
+    cmd: |
+      {{ python_setup }}
+      pip install uvicorn
+      uvicorn app.application:app --host 127.0.0.1 --port {{ ports.goty }}
+  couscous_orders:
+    workdir: "{{ repositories_dir }}/couscous-orders"
+    cmd: |
+      {{ python_setup }}
+      python main.py
+  lap_vpn_bot:
+    workdir: "{{ repositories_dir }}/infra@lap/terraform/freebox"
+    cmd: |
+      {{ python_setup }}
+      ./setup.sh
+      set -a
+      source .env
+      set +a
+      tofu init -input=false
+      python discord_bot.py
+  lap_freebox_dns:
+    workdir: "{{ repositories_dir }}/infra@lap/terraform/freebox"
+    cmd: |
+      {{ python_setup }}
+      python force_dns_servers.py
+  twitter_notes:
+    workdir: "{{ repositories_dir }}/twitter-notes@tina"
+    cmd: |
+      {{ python_setup }}
+      alembic upgrade head
+      pip install gunicorn
+      gunicorn 'app:create_app()' -b {{ loopback_ip }}:{{ ports.twitter_notes }}
+
+

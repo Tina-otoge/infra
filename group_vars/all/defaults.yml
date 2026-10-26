@@ -50,7 +50,6 @@ server_roles: "{{ server_roles_base + server_roles_extra }}"
 user_tasks_base:
   - dotfiles
   # - websites
-  - compose_services
   - repositories
   - mounts
   - services
@@ -58,7 +57,6 @@ user_tasks_base:
 
 user_tasks: []
 
-flood_url_root: /flood
 user_apps_dir: "{{ ansible_facts.user_dir }}/.local/opt"
 
 selinux_state: disabled
@@ -114,14 +112,9 @@ user_mounts: []
 user_shell: /bin/zsh
 
 
-containers: {}
 containers_registries:
   - docker.io
 quadlets: {}
-
-
-compose_services: []
-compose_dir: "{{ user_apps_dir }}"
 
 
 repositories: []

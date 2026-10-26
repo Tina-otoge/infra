@@ -1,0 +1,16 @@
+etcdctl_command: podman exec systemd-etcd etcdctl
+
+versitygw_command: podman exec systemd-versitygw versitygw
+versitygw_s3_endpoint: https://s3.tina.moe
+
+versitygw_buckets:
+  - terraform
+
+versitygw_roles:
+  tina:
+    - "terraform:tina/*": [read, write]
+    - "terraform:lap/*": [read, write]
+  lap:
+    - "terraform:lap/*": [read, write]
+
+

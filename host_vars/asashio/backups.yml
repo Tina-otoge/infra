@@ -1,0 +1,67 @@
+backups_job_machine_paths_extra:
+  - /etc/homeassistant/
+  - /etc/samba/smb.conf
+  - /var/lib/samba/registry.tdb
+  - /var/lib/samba/share_info.tdb
+  - /var/lib/samba/account_policy.tdb
+  - /var/lib/samba/group_mapping.tdb
+  - /var/lib/samba/private/passdb.tdb
+  - /var/lib/samba/private/secrets.tdb
+
+  - "{{ repositories_dir }}/aniboard/conf/config.yml"
+  - "{{ repositories_dir }}/photongenic/clients.yml"
+  - "{{ repositories_dir }}/photongenic/config.toml"
+  - "{{ repositories_dir }}/photongenic/custom/"
+
+  - "{{ ansible_facts.user_dir }}/.config/ownfoil/"
+  - "{{ ansible_facts.user_dir }}/.config/sonarr/"
+  - "{{ ansible_facts.user_dir }}/.config/qbittorrent/"
+  - "{{ ansible_facts.user_dir }}/.config/prowlarr/"
+  - "{{ ansible_facts.user_dir }}/.config/lms/"
+  - "{{ ansible_facts.user_dir }}/.local/share/lms/"
+  - "{{ ansible_facts.user_dir }}/.config/jellyfin/config/"
+  - "{{ ansible_facts.user_dir }}/.config/jellyfin/data/jellyfin.db"
+  - "{{ ansible_facts.user_dir }}/.config/jellyfin/data/jellyfin.db-wal"
+  - "{{ ansible_facts.user_dir }}/.config/jellyfin/data/library.db"
+  - "{{ ansible_facts.user_dir }}/.config/jellyfin/data/library.db-wal"
+  - "{{ ansible_facts.user_dir }}/.config/jellyfin/plugins/configurations/"
+  - "{{ ansible_facts.user_dir }}/.config/embyserver/"
+  - "{{ ansible_facts.user_dir }}/.config/kavita/"
+  - "{{ ansible_facts.user_dir }}/.config/komga/"
+  - "{{ ansible_facts.user_dir }}/.config/nginx-rtmp/"
+  - "{{ ansible_facts.user_dir }}/.config/headscale/"
+  - "{{ ansible_facts.user_dir }}/.local/share/headscale/"
+  - "{{ ansible_facts.user_dir }}/.config/romm/"
+  - "{{ ansible_facts.user_dir }}/.local/share/romm/romm.env"
+  - "{{ ansible_facts.user_dir }}/.local/share/romm/assets/"
+
+backups_job_machine_dumps:
+  immich.sql: podman exec systemd-immich-db pg_dumpall --clean --if-exists --username=immich
+  romm.sql: >-
+    podman exec systemd-romm-db sh -c
+    'exec mariadb-dump --all-databases --single-transaction -uroot -p"$MARIADB_ROOT_PASSWORD"'
+
+backups_exclude_extra:
+  - /etc/homeassistant/backups*
+  - "{{ ansible_facts.user_dir }}/.config/qbittorrent/backup*"
+  - "{{ ansible_facts.user_dir }}/.config/sonarr/MediaCover*"
+  - "{{ ansible_facts.user_dir }}/.config/sonarr/logs*"
+  - "{{ ansible_facts.user_dir }}/.config/prowlarr/logs*"
+  - "{{ ansible_facts.user_dir }}/.config/ownfoil/titles.db"
+  - "{{ ansible_facts.user_dir }}/.config/embyserver/cache*"
+  - "{{ ansible_facts.user_dir }}/.config/embyserver/metadata*"
+  - "{{ ansible_facts.user_dir }}/.config/embyserver/logs*"
+
+backups_repos:
+  - path: "{{ backups_repos_dir }}/asashio"
+    rclone_remote: "{{ backups_repos_remote_machine }}/asashio"
+  - path: "{{ backups_repos_dir }}/evertsen"
+    rclone_remote: "{{ backups_repos_remote_machine }}/evertsen"
+  - path: "{{ backups_repos_dir }}/i-13"
+    rclone_remote: "{{ backups_repos_remote_machine }}/i-13"
+  - path: "{{ backups_repos_dir }}/laffey-ii"
+    rclone_remote: "{{ backups_repos_remote_machine }}/laffey-ii"
+  - path: "{{ backups_repos_dir }}/mc-overdrive"
+    keep:
+      monthly: 24
+

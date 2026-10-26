@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 [Unit]
 {% if service_description is defined %}
-Description=Timer for {{ timer.name }}
+Description=Timer for {{ service_description }}
 {% endif %}
 
 [Timer]

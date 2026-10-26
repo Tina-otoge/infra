@@ -1,0 +1,262 @@
+quadlets:
+  mc:
+    image: marctv/minecraft-papermc-server
+    tag: "{{ minecraft_version }}"
+    ports:
+      - "{{ ports.minecraft }}:{{ ports.minecraft }}"
+    volumes:
+      - "{{ ansible_facts.user_dir }}/Games/Minecraft/overdrive:/data"
+    env:
+      SKIP_PERM_CHECK: "true"
+      MEMORYSIZE: 3G
+      PUID: 0
+      PGID: 0
+    podman: -it # Required to be able to attach to the console
+  airsonic:
+    image: tamland/airsonic-refix
+    tag: latest
+    ports:
+      - "{{ loopback_ip }}:8001:80"
+    env:
+      SERVER_URL: https://lms.tina.moe
+    volumes: []
+  soku:
+    image: ghcr.io/victoralvesf/aonsoku
+    tag: latest
+    ports:
+      - "{{ loopback_ip }}:8002:8080"
+    env:
+      SERVER_URL: https://lms.tina.moe
+      HIDE_SERVER: "true"
+      HIDE_RADIOS_SECTION: "true"
+      APP_AUTH_TYPE: password
+      APP_USER: guest
+      APP_PASSWORD: guest
+      SERVER_TYPE: lms
+    volumes: []
+  feishin:
+    image: ghcr.io/jeffvli/feishin
+    tag: latest
+    ports:
+      - "{{ loopback_ip }}:{{ ports.feishin }}:{{ ports.feishin }}"
+    env:
+      SERVER_NAME: Nagato LMS
+      SERVER_URL: https://lms.tina.moe
+      SERVER_LOCK: true
+      SERVER_TYPE: subsonic
+      TZ: Europe/Paris
+    volumes: []
+  wallos:
+    image: bellamy/wallos
+    tag: latest
+    ports:
+      - "{{ loopback_ip }}:8003:80"
+    env:
+      TZ: Europe/Paris
+    volumes:
+      - "{{ ansible_facts.user_dir }}/.local/share/wallos/db:/var/www/html/db"
+      - "{{ ansible_facts.user_dir }}/.local/share/wallos/uploads/logos:/var/www/html/images/uploads/logos"
+  wg_easy:
+    image: ghcr.io/wg-easy/wg-easy
+    tag: latest
+    volumes:
+      - "{{ ansible_facts.user_dir }}/.local/share/wg-easy:/etc/wireguard"
+    ports:
+      - "51820:51820/udp"
+      - "{{ loopback_ip }}:51821:51821/tcp"
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+      - SYS_MODULE
+    sysctls:
+      net.ipv4.conf.all.src_valid_mark: 1
+      net.ipv4.ip_forward: 1
+    env:
+      WG_HOST: "{{ ansible_host }}"
+      WG_DEVICE: tap0
+      WG_POST_UP: iptables-nft -t nat -A POSTROUTING -s 10.8.0.0/24 -o tap0 -j MASQUERADE; iptables-nft -A INPUT -p udp -m udp --dport 51820 -j ACCEPT; iptables-nft -A FORWARD -i wg0 -j ACCEPT; iptables-nft -A FORWARD -o wg0 -j ACCEPT
+      WG_POST_DOWN: iptables-nft -t nat -D POSTROUTING -s 10.8.0.0/24 -o tap0 -j MASQUERADE; iptables-nft -D INPUT -p udp -m udp --dport 51820 -j ACCEPT; iptables-nft -D FORWARD -i wg0 -j ACCEPT; iptables-nft -D FORWARD -o wg0 -j ACCEPT
+  photon_smb:
+    image: dockurr/samba
+    tag: latest
+    ports:
+      - "{{ wireguard.laffey_ii }}:{{ ports.photongenic_share }}:445"
+    volumes:
+      - "{{ ansible_facts.user_dir }}/.local/opt/photongenic/files:/storage"
+    env:
+      UID: 0
+      GID: 0
+      USER: root
+      PASS: photon
+      NAME: photon
+  kuma:
+    image: louislam/uptime-kuma
+    tag: latest
+    ports:
+      - "{{ loopback_ip }}:{{ ports.uptime_kuma }}:{{ ports.uptime_kuma }}"
+    volumes:
+      - "{{ ansible_facts.user_dir }}/.local/share/uptime-kuma:/app/data"
+    podman: --no-hosts
+  vaultwarden:
+    image: vaultwarden/server
+    tag: latest
+    ports:
+      - "{{ loopback_ip }}:{{ ports.vaultwarden }}:80"
+    volumes:
+      - "{{ ansible_facts.user_dir }}/.local/share/vaultwarden:/data"
+    env:
+      IP_HEADER: X-Forwarded-For
+      LOG_FILE: /data/vaultwarden.log
+      TZ: "{{ timezone }}"
+  loki:
+    image: grafana/loki
+    tag: "{{ versions.loki}}"
+    ports:
+      - "{{ loopback_ip }}:3100:3100"
+    volumes:
+    - "{{ ansible_facts.user_dir }}/.config/loki:/etc/loki"
+    - "{{ ansible_facts.user_dir }}/.local/share/loki:/tmp/loki:U"
+  alloy:
+    scope: system
+    image: grafana/alloy
+    tag: latest
+    exec: |
+      run
+        --server.http.listen-addr=0.0.0.0:{{ ports.alloy }}
+        --storage.path=/var/lib/alloy/data
+        /etc/alloy/config.alloy
+    ports:
+      - "{{ loopback_ip }}:{{ ports.alloy }}:{{ ports.alloy }}"
+    volumes:
+      - /etc/alloy:/etc/alloy:ro
+      - /var/log/caddy:/var/log/caddy:ro
+  grafana:
+    image: grafana/grafana
+    tag: latest
+    user: root
+    ports:
+      - "{{ loopback_ip }}:{{ ports.grafana }}:3000"
+    env:
+      GF_SERVER_DOMAIN: "{{ monitoring_domain }}"
+      GF_SERVER_ROOT_URL: "https://{{ monitoring_domain }}/grafana"
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+    volumes:
+      - "{{ ansible_facts.user_dir }}/.local/share/grafana:/var/lib/grafana"
+  librechat_mongo:
+    image: docker.io/library/mongo
+    tag: "7"
+    network: librechat.network
+    network_alias: mongodb
+    volumes:
+      - "{{ ansible_facts.user_dir }}/.local/share/librechat/mongo:/data/db"
+  searxng:
+    image: docker.io/searxng/searxng
+    tag: latest
+    network: librechat.network
+    network_alias: searxng
+    user: root
+    ports:
+      - "{{ loopback_ip }}:{{ ports.searxng }}:8080"
+    volumes:
+      - "{{ ansible_facts.user_dir }}/.config/searxng:/etc/searxng"
+    env:
+      SEARXNG_BASE_URL: http://searxng:8080/
+      INSTANCE_NAME: LibreChat SearXNG
+  playwright_mcp:
+    image: mcr.microsoft.com/playwright/mcp
+    tag: latest
+    network: librechat.network
+    network_alias: playwright-mcp
+    podman: --entrypoint node --init
+    exec: |
+      /app/cli.js
+      --headless
+      --browser chromium
+      --no-sandbox
+      --port 8931
+      --host 0.0.0.0
+      --allowed-hosts *
+  searxng_mcp:
+    image: docker.io/isokoliuk/mcp-searxng
+    tag: latest
+    network: librechat.network
+    network_alias: searxng-mcp
+    env:
+      SEARXNG_URL: http://searxng:8080
+      MCP_HTTP_PORT: "3000"
+      MCP_HTTP_HOST: 0.0.0.0
+  litellm_db:
+    image: docker.io/library/postgres
+    tag: "17"
+    network: librechat.network
+    volumes:
+      - "{{ ansible_facts.user_dir }}/.local/share/litellm/db:/var/lib/postgresql/data"
+    env:
+      POSTGRES_USER: litellm
+      POSTGRES_PASSWORD: litellm
+      POSTGRES_DB: litellm
+  litellm:
+    image: ghcr.io/berriai/litellm
+    tag: main-latest
+    depend: litellm-db.service
+    network: librechat.network
+    network_alias: litellm
+    env_file: "{{ ansible_facts.user_dir }}/.local/share/litellm/litellm.env"
+    volumes:
+      - "{{ ansible_facts.user_dir }}/.config/litellm:/app/config"
+    exec: --config /app/config/config.yaml --port 4000
+    ports:
+      - "{{ loopback_ip }}:{{ ports.litellm }}:4000"
+  librechat:
+    image: ghcr.io/danny-avila/librechat
+    tag: latest
+    depend: librechat-mongo.service
+    network: librechat.network
+    user: root
+    env_file: "{{ ansible_facts.user_dir }}/.local/share/librechat/librechat.env"
+    ports:
+      - "{{ loopback_ip }}:{{ ports.librechat }}:3080"
+    volumes:
+      - "{{ ansible_facts.user_dir }}/.config/librechat:/config"
+      - "{{ ansible_facts.user_dir }}/.local/share/librechat/images:/app/client/public/images"
+      - "{{ ansible_facts.user_dir }}/.local/share/librechat/uploads:/app/uploads"
+      - "{{ ansible_facts.user_dir }}/.local/share/librechat/logs:/app/logs"
+      - "{{ ansible_facts.user_dir }}/.local/share/librechat/skill:/app/skill"
+    env:
+      HOST: 0.0.0.0
+      PORT: "3080"
+      MONGO_URI: mongodb://mongodb:27017/LibreChat
+      CONFIG_PATH: /config/librechat.yaml
+      DOMAIN_CLIENT: https://librechat.tina.moe
+      DOMAIN_SERVER: https://librechat.tina.moe
+      TRUST_PROXY: "1"
+      SEARCH: "false"
+      ENDPOINTS: bedrock,agents
+      ALLOW_REGISTRATION: "false"
+      ALLOW_EMAIL_LOGIN: "true"
+  etcd:
+    image: gcr.io/etcd-development/etcd
+    tag: v3.7.1
+    ports:
+      - "{{ loopback_ip }}:{{ ports.etcd_client }}:2379"
+    volumes:
+      - "{{ ansible_facts.user_dir }}/.local/share/etcd:/etcd-data"
+    env:
+      ETCD_DATA_DIR: /etcd-data
+      ETCD_LISTEN_CLIENT_URLS: http://0.0.0.0:2379
+      ETCD_ADVERTISE_CLIENT_URLS: http://127.0.0.1:2379
+  versitygw:
+    image: docker.io/versity/versitygw
+    tag: latest
+    env_file: "{{ ansible_facts.user_dir }}/.config/versitygw/root.env"
+    ports:
+      - "{{ loopback_ip }}:{{ ports.versitygw }}:7070"
+    volumes:
+      - "{{ ansible_facts.user_dir }}/.local/share/versitygw/data:/data"
+      - "{{ ansible_facts.user_dir }}/.local/share/versitygw/iam:/iam"
+    env:
+      VGW_IAM_DIR: /iam
+      VGW_REGION: "{{ versitygw_s3_region | default(ansible_facts.hostname) }}"
+    exec: posix /data
+
+

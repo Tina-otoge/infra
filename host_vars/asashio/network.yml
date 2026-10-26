@@ -1,0 +1,32 @@
+dns_servers:
+  - 192.168.1.254 # Freebox server
+  - 8.8.8.8 # Google DNS 1
+  - 8.8.4.4 # Google DNS 2
+
+dns_local_suffixes:
+  - lan
+  - local
+
+local_ip: 192.168.1.80
+
+nfs_exports:
+  - path: /mnt/sakura/public
+    clients:
+      - hosts: 192.168.1.139
+        options: rw,sync,no_subtree_check,all_squash,anonuid=1002,anongid=1002
+
+hosts_map:
+  192.168.1.1: nagato.lan
+  192.168.1.3: ninox.lan
+  192.168.1.37: printer.lan
+  192.168.1.65: pop.lan tv.lan
+  192.168.1.76: john.lan
+  192.168.1.136: beef.lan
+  192.168.1.137: rootage.lan
+  192.168.1.139: kokona.lan
+  192.168.1.140: copula.lan
+  "{{ local_ip }}": asashio.lan
+  192.168.1.254: freebox.lan
+  127.0.0.2: sddt.amlog.sys-all.net
+
+

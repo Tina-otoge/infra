@@ -1,0 +1,49 @@
+minecraft_version: 26.1.2
+
+# https://essentialsx.net/downloads.html
+minecraft_essentials_version: 2.22.0-dev+104-87bde72
+
+minecraft_servers:
+  overdrive:
+    motd: Survie libre avec Essentials et WorldGuard
+    ops:
+      "Tina-otoge": cb4b7120-fc7b-49cd-8204-b8574b454dc0
+    path: "{{ ansible_facts.user_dir }}/Games/Minecraft/overdrive"
+    plugins:
+      # built and uploaded manually from https://github.com/Tina-otoge/CoreProtect
+      # CoreProtect:
+      #   # https://www.patreon.com/cw/coreprotect/posts
+      #   url: https://www.patreon.com/file?h=145853143&m=580728422
+      #   version: 23.1
+      EssentialsX:
+        url: https://ci.ender.zone/job/EssentialsX/lastSuccessfulBuild/artifact/jars/EssentialsX-{version}.jar
+        version: "{{ minecraft_essentials_version }}"
+      EssentialsX Chat:
+        url: https://ci.ender.zone/job/EssentialsX/lastSuccessfulBuild/artifact/jars/EssentialsXChat-{version}.jar
+        version: "{{ minecraft_essentials_version }}"
+      EssentialsX Discord:
+        url: https://ci.ender.zone/job/EssentialsX/lastSuccessfulBuild/artifact/jars/EssentialsXDiscord-{version}.jar
+        version: "{{ minecraft_essentials_version }}"
+      EssesentialsX Spawn:
+        url: https://ci.ender.zone/job/EssentialsX/lastSuccessfulBuild/artifact/jars/EssentialsXSpawn-{version}.jar
+        version: "{{ minecraft_essentials_version }}"
+      PermissionsBukkit:
+        url: https://mediafilez.forgecdn.net/files/911/279/PermissionsBukkit-{version}.jar
+        version: 2.5
+      ServerSigns:
+        url: https://github.com/serversigns/ServerSigns/releases/download/v{version}/ServerSigns-{version}.jar
+        version: 4.9.1
+      # https://modrinth.com/plugin/worldedit/versions
+      WorldEdit:
+        # https://cdn.modrinth.com/data/1u6JkXh5/versions/k9KdTr1M/worldedit-bukkit-7.4.3-beta-01.jar
+        url: https://cdn.modrinth.com/data/1u6JkXh5/versions/k9KdTr1M/worldedit-bukkit-{version}.jar
+        version: 7.4.3-beta-01
+      # https://github.com/MrMicky-FR/WorldEditSelectionVisualizer/releases
+      WorldEditSelectionVisualizer:
+        url: https://github.com/MrMicky-FR/WorldEditSelectionVisualizer/releases/download/v{version}/WorldEditSelectionVisualizer-{version}.jar
+        version: 2.1.9
+      # https://www.curseforge.com/minecraft/bukkit-plugins/worldguard/files/all
+      WorldGuard:
+        # https://mediafilez.forgecdn.net/files/7803/732/worldguard-bukkit-7.0.16.jar
+        url: https://mediafilez.forgecdn.net/files/7803/732/worldguard-bukkit-{version}.jar
+        version: 7.0.16

@@ -1,0 +1,83 @@
+backups_job_machine_paths_extra:
+  - "{{ repositories_dir }}/mechadon/app.db"
+  - "{{ repositories_dir }}/mechadon/config.json"
+  - "{{ repositories_dir }}/helloasso-discord-role/config.yml"
+  - "{{ repositories_dir }}/helloasso-discord-role/save.json"
+  - "{{ repositories_dir }}/shlag-webui/config.yml"
+  - "{{ repositories_dir }}/lapadmin/config.yml"
+  - "{{ repositories_dir }}/lapadmin/var/"
+  - "{{ repositories_dir }}/lapadmin/keys/"
+  - "{{ repositories_dir }}/photongenic/clients.yml"
+  - "{{ repositories_dir }}/photongenic/config.toml"
+  - "{{ repositories_dir }}/photongenic/custom/"
+  - "{{ repositories_dir }}/monkey/db.json"
+  - "{{ repositories_dir }}/msnweb-demo/config.yml"
+  - "{{ repositories_dir }}/msnweb-demo/var/"
+  - "{{ repositories_dir }}/msnweb/config.yml"
+  - "{{ repositories_dir }}/msnweb/var/"
+  - "{{ repositories_dir }}/fairyjoke/run_laffey.sh"
+  - "{{ repositories_dir }}/fairyjoke/run_laffey_db.sh"
+  - "{{ repositories_dir }}/artcompanion/config.json"
+  - "{{ repositories_dir }}/artcompanion/data.json"
+  - "{{ repositories_dir }}/couscous/.env"
+  - "{{ repositories_dir }}/couscous/gitea/"
+  - "{{ repositories_dir }}/couscous-orders/.env"
+  - "{{ repositories_dir }}/couscous-orders/users.json"
+  - "{{ repositories_dir }}/twitter-notes@tina/.env"
+  - "{{ repositories_dir }}/twitter-notes@tina/var/"
+  - "{{ repositories_dir }}/goty/data/"
+  - "{{ repositories_dir }}/goty/var/"
+  - "{{ repositories_dir }}/infra@lap/terraform/freebox/.env"
+
+  - "{{ ansible_facts.user_dir }}/.local/share/wallos/"
+  - "{{ ansible_facts.user_dir }}/.local/share/wg-easy/"
+  - "{{ ansible_facts.user_dir }}/.local/share/uptime-kuma/"
+  - "{{ ansible_facts.user_dir }}/.local/share/vaultwarden/"
+  - "{{ ansible_facts.user_dir }}/.local/share/grafana/"
+  - "{{ ansible_facts.user_dir }}/.local/share/librechat/"
+  - "{{ ansible_facts.user_dir }}/.local/share/litellm/litellm.env"
+  - "{{ ansible_facts.user_dir }}/.config/litellm/"
+  - "{{ ansible_facts.user_dir }}/.config/etcd/users.passwd"
+  - "{{ ansible_facts.user_dir }}/.config/librechat/"
+  - "{{ ansible_facts.user_dir }}/.config/searxng/"
+  - "{{ ansible_facts.user_dir }}/.config/loki/"
+  - "{{ ansible_facts.user_dir }}/.config/versitygw/"
+  - "{{ ansible_facts.user_dir }}/.local/share/versitygw/"
+
+  - /home/lap/.ssh/
+  - /home/lap/.history
+  - /home/lap/.local/share/vaultwarden/
+
+  - /etc/motd_laffey_ii_lines.txt
+
+backups_job_machine_dumps:
+  litellm.sql: podman exec systemd-litellm-db pg_dumpall --clean --if-exists --username=litellm
+  librechat.mongo.archive: podman exec systemd-librechat-mongo mongodump --archive --quiet
+  etcd.snapshot.db: >-
+    ETCDCTL_USER="root:$(grep '^root:' {{ ansible_facts.user_dir }}/.config/etcd/users.passwd | cut -d: -f2-)"
+    podman exec -e ETCDCTL_USER systemd-etcd etcdctl snapshot save /etcd-data/backup-snapshot.db >&2
+    && cat {{ ansible_facts.user_dir }}/.local/share/etcd/backup-snapshot.db
+    && rm {{ ansible_facts.user_dir }}/.local/share/etcd/backup-snapshot.db
+
+backups_exclude_extra:
+  - "{{ ansible_facts.user_dir }}/.local/share/grafana/plugins*"
+  - "{{ ansible_facts.user_dir }}/.local/share/librechat/mongo*"
+
+backups_jobs_extra:
+  mc-overdrive:
+    paths:
+      - "{{ ansible_facts.user_dir }}/Games/Minecraft/overdrive/"
+    repository: "{{ backups_repository_base }}/mc-overdrive"
+    archive: "{{ backups_archive }}"
+    calendar: monthly
+    prepare_script: |
+      curl -X POST -H 'Content-type: application/json' -d '{"content": "co purge t:30d"}' $MC_WEBHOOK_URL
+      curl -X POST -H 'Content-type: application/json' -d '{"content": "say Backup procedure started. Server will restart in 10 minutes."}' $MC_WEBHOOK_URL
+      logmsg "Waiting 10 minutes to ensure CoreProtect finishes purging data and to let time for players to disconnect..." >/dev/null
+      sleep 10m
+      logmsg "Done waiting. Stopping Minecraft service."
+      systemctl -M tina@ --user stop mc
+    cleanup_script: |
+      systemctl -M tina@ --user start mc
+
+

@@ -1,0 +1,5 @@
+skip_list:
+  - name[missing]
+  - name[play]
+  - name[template]
+  - fqcn[action-core]

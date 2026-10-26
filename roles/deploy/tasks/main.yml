@@ -1,15 +1,17 @@
 - assert:
-    that: item is defined
+    that: item in vars
   loop:
     - deploy_version
     - deploy_git
     - deploy_app
 
 - debug:
-    msg: "Deploying {{ deploy_app }} version {{ deploy_version }} from {{ deploy_git }}"
+    msg: >-
+      Deploying {{ deploy_app }} version {{ deploy_version }}
+      from {{ deploy_git }}
 
 - set_fact:
-    _deploy_service: "{{ deploy_service or deploy_app }}"
+    _deploy_service: "{{ deploy_service | default(deploy_app, true) }}"
 
 - debug:
     msg: "Service is set to {{ _deploy_service }}"
@@ -22,10 +24,8 @@
 
 - name: Fail if application directory does not exist
   fail:
-    msg: "Application directory does not exist"
-  when:
-    - not _deploy_dir_stat.stat.exists
-    - not _deploy_dir_stat.stat.isdir
+    msg: Application path must be an existing directory
+  when: not (_deploy_dir_stat.stat.isdir | default(false))
 
 - name: Fetch version {{ deploy_version }} of application
   git:

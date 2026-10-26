@@ -1,0 +1,38 @@
+# TODO:
+# - Download https://github.com/intel/intel-linux-firmware to /lib/firmware/i915
+#   as root
+# - Download RTL8821C Bluetooth firmware to /lib/firmware/rtl_bt/ as root:
+#   rtl8821c_fw.bin + rtl8821c_config.bin from linux-firmware.git
+#   then sudo modprobe -r btusb && sudo modprobe btusb
+
+server_roles_extra:
+  - dnsmasq
+
+packages:
+  - acl
+  - cifs-utils
+  - cockpit-file-sharing
+  - cockpit-identities
+  - dnsmasq
+  - duperemove
+  - samba
+  - samba-client
+  - samba-common
+  - syncthing
+  - wsdd
+  - xfsprogs
+  # Python
+  - bzip2-devel
+  - libffi-devel
+  - openssl-devel
+  - readline-devel
+
+packages_base_excludes:
+  # missing packages in EPEL 10.0
+  - cockpit-navigator
+  - httpie
+  - zsh-syntax-highlighting
+
+links:
+  /usr/bin/python3: /usr/local/bin/python
+

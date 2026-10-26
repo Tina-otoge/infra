@@ -1,0 +1,29 @@
+repositories:
+  - src: https://github.com/Tina-otoge/AniBoard
+    name: aniboard
+  - src: https://github.com/Tina-otoge/photongenic
+
+user_services:
+  aniboard:
+    workdir: "{{ repositories_dir }}/aniboard"
+    cmd: |
+      {{ python_setup }}
+      gunicorn -w 4 --timeout 120 app:app -b {{ loopback_ip }}:{{ ports.aniboard }}
+  teapot_photon:
+    workdir: "{{ repositories_dir }}/photongenic"
+    cmd: |
+      {{ python_setup }}
+      (python archive.py &)
+      flask --app webui.app:app run -h {{ loopback_ip }} -p {{ ports.photongenic }} --debug
+  overdrive_backups_frontend:
+    name: Minecraft Borg backups downloader (Overdrive)
+    workdir: "{{ ansible_facts.user_dir }}/.local/opt/mc-borg-backups-server"
+    env:
+      BORG_REPOSITORY_PATH: "{{ backups_repos_dir }}/mc-overdrive"
+      MC_SERVER_NAME: Overdrive
+    cmd: |
+      {{ python_setup }}
+      pip install gunicorn
+      gunicorn -w 1 -k gthread --threads 8 --timeout 600 'app:create_app()' -b {{ loopback_ip }}:{{ ports.overdrive_backups_frontend }}
+
+
