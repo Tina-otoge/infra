@@ -54,10 +54,10 @@ msg="$(printf '%s\n' "$msg" | awk '
             exit
         }
         printf "%s", diagnostics
-        printf "Repository: %s\nName: %s\nDuration: %s\nNumber of files: %s\n", repository, name, duration, files
+        printf "Backup for **%s** (%s)\n\nDuration: %s\nNumber of files: %s\n", repository, name, duration, files
         printf "Size: %s / %s\n", size, total_size
         printf "Compressed size: %s / %s\n", compressed, total_compressed
-        printf "Deduplicated size: %s / %s\n", deduplicated, total_deduplicated
+        printf "Deduplicated size: %s / %s\n---\n", deduplicated, total_deduplicated
     }
 ')"
 
