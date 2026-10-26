@@ -2,6 +2,32 @@
   become: true
 
   tasks:
+    - name: Configure weekly disk housekeeping
+      tags: housekeeping
+      block:
+        - name: Install disk housekeeping reporting dependencies
+          package:
+            name:
+              - curl
+              - jq
+            state: present
+
+        - name: Schedule weekly disk housekeeping
+          include_role:
+            name: common
+            tasks_from: create_service
+            apply:
+              tags: housekeeping
+          vars:
+            service_name: disk-housekeeping
+            service_scope: system
+            service_user: root
+            service_schedule: weekly
+            service_random_delay: 1h
+            service_state: started
+            service_type: oneshot
+            service_script: "{{ lookup('template', 'templates/disk_housekeeping.bash.j2') }}"
+
     - include_role:
         name: common
         tasks_from: delete_service
@@ -79,3 +105,23 @@
     - name: systemd reload
       systemd:
         daemon_reload: true
+
+- hosts: asashio
+  become: true
+  tags:
+    - dedupe
+    - defrag
+  tasks:
+    - name: Schedule weekly Sakura deduplication
+      include_role:
+        name: common
+        tasks_from: create_service
+      vars:
+        service_name: sakura-defrag
+        service_scope: system
+        service_user: root
+        service_schedule: Mon *-*-* 06:00:00 Europe/Paris
+        service_state: started
+        service_type: oneshot
+        service_dependency: mnt-sakura.mount
+        service_script: "{{ lookup('file', 'files/sakura-maintenance.sh') }}"

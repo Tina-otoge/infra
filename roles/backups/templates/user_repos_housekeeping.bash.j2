@@ -25,6 +25,7 @@ logmsg() {
 }
 
 export BORG_RELOCATED_REPO_ACCESS_IS_OK=yes
+sync_status=0
 
 {% for repo in backups_repos %}
 
@@ -80,19 +81,27 @@ fi
 
 {% if repo.get('rclone_remote') %}
 rclone_sync=$(
+  borg with-lock --lock-wait 600 "{{ repo.path }}" \
   rclone sync -v \
+  --exclude '/lock.exclusive/**' --exclude '/lock.roster' \
   {% if repo.get('dry_run', False) %}--dry-run{% endif %} \
   "{{ repo.path }}/" \
   "{{ repo.rclone_remote }}" 2>&1
 )
+transfer_status=$?
+if (( transfer_status != 0 )); then
+  sync_status=$transfer_status
+fi
 nothing_transferred="INFO  : There was nothing to transfer"
-if ! echo "$rclone_sync" | grep -q "$nothing_transferred"; then
+if (( transfer_status != 0 )) || ! echo "$rclone_sync" | grep -q "$nothing_transferred"; then
   echo "$rclone_sync"
   rclone_sync=$(
     echo "$rclone_sync" \
     | grep -v -E " (NOTICE:|INFO  :) "
   )
-  send_webhook "rclone ({{ repo.rclone_remote }}):\n"'```'"$rclone_sync"'\n```' >/dev/null
+  send_webhook "rclone ({{ repo.rclone_remote }}, status=$transfer_status):\n"'```'"$rclone_sync"'\n```' >/dev/null
 fi
 {% endif %}
 {% endfor %}
+
+exit "$sync_status"

@@ -16,6 +16,51 @@ if [ -z "$WEBHOOK_URL" ]; then
     return
 fi
 
+msg="$(printf '%s\n' "$msg" | awk '
+    { original = original $0 "\n" }
+    $1 == "Repository:" {
+        count = split(substr($0, 13), parts, "/")
+        while (count > 1 && parts[count] == "") count--
+        repository = parts[count]
+        next
+    }
+    $1 == "Archive" && $2 == "name:" { name = substr($0, 15); next }
+    $1 == "Duration:" { duration = substr($0, 11); next }
+    $1 == "Number" && $2 == "of" && $3 == "files:" { files = substr($0, 18); next }
+    $1 == "This" && $2 == "archive:" {
+        size = $3 " " $4
+        compressed = $5 " " $6
+        deduplicated = $7 " " $8
+        next
+    }
+    $1 == "All" && $2 == "archives:" {
+        total_size = $3 " " $4
+        total_compressed = $5 " " $6
+        total_deduplicated = $7 " " $8
+        next
+    }
+    index($0, "----------") == 1 { next }
+    $1 == "Archive" && $2 == "fingerprint:" { next }
+    $1 == "Time" && ($2 == "(start):" || $2 == "(end):") { next }
+    index($0, "Utilization of max. archive size:") == 1 { next }
+    $1 == "Chunk" && $2 == "index:" { next }
+    $1 == "Original" && $2 == "size" { next }
+    $1 == "Unique" && $2 == "chunks" { next }
+    NF == 0 { next }
+    { diagnostics = diagnostics $0 "\n" }
+    END {
+        if (repository == "" || name == "" || duration == "" || files == "" || size == "" || total_size == "") {
+            printf "%s", original
+            exit
+        }
+        printf "%s", diagnostics
+        printf "Repository: %s\nName: %s\nDuration: %s\nNumber of files: %s\n", repository, name, duration, files
+        printf "Size: %s / %s\n", size, total_size
+        printf "Compressed size: %s / %s\n", compressed, total_compressed
+        printf "Deduplicated size: %s / %s\n", deduplicated, total_deduplicated
+    }
+')"
+
 curl -X POST -H 'Content-type: application/json' -d "$(jq -n --arg m "$msg" '{content: $m}')" $WEBHOOK_URL
 }
 
@@ -38,10 +83,33 @@ export BORG_RSH="ssh -i $ssh_key -o StrictHostKeyChecking=no"
 
 echo Backup job \"{{ job.key }}\" started
 
+{% if job.value.cleanup_script is defined %}
+cleanup_backup() {
+    local status=$?
+    trap - EXIT
+    (
+        set -e
+{{ job.value.cleanup_script }}
+    ) 2>&1
+    local cleanup_status=$?
+    if (( status == 0 )); then
+        status=$cleanup_status
+    fi
+    exit "$status"
+}
+trap cleanup_backup EXIT
+{% endif %}
+
 {% if job.value.prepare_script is defined %}
 (
+set -e
 {{ job.value.prepare_script }}
 )
+prepare_status=$?
+if (( prepare_status != 0 )); then
+    logmsg "Backup preparation failed with status $prepare_status."
+    exit "$prepare_status"
+fi
 {% endif %}
 
 # Build find -not -path args from borg excludes file
@@ -53,9 +121,8 @@ done < <(grep -vE '^[#;]|^$' "{{ backups_borg_config_dir }}/{{ job.key }}.exclud
 # no pipefail here is important, we want to capture find's output even
 # on exit 1s
 find $(cat "{{ backups_borg_config_dir }}/{{ job.key }}.paths.txt") "${_excl_args[@]}" 2>/dev/null | borg create --stats --paths-from-stdin ::{{ job.value.archive }} 2>&1 | logmsg
-
-{% if job.value.cleanup_script is defined %}
-(
-{{ job.value.cleanup_script }}
-) 2>&1
-{% endif %}
+backup_status=("${PIPESTATUS[@]}")
+if (( backup_status[1] != 0 )); then
+    exit "${backup_status[1]}"
+fi
+exit "${backup_status[2]}"

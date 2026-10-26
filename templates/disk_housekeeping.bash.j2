@@ -1,0 +1,98 @@
+if [[ -f {{ backups_secrets_file | default('/etc/backups-webhook.env') | quote }} ]]; then
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    line="${line#"${line%%[![:space:]]*}"}"
+    if [[ "$line" == export[[:space:]]* ]]; then
+      line="${line#export}"
+      line="${line#"${line%%[![:space:]]*}"}"
+    fi
+    if [[ "$line" == WEBHOOK_URL=* ]]; then
+      webhook_value="${line#WEBHOOK_URL=}"
+      webhook_value="${webhook_value%"${webhook_value##*[![:space:]]}"}"
+      case "$webhook_value" in
+        \"*\"|\'*\') webhook_value="${webhook_value:1:-1}" ;;
+      esac
+      WEBHOOK_URL="$webhook_value"
+    fi
+  done < {{ backups_secrets_file | default('/etc/backups-webhook.env') | quote }}
+fi
+
+status=0
+report="Disk housekeeping on $(hostname)"
+report+=$'\nBefore:\n'"$(df -h /)"
+
+run_cleanup() {
+  local label="$1"
+  local output result
+  shift
+  printf '\n%s\n' "$label"
+  output=$("$@" 2>&1)
+  result=$?
+  printf '%s\n' "$output"
+  if [[ "$result" -eq 0 ]]; then
+    report+=$'\n'"OK: $label"
+  else
+    status=1
+    report+=$'\n'"FAILED ($result): $label"
+    {% raw %}
+    if [[ ${#output} -gt 1000 ]]; then
+      output="${output: -1000}"
+    fi
+    {% endraw %}
+    report+=$'\n'"$output"
+  fi
+}
+
+if command -v apt-get >/dev/null 2>&1; then
+  run_cleanup 'APT cache' apt-get clean
+fi
+if command -v dnf >/dev/null 2>&1; then
+  run_cleanup 'DNF cache' dnf clean all
+elif command -v yum >/dev/null 2>&1; then
+  run_cleanup 'YUM cache' yum clean all
+fi
+
+if command -v podman >/dev/null 2>&1; then
+  run_cleanup 'Root Podman dangling images' podman image prune --force
+  if command -v runuser >/dev/null 2>&1; then
+    while IFS=: read -r username password user_id group_id user_info home shell; do
+      if [[ "$user_id" != 0 && -d "$home/.local/share/containers/storage" ]]; then
+        run_cleanup "Podman dangling images for $username" \
+          runuser -u "$username" -- env HOME="$home" \
+          XDG_RUNTIME_DIR="/run/user/$user_id" podman image prune --force </dev/null
+      fi
+    done < <(getent passwd)
+  fi
+fi
+
+if command -v docker >/dev/null 2>&1; then
+  run_cleanup 'Docker dangling images' docker image prune --force
+fi
+if command -v journalctl >/dev/null 2>&1; then
+  run_cleanup 'Journals (150 MB retained)' journalctl --rotate --vacuum-size=150M
+fi
+
+report+=$'\nAfter:\n'"$(df -h /)"
+report+=$'\n'"Exit status: $status"
+printf '\n%s\n' "$report"
+
+if [[ -n "${WEBHOOK_URL:-}" ]]; then
+  {% raw %}
+  while [[ ${#report} -gt 0 ]]; do
+    part="${report:0:1900}"
+    if ! payload=$(jq -n --arg content "$part" '{content: $content}'); then
+      status=1
+      break
+    fi
+    if ! curl --fail --silent --show-error --connect-timeout 10 --max-time 30 \
+      -X POST -H 'Content-type: application/json' -d "$payload" "$WEBHOOK_URL"; then
+      status=1
+      break
+    fi
+    report="${report:1900}"
+  done
+  {% endraw %}
+else
+  printf 'WEBHOOK_URL is not configured; report written to the journal only.\n'
+fi
+
+exit "$status"

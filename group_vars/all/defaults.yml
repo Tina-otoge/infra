@@ -91,6 +91,9 @@ hostname: null
 timezone: Europe/Paris
 
 
+fail2ban_vaultwarden_users: []
+
+
 http_domain: "{{ ansible_host }}"
 
 

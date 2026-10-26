@@ -49,11 +49,13 @@ packages:
   - cockpit-file-sharing
   - cockpit-identities
   - dnsmasq
+  - duperemove
   - samba
   - samba-client
   - samba-common
   - syncthing
   - wsdd
+  - xfsprogs
   # Python
   - bzip2-devel
   - libffi-devel
@@ -270,6 +272,16 @@ quadlets:
       - "{{ loopback_ip }}:8989:8989"
     env: "{{ linuxserver_env }}"
     network: six.network
+  # lidarr:
+  #   image: lscr.io/linuxserver/lidarr
+  #   tag: latest
+  #   volumes:
+  #     - "{{ ansible_facts.user_dir }}/.config/lidarr:/config"
+  #     - "/mnt/sakura:/mnt/sakura"
+  #   ports:
+  #     - "{{ loopback_ip }}:8686:8686"
+  #   env: "{{ linuxserver_env }}"
+  #   network: six.network
   qbit:
     image: lscr.io/linuxserver/qbittorrent
     tag: latest
