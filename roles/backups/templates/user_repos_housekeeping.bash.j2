@@ -31,6 +31,13 @@ sync_status=0
 
 {% set keep = repo.get('keep', backup_repos_keep_defaults) %}
 
+check_output=$(borg check "{{ repo.path }}" 2>&1)
+check_status=$?
+if (( check_status != 0 )); then
+  sync_status=$check_status
+  logmsg "borg check failed (status=$check_status) for {{ repo.path }}, offsite sync skipped:\n"'```'"\n$(tail -c 1500 <<< "$check_output")\n"'```'
+fi
+
 prune_dry=$(
   borg prune --list \
   --dry-run \
@@ -80,6 +87,7 @@ if [ -n "$deleted_archives" ]; then
 fi
 
 {% if repo.get('rclone_remote') %}
+if (( check_status == 0 )); then
 rclone_sync=$(
   borg with-lock --lock-wait 600 "{{ repo.path }}" \
   rclone sync -v \
@@ -100,6 +108,7 @@ if (( transfer_status != 0 )) || ! echo "$rclone_sync" | grep -q "$nothing_trans
     | grep -v -E " (NOTICE:|INFO  :) "
   )
   send_webhook "rclone ({{ repo.rclone_remote }}, status=$transfer_status):\n"'```'"$rclone_sync"'\n```' >/dev/null
+fi
 fi
 {% endif %}
 {% endfor %}

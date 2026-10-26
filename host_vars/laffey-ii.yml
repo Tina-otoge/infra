@@ -11,6 +11,7 @@ backups_job_machine_paths_extra:
   - "{{ repositories_dir }}/helloasso-discord-role/config.yml"
   - "{{ repositories_dir }}/helloasso-discord-role/save.json"
   - "{{ repositories_dir }}/shlag-webui/config.yml"
+  - "{{ repositories_dir }}/lapadmin/config.yml"
   - "{{ repositories_dir }}/lapadmin/var/"
   - "{{ repositories_dir }}/lapadmin/keys/"
   - "{{ repositories_dir }}/photongenic/clients.yml"
@@ -28,8 +29,12 @@ backups_job_machine_paths_extra:
   - "{{ repositories_dir }}/couscous/.env"
   - "{{ repositories_dir }}/couscous/gitea/"
   - "{{ repositories_dir }}/couscous-orders/.env"
-  - "{{ repositories_dir }}/couscous-orders/aliases.yml"
   - "{{ repositories_dir }}/couscous-orders/users.json"
+  - "{{ repositories_dir }}/twitter-notes@tina/.env"
+  - "{{ repositories_dir }}/twitter-notes@tina/var/"
+  - "{{ repositories_dir }}/goty/data/"
+  - "{{ repositories_dir }}/goty/var/"
+  - "{{ repositories_dir }}/infra@lap/terraform/freebox/.env"
 
   - "{{ ansible_facts.user_dir }}/.local/share/wallos/"
   - "{{ ansible_facts.user_dir }}/.local/share/wg-easy/"
@@ -37,17 +42,33 @@ backups_job_machine_paths_extra:
   - "{{ ansible_facts.user_dir }}/.local/share/vaultwarden/"
   - "{{ ansible_facts.user_dir }}/.local/share/grafana/"
   - "{{ ansible_facts.user_dir }}/.local/share/librechat/"
-  - "{{ ansible_facts.user_dir }}/.local/share/etcd/"
-  - "{{ ansible_facts.user_dir }}/.local/share/litellm/db/"
-  - "{{ ansible_facts.user_dir }}/.config/etcd/users.env"
+  - "{{ ansible_facts.user_dir }}/.local/share/litellm/litellm.env"
+  - "{{ ansible_facts.user_dir }}/.config/litellm/"
+  - "{{ ansible_facts.user_dir }}/.config/etcd/users.passwd"
   - "{{ ansible_facts.user_dir }}/.config/librechat/"
   - "{{ ansible_facts.user_dir }}/.config/searxng/"
+  - "{{ ansible_facts.user_dir }}/.config/loki/"
+  - "{{ ansible_facts.user_dir }}/.config/versitygw/"
+  - "{{ ansible_facts.user_dir }}/.local/share/versitygw/"
 
   - /home/lap/.ssh/
   - /home/lap/.history
   - /home/lap/.local/share/vaultwarden/
 
   - /etc/motd_laffey_ii_lines.txt
+
+backups_job_machine_dumps:
+  litellm.sql: podman exec systemd-litellm-db pg_dumpall --clean --if-exists --username=litellm
+  librechat.mongo.archive: podman exec systemd-librechat-mongo mongodump --archive --quiet
+  etcd.snapshot.db: >-
+    ETCDCTL_USER="root:$(grep '^root:' {{ ansible_facts.user_dir }}/.config/etcd/users.passwd | cut -d: -f2-)"
+    podman exec -e ETCDCTL_USER systemd-etcd etcdctl snapshot save /etcd-data/backup-snapshot.db >&2
+    && cat {{ ansible_facts.user_dir }}/.local/share/etcd/backup-snapshot.db
+    && rm {{ ansible_facts.user_dir }}/.local/share/etcd/backup-snapshot.db
+
+backups_exclude_extra:
+  - "{{ ansible_facts.user_dir }}/.local/share/grafana/plugins*"
+  - "{{ ansible_facts.user_dir }}/.local/share/librechat/mongo*"
 
 backups_jobs_extra:
   mc-overdrive:

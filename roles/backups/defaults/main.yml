@@ -10,8 +10,13 @@ backups_jobs: {}
 #    echo "Preparing backup..."
 #  cleanup_script: |
 #    echo "Cleaning up after backup..."
+#  dumps:
+#    db.sql: podman exec my-db pg_dumpall -U postgres
 
-backup_repos_housekeeping_schedule: daily
+backups_dumps_dir: /var/tmp/backups-dumps
+backups_timeout: 1h
+
+backup_repos_housekeeping_schedule: "*-*-* 04:00:00"
 
 backup_repos_keep_defaults:
   weekly: 8

@@ -31,6 +31,10 @@ ExecStop=/bin/bash -c "{{ service_stop.strip().replace('\n', ' && \\\n').replace
 WorkingDirectory={{ service_workdir }}
 {% endif %}
 
+{% if service_runtime_max is defined %}
+RuntimeMaxSec={{ service_runtime_max }}
+{% endif %}
+
 {% if (service_type | default('') | lower ) != 'oneshot' and (service_schedule | default('')) == '' %}
 Restart=always
 RestartSec=5s
