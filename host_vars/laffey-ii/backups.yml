@@ -28,6 +28,7 @@ backups_job_machine_paths_extra:
   - "{{ repositories_dir }}/goty/data/"
   - "{{ repositories_dir }}/goty/var/"
   - "{{ repositories_dir }}/infra@lap/terraform/freebox/.env"
+  - "{{ repositories_dir }}/raphael/.env"
 
   - "{{ ansible_facts.user_dir }}/.local/share/wallos/"
   - "{{ ansible_facts.user_dir }}/.local/share/wg-easy/"
@@ -43,6 +44,7 @@ backups_job_machine_paths_extra:
   - "{{ ansible_facts.user_dir }}/.config/loki/"
   - "{{ ansible_facts.user_dir }}/.config/versitygw/"
   - "{{ ansible_facts.user_dir }}/.local/share/versitygw/"
+  - "{{ ansible_facts.user_dir }}/.local/share/raphael/"
 
   - /home/lap/.ssh/
   - /home/lap/.history
