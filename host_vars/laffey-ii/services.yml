@@ -36,9 +36,25 @@ repositories:
     version: main
   - src: https://github.com/Tina-otoge/twitter-notes
     name: twitter-notes@tina
+  - src: git@github.com:Tina-otoge/raphael.git
 
+
+# Raphael needs Python 3.15+; point this at its interpreter if not on PATH.
+raphael_python: python3.15
 
 user_services:
+  raphael:
+    workdir: "{{ repositories_dir }}/raphael"
+    env:
+      RAPHAEL_VAR_DIR: "{{ ansible_facts.user_dir }}/.local/share/raphael"
+      RAPHAEL_WEB_HOST: "{{ loopback_ip }}"
+      RAPHAEL_WEB_PORT: "{{ ports.raphael }}"
+      RAPHAEL_WEB_PUBLIC_URL: https://raphael.tina.moe
+    cmd: |
+      [ -d .venv ] || {{ raphael_python }} -m venv .venv
+      source .venv/bin/activate
+      pip install -e .
+      exec raphael serve
   mechadon:
     workdir: "{{ repositories_dir }}/mechadon"
     cmd: |
