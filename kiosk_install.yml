@@ -14,7 +14,7 @@
 
   vars:
     kiosk_url: "http://asashio.lan:8123/kitchen-dashboard/0"
-    kiosk_zoom_level: 0.9
+    kiosk_zoom_level: 0.8
     screen_timeout_seconds: 15
     screen_off_hour_min: 0
     screen_off_hour_max: 5
@@ -51,6 +51,11 @@
           - htop
           - mesa-dri-gallium
           - sudo
+
+          # touchscreen keyboard
+          - squeekboard
+          - dconf
+          - gsettings-desktop-schemas
         state: present
       tags: pkg
 
@@ -264,6 +269,49 @@
         job: /home/kiosk/.local/bin/sway-set-screen-state on
       tags: sway
 
+    - name: Install Firefox zoom script
+      copy:
+        src: files/set-firefox-zoom.py
+        dest: /home/kiosk/.local/bin/set-firefox-zoom
+        owner: root
+        group: root
+        mode: u=rwx,g=rx,o=rx
+      tags: sway
+
+    - name: Enable kiosk browser chrome stylesheet
+      blockinfile:
+        path: /home/kiosk/.mozilla/firefox/kiosk/user.js
+        create: true
+        owner: kiosk
+        group: kiosk
+        mode: u=rw,g=r,o=r
+        marker: // {mark} ANSIBLE KIOSK CHROME
+        block: |
+          user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
+      tags: sway
+
+    - name: Create kiosk browser chrome directory
+      file:
+        path: /home/kiosk/.mozilla/firefox/kiosk/chrome
+        state: directory
+        owner: kiosk
+        group: kiosk
+        mode: u=rwx,g=rx,o=rx
+      tags: sway
+
+    - name: Hide kiosk browser controls
+      copy:
+        dest: /home/kiosk/.mozilla/firefox/kiosk/chrome/userChrome.css
+        owner: root
+        group: root
+        mode: u=rw,g=r,o=r
+        content: |
+          #navigator-toolbox,
+          #titlebar {
+              visibility: collapse !important;
+          }
+      tags: sway
+
     - name: Create browser kiosk wrapper script
       copy:
         dest: /home/kiosk/.local/bin/browser-kiosk
@@ -273,15 +321,23 @@
         content: |
           #!/bin/sh
 
+          export MOZ_ENABLE_WAYLAND=1
+          export GTK_IM_MODULE=wayland
           PIDFILE=/home/kiosk/.local/run/firefox-esr.pid
 
-          while true; do
-              MOZ_USE_XINPUT2=1 firefox-esr --profile /home/kiosk/.mozilla/firefox/kiosk --kiosk "{{ kiosk_url }}" &
+          while [ -S "$SWAYSOCK" ]; do
+              /home/kiosk/.local/bin/set-firefox-zoom \
+                  --db /home/kiosk/.mozilla/firefox/kiosk/content-prefs.sqlite \
+                  --url "{{ kiosk_url }}" \
+                  --zoom {{ kiosk_zoom_level }} || exit 1
+              firefox-esr --profile /home/kiosk/.mozilla/firefox/kiosk \
+                  --kiosk "{{ kiosk_url }}" &
               echo $! > "$PIDFILE"
               wait $!
               rm -f "$PIDFILE"
               sleep 1
           done
+          echo "Sway IPC socket closed; stopping browser wrapper" >&2
       tags: sway
 
     - name: Create restart browser script
@@ -301,16 +357,14 @@
           fi
       tags: sway
 
-    - name: Set Firefox zoom level for kiosk URL
-      script:
-        cmd: >-
-          files/set-firefox-zoom.py
-          --db /home/kiosk/.mozilla/firefox/kiosk/content-prefs.sqlite
-          --url "{{ kiosk_url }}"
-          --zoom {{ kiosk_zoom_level }}
-      register: zoom_result
-      changed_when: "'changed' in zoom_result.stdout"
-      tags: firefox
+    - name: Install kiosk window monitor
+      copy:
+        src: files/sway-kiosk-window.py
+        dest: /home/kiosk/.local/bin/sway-kiosk-window
+        owner: root
+        group: root
+        mode: u=rwx,g=rx,o=rx
+      tags: sway
 
     - name: Create sway config
       copy:
@@ -322,6 +376,10 @@
           output * bg #ffffff solid_color
           seat * xcursor_theme default 0
           assign [app_id="^firefox"] workspace 1
+          for_window [app_id="^firefox"] border none
+          exec /home/kiosk/.local/bin/sway-kiosk-window
+          exec gsettings set org.gnome.desktop.a11y.applications \
+              screen-keyboard-enabled true && squeekboard
           exec browser-kiosk
           exec swayidle -w \
               timeout {{ screen_timeout_seconds }} sway-turn-off-screen-time-aware \
