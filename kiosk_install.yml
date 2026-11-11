@@ -52,6 +52,19 @@
           - mesa-dri-gallium
           - sudo
 
+          # sr2ma (build)
+          - build-base
+          - pcsc-lite-dev
+          - pkgconf
+          - python3-dev
+          - swig
+          # sr2ma (run)
+          - ccid
+          - pcsc-lite
+          - pcsc-lite-openrc
+          - py3-pip
+          - py3-virtualenv
+
           # touchscreen keyboard
           - squeekboard
           - dconf
@@ -381,8 +394,43 @@
           exec gsettings set org.gnome.desktop.a11y.applications \
               screen-keyboard-enabled true && squeekboard
           exec browser-kiosk
+          #sr2ma
+          exec /home/kiosk/.local/bin/sr2ma
           exec swayidle -w \
               timeout {{ screen_timeout_seconds }} sway-turn-off-screen-time-aware \
               timeout {{ sway_restart_timeout_seconds }} restart-browser \
               resume 'sway-set-screen-state on'
       tags: sway
+
+    - name: Enable and start PC/SC service
+      service:
+        name: pcscd
+        enabled: true
+        state: started
+      tags: sr2ma
+
+    - name: Create sr2ma virtualenv directory
+      file:
+        path: /home/kiosk/sr2ma/.venv
+        state: directory
+        owner: kiosk
+        group: kiosk
+        mode: u=rwx,g=rx,o=rx
+      tags: sr2ma
+
+    - name: Install sr2ma launcher
+      copy:
+        dest: /home/kiosk/.local/bin/sr2ma
+        owner: root
+        group: root
+        mode: u=rwx,g=rx,o=rx
+        content: |
+          #!/bin/sh
+          set -eu
+          cd /home/kiosk/sr2ma
+          if [ ! -x .venv/bin/sr2ma ]; then
+              virtualenv --python /usr/bin/python3 .venv
+              .venv/bin/pip install .
+          fi
+          exec .venv/bin/sr2ma
+      tags: sr2ma
