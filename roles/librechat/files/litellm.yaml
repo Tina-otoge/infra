@@ -12,13 +12,9 @@ model_list:
       model: bedrock/moonshotai.kimi-k2.5
       aws_region_name: eu-west-2
 
-  - model_name: Cheap (DeepSeek V4 Flash)
-    litellm_params:
-      model: deepseek/deepseek-v4-flash
-      api_key: os.environ/DEEPSEEK_API_KEY
-  # Stable, vendor-style alias for the flash tier: consumers can target
-  # `deepseek-flash` instead of the display-style "Cheap (...)" label.
   - model_name: deepseek-flash
+    model_info:
+      display_name: Cheap (DeepSeek Flash)
     litellm_params:
       model: deepseek/deepseek-v4-flash
       api_key: os.environ/DEEPSEEK_API_KEY
