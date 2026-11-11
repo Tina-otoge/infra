@@ -135,6 +135,7 @@ backups_job_machine_paths_base:
   - "{{ ansible_facts.user_dir }}/.history"
 
   - "{{ ansible_facts.user_dir }}/.config/containers/containers.conf"
+  - "{{ ansible_facts.user_dir }}/.config/containers/containers.conf.d/"
   - "{{ ansible_facts.user_dir }}/.config/containers/hosts"
   - "{{ ansible_facts.user_dir }}/.config/gh/"
   - "{{ ansible_facts.user_dir }}/.config/pipus.txt"

@@ -2,3 +2,17 @@ quadlet_scope: "{{ 'system' if ansible_facts.user_id == 'root' else 'user' }}"
 
 containers_registries:
   - docker.io
+
+containers_config: |
+  [containers]
+  host_containers_internal_ip = "169.254.1.2"
+
+  [network]
+  pasta_options = [
+    "--address", "10.0.2.100",
+    "--netmask", "24",
+    "--gateway", "10.0.2.2",
+    "--address", "fd00:706f:646d:616e::100",
+    "--map-guest-addr", "none",
+    "--map-host-loopback", "169.254.1.2",
+  ]

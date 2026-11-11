@@ -29,6 +29,7 @@
           else []
         )
       }}
+  tags: containers-config
 
 - set_fact:
     _quadlet_dir: >-
@@ -37,6 +38,28 @@
         if _quadlet_scope == 'system'
         else ansible_facts.user_dir + '/.config/containers/systemd'
       }}
+  tags: containers-config
+
+- name: Ensure containers configuration directory exists
+  file:
+    path: "{{ ansible_facts.user_dir }}/.config/containers/containers.conf.d"
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+  when:
+    - _quadlet_scope == 'user'
+    - containers_config is defined
+  tags: containers-config
+
+- name: Configure rootless containers
+  copy:
+    dest: "{{ ansible_facts.user_dir
+      }}/.config/containers/containers.conf.d/90-infra.conf"
+    content: "{{ containers_config }}"
+    mode: u=rw,g=r,o=r
+  when:
+    - _quadlet_scope == 'user'
+    - containers_config is defined
+  tags: containers-config
 
 - name: Ensure quadlet directory exists
   include_role:
