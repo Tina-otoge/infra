@@ -46,6 +46,7 @@ jobs:
         run: |
           pip install -U pip
           pip install -r requirements.txt
+          ansible-galaxy collection install -r requirements.yml
       - name: Save SSH key
         run: |
           mkdir -p ~/.ssh
