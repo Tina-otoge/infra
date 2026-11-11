@@ -16,6 +16,12 @@ model_list:
     litellm_params:
       model: deepseek/deepseek-v4-flash
       api_key: os.environ/DEEPSEEK_API_KEY
+  # Stable, vendor-style alias for the flash tier: consumers can target
+  # `deepseek-flash` instead of the display-style "Cheap (...)" label.
+  - model_name: deepseek-flash
+    litellm_params:
+      model: deepseek/deepseek-v4-flash
+      api_key: os.environ/DEEPSEEK_API_KEY
   - model_name: Smart (GLM 5.2)
     litellm_params:
       model: zai/glm-5.2
