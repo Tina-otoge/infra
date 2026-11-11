@@ -63,6 +63,14 @@ quadlets:
       # Music/Soundtracks/Steam is a symlink to ../../Games/SteamLibrary/...
       - /mnt/sakura/public/Works/Games/SteamLibrary/steamapps/music:/Games/SteamLibrary/steamapps/music:ro
     exec: /config/lms.conf
+  music_assistant:
+    image: ghcr.io/music-assistant/server
+    tag: latest
+    volumes:
+      - "{{ ansible_facts.user_dir }}/.config/music-assistant:/data"
+      - /mnt/sakura/public/Works/Music:/media:ro
+    # Host network required for player discovery (mDNS/uPnP) and streaming
+    network: host
   jellyfin:
     image: jellyfin/jellyfin
     tag: "{{ versions.jellyfin }}"

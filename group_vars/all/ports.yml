@@ -7,7 +7,9 @@ ports_by_value:
   3100: loki
   4533: navidrome
   7878: radarr
+  8095: music_assistant
   8096: jellyfin
+  8097: music_assistant_stream
   8787: readarr
   8989: sonarr
   9080: promtail

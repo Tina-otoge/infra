@@ -92,6 +92,11 @@ caddy_entries:
       - to: 5082
     extra: |
       import cors
+  - domain: music.tina.moe
+    file: six
+    robots: false
+    reverses:
+      - to: "{{ ports.music_assistant }}"
   - domain: fin.tina.moe
     file: six
     robots: false

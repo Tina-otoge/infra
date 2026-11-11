@@ -19,6 +19,7 @@ backups_job_machine_paths_extra:
   - "{{ ansible_facts.user_dir }}/.config/prowlarr/"
   - "{{ ansible_facts.user_dir }}/.config/lms/"
   - "{{ ansible_facts.user_dir }}/.local/share/lms/"
+  - "{{ ansible_facts.user_dir }}/.config/music-assistant/"
   - "{{ ansible_facts.user_dir }}/.config/jellyfin/config/"
   - "{{ ansible_facts.user_dir }}/.config/jellyfin/data/jellyfin.db"
   - "{{ ansible_facts.user_dir }}/.config/jellyfin/data/jellyfin.db-wal"
@@ -52,6 +53,7 @@ backups_exclude_extra:
   - "{{ ansible_facts.user_dir }}/.config/embyserver/cache*"
   - "{{ ansible_facts.user_dir }}/.config/embyserver/metadata*"
   - "{{ ansible_facts.user_dir }}/.config/embyserver/logs*"
+  - "{{ ansible_facts.user_dir }}/.config/music-assistant/.cache*"
 
 backups_repos:
   - path: "{{ backups_repos_dir }}/asashio"
