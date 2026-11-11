@@ -36,7 +36,8 @@ backups_job_machine_paths_extra:
   - "{{ ansible_facts.user_dir }}/.local/share/romm/assets/"
 
 backups_job_machine_dumps:
-  immich.sql: podman exec systemd-immich-db pg_dumpall --clean --if-exists --username=immich
+  immich.sql: podman exec systemd-immich-db pg_dumpall --clean --if-exists
+    --username=immich
   romm.sql: >-
     podman exec systemd-romm-db sh -c
     'exec mariadb-dump --all-databases --single-transaction -uroot -p"$MARIADB_ROOT_PASSWORD"'
@@ -64,4 +65,3 @@ backups_repos:
   - path: "{{ backups_repos_dir }}/mc-overdrive"
     keep:
       monthly: 24
-

@@ -28,5 +28,3 @@ hosts_map:
   "{{ local_ip }}": asashio.lan
   192.168.1.254: freebox.lan
   127.0.0.2: sddt.amlog.sys-all.net
-
-

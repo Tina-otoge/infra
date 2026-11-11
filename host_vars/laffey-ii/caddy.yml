@@ -281,5 +281,3 @@ caddy_entries:
     file: reaxt
     extra: |
       reverse_proxy 127.0.0.1:25578
-
-

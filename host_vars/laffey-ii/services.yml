@@ -182,5 +182,3 @@ user_services:
       alembic upgrade head
       pip install gunicorn
       gunicorn 'app:create_app()' -b {{ loopback_ip }}:{{ ports.twitter_notes }}
-
-

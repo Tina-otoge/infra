@@ -25,5 +25,3 @@ user_services:
       {{ python_setup }}
       pip install gunicorn
       gunicorn -w 1 -k gthread --threads 8 --timeout 600 'app:create_app()' -b {{ loopback_ip }}:{{ ports.overdrive_backups_frontend }}
-
-

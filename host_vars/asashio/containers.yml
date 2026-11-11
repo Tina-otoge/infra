@@ -172,12 +172,14 @@ quadlets:
     network: romm.network
     network_alias: romm
     volumes:
-      - "{{ ansible_facts.user_dir }}/.local/share/romm/resources:/romm/resources"
+      - "{{ ansible_facts.user_dir
+          }}/.local/share/romm/resources:/romm/resources"
       - "{{ ansible_facts.user_dir }}/.local/share/romm/redis-data:/redis-data"
       - "{{ ansible_facts.user_dir }}/.local/share/romm/library:/romm/library"
       - "{{ ansible_facts.user_dir }}/.local/share/romm/assets:/romm/assets"
       - /mnt/sakura/public/Works/Games/Console:/mnt/sakura/public/Works/Games/Console:ro
-      - "{{ ansible_facts.user_dir }}/Games/Console:{{ ansible_facts.user_dir }}/Games/Console:ro"
+      - "{{ ansible_facts.user_dir }}/Games/Console:{{ ansible_facts.user_dir
+          }}/Games/Console:ro"
       - "{{ ansible_facts.user_dir }}/.config/romm:/romm/config"
     ports:
       - "{{ loopback_ip }}:{{ ports.romm }}:8080"
@@ -194,7 +196,8 @@ quadlets:
     network: immich.network
     network_alias: immich-db
     volumes:
-      - "{{ ansible_facts.user_dir }}/.local/share/immich/postgres:/var/lib/postgresql/data"
+      - "{{ ansible_facts.user_dir
+          }}/.local/share/immich/postgres:/var/lib/postgresql/data"
     shm_size: 128m
     env:
       POSTGRES_PASSWORD: immich
@@ -224,7 +227,8 @@ quadlets:
   immich:
     image: ghcr.io/immich-app/immich-server
     tag: v3
-    depend: immich-db.service immich-redis.service immich-machine-learning.service
+    depend: immich-db.service immich-redis.service
+      immich-machine-learning.service
     network: immich.network
     network_alias: immich-server
     volumes:

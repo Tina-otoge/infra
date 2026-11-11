@@ -55,7 +55,8 @@ quadlets:
       TZ: Europe/Paris
     volumes:
       - "{{ ansible_facts.user_dir }}/.local/share/wallos/db:/var/www/html/db"
-      - "{{ ansible_facts.user_dir }}/.local/share/wallos/uploads/logos:/var/www/html/images/uploads/logos"
+      - "{{ ansible_facts.user_dir
+          }}/.local/share/wallos/uploads/logos:/var/www/html/images/uploads/logos"
   wg_easy:
     image: ghcr.io/wg-easy/wg-easy
     tag: latest
@@ -74,8 +75,14 @@ quadlets:
     env:
       WG_HOST: "{{ ansible_host }}"
       WG_DEVICE: tap0
-      WG_POST_UP: iptables-nft -t nat -A POSTROUTING -s 10.8.0.0/24 -o tap0 -j MASQUERADE; iptables-nft -A INPUT -p udp -m udp --dport 51820 -j ACCEPT; iptables-nft -A FORWARD -i wg0 -j ACCEPT; iptables-nft -A FORWARD -o wg0 -j ACCEPT
-      WG_POST_DOWN: iptables-nft -t nat -D POSTROUTING -s 10.8.0.0/24 -o tap0 -j MASQUERADE; iptables-nft -D INPUT -p udp -m udp --dport 51820 -j ACCEPT; iptables-nft -D FORWARD -i wg0 -j ACCEPT; iptables-nft -D FORWARD -o wg0 -j ACCEPT
+      WG_POST_UP: iptables-nft -t nat -A POSTROUTING -s 10.8.0.0/24 -o tap0 -j
+        MASQUERADE; iptables-nft -A INPUT -p udp -m udp --dport 51820 -j ACCEPT;
+        iptables-nft -A FORWARD -i wg0 -j ACCEPT; iptables-nft -A FORWARD -o wg0
+        -j ACCEPT
+      WG_POST_DOWN: iptables-nft -t nat -D POSTROUTING -s 10.8.0.0/24 -o tap0 -j
+        MASQUERADE; iptables-nft -D INPUT -p udp -m udp --dport 51820 -j ACCEPT;
+        iptables-nft -D FORWARD -i wg0 -j ACCEPT; iptables-nft -D FORWARD -o wg0
+        -j ACCEPT
   photon_smb:
     image: dockurr/samba
     tag: latest
@@ -190,7 +197,8 @@ quadlets:
     tag: "17"
     network: librechat.network
     volumes:
-      - "{{ ansible_facts.user_dir }}/.local/share/litellm/db:/var/lib/postgresql/data"
+      - "{{ ansible_facts.user_dir
+          }}/.local/share/litellm/db:/var/lib/postgresql/data"
     env:
       POSTGRES_USER: litellm
       POSTGRES_PASSWORD: litellm
@@ -213,13 +221,16 @@ quadlets:
     depend: librechat-mongo.service
     network: librechat.network
     user: root
-    env_file: "{{ ansible_facts.user_dir }}/.local/share/librechat/librechat.env"
+    env_file: "{{ ansible_facts.user_dir
+      }}/.local/share/librechat/librechat.env"
     ports:
       - "{{ loopback_ip }}:{{ ports.librechat }}:3080"
     volumes:
       - "{{ ansible_facts.user_dir }}/.config/librechat:/config"
-      - "{{ ansible_facts.user_dir }}/.local/share/librechat/images:/app/client/public/images"
-      - "{{ ansible_facts.user_dir }}/.local/share/librechat/uploads:/app/uploads"
+      - "{{ ansible_facts.user_dir
+          }}/.local/share/librechat/images:/app/client/public/images"
+      - "{{ ansible_facts.user_dir
+          }}/.local/share/librechat/uploads:/app/uploads"
       - "{{ ansible_facts.user_dir }}/.local/share/librechat/logs:/app/logs"
       - "{{ ansible_facts.user_dir }}/.local/share/librechat/skill:/app/skill"
     env:
@@ -258,5 +269,3 @@ quadlets:
       VGW_IAM_DIR: /iam
       VGW_REGION: "{{ versitygw_s3_region | default(ansible_facts.hostname) }}"
     exec: posix /data
-
-
