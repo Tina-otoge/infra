@@ -77,6 +77,9 @@
   file:
     path: "{{ _quadlet_dir }}/{{ item.value.network }}"
     state: touch
+    mode: u=rw,g=r,o=r
+    access_time: preserve
+    modification_time: preserve
   loop: "{{ _quadlet_items }}"
   loop_control:
     label: "{{ item.key }}"

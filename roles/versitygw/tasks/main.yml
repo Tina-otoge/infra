@@ -110,6 +110,7 @@
               'delete-user', '--access', versitygw_extra_user
             ]
           }}
+      changed_when: true
       loop: >-
         {{ _versitygw_existing_users | difference(_versitygw_desired_users) }}
       loop_control:

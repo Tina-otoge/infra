@@ -29,6 +29,7 @@
               '--secret', _versitygw_secret, '--role', 'user'
             ]
           }}
+      changed_when: true
       when: not _versitygw_user_exists
 
     - name: Create the versitygw bucket
@@ -40,4 +41,5 @@
               '--owner', _versitygw_access
             ]
           }}
+      changed_when: true
       when: not _versitygw_bucket_exists

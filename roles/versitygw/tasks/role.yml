@@ -24,4 +24,5 @@
               '--secret', _versitygw_secret, '--role', 'user'
             ]
           }}
+      changed_when: true
       when: not _versitygw_user_exists

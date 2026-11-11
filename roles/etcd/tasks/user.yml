@@ -15,6 +15,7 @@
     - name: Create the etcd role
       command:
         argv: "{{ _etcd_auth_cmd + ['role', 'add', _etcd_username] }}"
+      changed_when: true
       when: _etcd_role_get.rc != 0
 
     - name: Grant the role read/write access to its prefix
@@ -45,6 +46,7 @@
               '--interactive=false'
             ]
           }}
+      changed_when: true
       when: _etcd_user_get.rc != 0
 
     - name: Grant the role to the etcd user
@@ -55,6 +57,7 @@
               'user', 'grant-role', _etcd_username, _etcd_username
             ]
           }}
+      changed_when: true
       when: _etcd_user_get.rc != 0
 
     - name: Keep the etcd user's password in sync with the secrets file

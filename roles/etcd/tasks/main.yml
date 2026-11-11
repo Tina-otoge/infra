@@ -58,6 +58,7 @@
       changed_when: false
 
     - name: Create the etcd root user
+      changed_when: true
       command:
         argv: >-
           {{
@@ -72,6 +73,7 @@
     - name: Enable etcd authentication
       command:
         argv: "{{ _etcd_cmd + ['auth', 'enable'] }}"
+      changed_when: true
       when: "'Authentication Status: false' in _etcd_auth_status.stdout"
 
     - name: Build the root-authenticated etcdctl command prefix

@@ -153,12 +153,14 @@
 - name: Check if firewalld is installed (Debian)
   when: ansible_os_family == 'Debian'
   command: dpkg -s firewalld
+  changed_when: false
   ignore_errors: true
   register: _firewalld_check_debian
 
 - name: Check if firewalld is installed (RedHat)
   when: ansible_os_family == 'RedHat'
   command: rpm -q firewalld
+  changed_when: false
   ignore_errors: true
   register: _firewalld_check_redhat
 
