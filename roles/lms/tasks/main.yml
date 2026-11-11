@@ -1,0 +1,14 @@
+- name: Verify the LMS music filesystem is mounted
+  command:
+    argv:
+      - findmnt
+      - --mountpoint
+      - "{{ lms_music_mount }}"
+  changed_when: false
+  check_mode: false
+
+- name: Configure LMS ignore rules
+  copy:
+    content: "{{ lms_ignore_rules }}"
+    dest: "{{ lms_ignore_file }}"
+    mode: u=rw,g=r,o=r

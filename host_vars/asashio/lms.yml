@@ -1,0 +1,45 @@
+lms_music_mount: /mnt/sakura
+lms_ignore_file: /mnt/sakura/public/Works/Music/.lmsignore
+# yamllint disable rule:line-length
+lms_ignore_rules: |
+  # DJMAX RESPECT V
+  ../Games/SteamLibrary/steamapps/music/DJMAX RESPECT V - TRILOGY Original Soundtrack/Disc*/*.mp3
+
+  # Dungeons 4
+  ../Games/SteamLibrary/steamapps/music/Dungeons 4 - Original Soundtrack/*.mp3
+
+  # Frostpunk
+  ../Games/SteamLibrary/steamapps/music/Frostpunk*/*/*.mp3
+  ../Games/SteamLibrary/steamapps/music/Frostpunk*/*/WAV/*.wav
+
+  # Half-Life
+  ../Games/SteamLibrary/steamapps/music/Half-Life Soundtrack/*.mp3
+
+  # Mirage Feathers
+  ../Games/SteamLibrary/steamapps/music/Mirage Feathers Original Soundtrack/MP3/*.mp3
+
+  # Moonlighter
+  ../Games/SteamLibrary/steamapps/music/Moonlighter*/*/Soundtrack/*.mp3
+  ../Games/SteamLibrary/steamapps/music/Moonlighter*/*/Ring[Tt]ones/
+  ../Games/SteamLibrary/steamapps/music/Moonlighter (Original Soundtrack)/*/Soundtrack/WAV/*.wav
+  # 24-bit WAV vs 16-bit FLAC
+  ../Games/SteamLibrary/steamapps/music/Moonlighter (Between Dimensions Soundtrack)/*/Soundtrack/FLAC/*.flac
+
+  # Shadow Tactics Blades of the Shogun
+  ../Games/SteamLibrary/steamapps/music/Shadow Tactics Blades of the Shogun - Official Soundtrack/mp3/*.mp3
+
+  # Stellaris: keep both Nemesis formats because all three durations differ.
+  ../Games/SteamLibrary/steamapps/music/Stellaris Original Game Soundtrack/Disc*/*.mp3
+
+  # This War of Mine
+  ../Games/SteamLibrary/steamapps/music/This War of Mine Soundtrack/TWOM OST MP3/*.mp3
+  ../Games/SteamLibrary/steamapps/music/This War of Mine Soundtrack/TWOM OST FLAC/*.flac
+
+  # Thumper
+  ../Games/SteamLibrary/steamapps/music/Thumper Original Soundtrack/*.mp3
+
+  # TOKOYO
+  ../Games/SteamLibrary/steamapps/music/Tokoyo no Tou/*.mp3
+
+  # vim ft=ignore
+# yamllint enable rule:line-length
