@@ -12,7 +12,9 @@
       vars:
         ssh_keys:
           tina:
-            - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHyFcH2RQ675pprbndcLOhJU0d0mca7T7JTikIGGnLg1 tina@kokona
+            - ssh-ed25519
+                AAAAC3NzaC1lZDI1NTE5AAAAIHyFcH2RQ675pprbndcLOhJU0d0mca7T7JTikIGGnLg1
+                tina@kokona
 
   roles:
     - role: containers

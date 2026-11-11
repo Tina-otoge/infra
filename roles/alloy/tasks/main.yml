@@ -13,7 +13,8 @@
 
 - name: Set crawler UA regex fact
   ansible.builtin.set_fact:
-    crawler_ua_regex: "{{ crawler_ua_response.content | from_json | map(attribute='pattern') | join('|') }}"
+    crawler_ua_regex: "{{ crawler_ua_response.content | from_json |
+      map(attribute='pattern') | join('|') }}"
 
 - name: Deploy bot detection template
   ansible.builtin.template:

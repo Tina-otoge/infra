@@ -23,7 +23,8 @@
   loop: "{{ _user_mounts | dict2items }}"
   template:
     src: user-mounts/systemd.mount.j2
-    dest: "{{ ansible_facts.user_dir }}/.config/systemd/user/{{ item.key }}.mount"
+    dest: "{{ ansible_facts.user_dir }}/.config/systemd/user/{{ item.key
+      }}.mount"
     mode: u=rw,g=rw,o=r
   vars:
     mount: "{{ item.value }}"
@@ -34,7 +35,8 @@
     loop_var: entry
   template:
     src: systemd.service.j2
-    dest: "{{ ansible_facts.user_dir }}/.config/systemd/user/{{ item.key }}.service"
+    dest: "{{ ansible_facts.user_dir }}/.config/systemd/user/{{ item.key
+      }}.service"
     mode: u=rw,g=rw,o=r
   vars:
     item:
@@ -42,7 +44,8 @@
       value:
         name: "{{ entry.value.description }} job script"
         after: network-online.target
-        cmd: "{{ ansible_facts.user_dir }}/.local/bin/user-mount {{ entry.key }} {{ entry.value.test }}"
+        cmd: "{{ ansible_facts.user_dir }}/.local/bin/user-mount {{ entry.key }}
+          {{ entry.value.test }}"
   notify: systemd user reload
 
 - meta: flush_handlers

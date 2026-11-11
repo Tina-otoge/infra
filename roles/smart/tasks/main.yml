@@ -1,4 +1,5 @@
-- package: name=smartmontools
+- package:
+    name: smartmontools
 
 - name: Create service files smart check job
   include_role:

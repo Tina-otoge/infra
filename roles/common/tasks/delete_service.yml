@@ -26,7 +26,8 @@
   become: true
 
 - set_fact:
-    _service_path: "{{ service_path | default('/usr/local/lib/systemd/system/' + service_name + '.service') }}"
+    _service_path: "{{ service_path | default('/usr/local/lib/systemd/system/' +
+      service_name + '.service') }}"
 
 - name: Remove service files for {{ service_name }}
   file:

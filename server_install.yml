@@ -26,7 +26,8 @@
             service_random_delay: 1h
             service_state: started
             service_type: oneshot
-            service_script: "{{ lookup('template', 'templates/disk_housekeeping.bash.j2') }}"
+            service_script: >-
+              {{ lookup('template', 'templates/disk_housekeeping.bash.j2') }}
 
     - include_role:
         name: common

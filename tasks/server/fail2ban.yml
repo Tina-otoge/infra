@@ -92,7 +92,8 @@
     path: /etc/fail2ban/filter.d/caddy-sus-http.conf
     section: Definition
     option: failregex
-    value: '"remote_ip":"<HOST>".*"uri":"[^"]*(?:{{ _caddy_sus_uri_patterns }}).*"status":(?:4\d\d|5\d\d),'
+    value: '"remote_ip":"<HOST>".*"uri":"[^"]*(?:{{ _caddy_sus_uri_patterns
+      }}).*"status":(?:4\d\d|5\d\d),'
   notify: fail2ban restart
 
 - name: Configure Vaultwarden jails (common options)
@@ -136,7 +137,8 @@
     path: /etc/fail2ban/filter.d/vaultwarden.conf
     section: Definition
     option: failregex
-    value: '^.*?Username or password is incorrect\. Try again\. IP: <ADDR>\. Username:.*$'
+    value: '^.*?Username or password is incorrect\. Try again\. IP: <ADDR>\.
+      Username:.*$'
   notify: fail2ban restart
 
 - name: Check if firewalld is installed (Debian)

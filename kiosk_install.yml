@@ -145,7 +145,8 @@
       lineinfile:
         path: /etc/inittab
         regexp: "^tty1::"
-        line: tty1::respawn:/sbin/getty -n -l /usr/local/sbin/autologin-kiosk 38400 tty1
+        line: tty1::respawn:/sbin/getty -n -l /usr/local/sbin/autologin-kiosk
+          38400 tty1
       tags: login
 
     - name: Set ~kiosk/.profile to autorun sway on tty1

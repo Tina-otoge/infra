@@ -3,7 +3,8 @@
 
 - name: Extract fzf package
   unarchive:
-    src: https://github.com/junegunn/fzf/releases/download/v{{ _fzf_version }}/fzf-{{ _fzf_version }}-linux_{{ ansible_architecture | arch }}.tar.gz
+    src: https://github.com/junegunn/fzf/releases/download/v{{ _fzf_version
+      }}/fzf-{{ _fzf_version }}-linux_{{ ansible_architecture | arch }}.tar.gz
     dest: /usr/local/bin
     creates: /usr/local/bin/fzf
     mode: o=rwx,g=rx,u=rx

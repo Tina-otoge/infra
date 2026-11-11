@@ -49,4 +49,5 @@ ports_by_value:
   12345: alloy
   25565: minecraft
 
-ports: "{{ ports_by_value | dict2items | items2dict(key_name='value', value_name='key') }}"
+ports: "{{ ports_by_value | dict2items | items2dict(key_name='value',
+  value_name='key') }}"

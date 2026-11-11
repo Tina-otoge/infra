@@ -21,7 +21,7 @@
       value: share
     - section: homes
       option: available
-      value: no
+      value: false
 
 - name: Set Windows Discovery workgroup to address
   copy:

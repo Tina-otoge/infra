@@ -2,7 +2,8 @@
     _service_filename: >-
       {{ service_name | replace(' ', '-') | lower }}
     _service_scope: "{{ service_scope | default('system') }}"
-    _service_ansible_user: "{{ ansible_env.SUDO_USER | default(ansible_facts.user_id) }}"
+    _service_ansible_user: >-
+      {{ ansible_env.SUDO_USER | default(ansible_facts.user_id) }}
 
 - when: _service_scope == 'system'
   block:
@@ -23,7 +24,8 @@
       loop_control:
         loop_var: _systemd_dir
     - set_fact:
-        _service_script_path: "/usr/local/bin/systemd_{{ _service_filename }}.sh"
+        _service_script_path: >-
+          /usr/local/bin/systemd_{{ _service_filename }}.sh
 
 - when: _service_scope == 'user'
   block:
@@ -47,10 +49,14 @@
       loop_control:
         loop_var: _systemd_dir
     - set_fact:
-        _service_script_path: "/home/{{ _service_owner }}/.local/bin/systemd_{{ _service_filename }}.sh"
+        _service_script_path: >-
+          /home/{{ _service_owner
+          }}/.local/bin/systemd_{{ _service_filename }}.sh
 
 - set_fact:
-    _service_become: "{{ _service_scope == 'system' or _service_owner != _service_ansible_user }}"
+    _service_become: >-
+      {{ _service_scope == 'system'
+         or _service_owner != _service_ansible_user }}
 
 - name: Create service script file
   become: "{{ _service_scope == 'system' }}"
@@ -84,8 +90,15 @@
   become_user: "{{ _service_owner }}"
   # become_method: machinectl
   systemd_service:
-    daemon_reload: "{{ _service_file.changed or _timer_file.changed or (service_state is defined) }}"
-    name: "{{ _service_filename }}{% if service_schedule is defined %}.timer{% endif %}"
-    state: "{{ service_state | default((_service_file.changed or _timer_file.changed) | ternary('restarted', 'started')) }}"
+    daemon_reload: >-
+      {{ _service_file.changed or _timer_file.changed
+         or (service_state is defined) }}
+    name: >-
+      {{ _service_filename
+      }}{% if service_schedule is defined %}.timer{% endif %}
+    state: >-
+      {{ service_state | default(
+        (_service_file.changed or _timer_file.changed)
+        | ternary('restarted', 'started')) }}
     enabled: "{{ service_enabled | default(true) }}"
     scope: "{{ _service_scope }}"

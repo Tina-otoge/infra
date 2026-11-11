@@ -6,7 +6,8 @@
         [ansible_distribution_major_version]
         | default([])
       }}
-    _packages: "{{ (packages_base + packages) | difference(packages_base_excludes) }}"
+    _packages: "{{ (packages_base + packages) |
+      difference(packages_base_excludes) }}"
 
 - when:
     - ansible_os_family == "RedHat"
@@ -31,7 +32,9 @@
       changed_when: false
 
     - name: Enable RPM Fusion Free
-      command: dnf install --nogpgcheck https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-{{ ansible_distribution_major_version }}.noarch.rpm -y
+      command: dnf install --nogpgcheck
+        https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-{{
+        ansible_distribution_major_version }}.noarch.rpm -y
       when:
         - ansible_distribution != 'Amazon'
         - not _rpmfusionfree_check.stdout.endswith("enabled")
@@ -43,7 +46,9 @@
       changed_when: false
 
     - name: Enable RPM Fusion Nonfree
-      command: dnf install --nogpgcheck https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-{{ ansible_distribution_major_version }}.noarch.rpm -y
+      command: dnf install --nogpgcheck
+        https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-{{
+        ansible_distribution_major_version }}.noarch.rpm -y
       when:
         - ansible_distribution != 'Amazon'
         - not _rpmfusionnonfree_check.stdout.endswith("enabled")
