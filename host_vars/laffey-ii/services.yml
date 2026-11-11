@@ -43,15 +43,24 @@ user_services:
   raphael:
     workdir: "{{ repositories_dir }}/raphael"
     env:
-      RAPHAEL_VAR_DIR: "{{ ansible_facts.user_dir }}/.local/share/raphael"
-      RAPHAEL_WEB_HOST: "{{ loopback_ip }}"
+      RAPHAEL_VAR_DIR: /var/lib/raphael
+      RAPHAEL_WEB_HOST: 0.0.0.0
       RAPHAEL_WEB_PORT: "{{ ports.raphael }}"
       RAPHAEL_WEB_PUBLIC_URL: https://raphael.tina.moe
-    cmd: |
-      [ -d .venv ] || python -m venv .venv
-      source .venv/bin/activate
-      pip install -e .
-      exec raphael serve
+    cmd: >-
+      mkdir -p {{ ansible_facts.user_dir }}/.local/share/raphael
+      && podman build --file Containerfile --tag localhost/raphael:latest .
+      && exec podman run --rm --name raphael
+      --log-driver=passthrough
+      --userns=keep-id:uid=10001,gid=10001
+      --publish {{ loopback_ip }}:{{ ports.raphael }}:{{ ports.raphael }}
+      --volume {{ repositories_dir }}/raphael:/workspace:Z
+      --volume {{ ansible_facts.user_dir }}/.local/share/raphael:/var/lib/raphael:Z
+      --env RAPHAEL_VAR_DIR
+      --env RAPHAEL_WEB_HOST
+      --env RAPHAEL_WEB_PORT
+      --env RAPHAEL_WEB_PUBLIC_URL
+      localhost/raphael:latest
   mechadon:
     workdir: "{{ repositories_dir }}/mechadon"
     cmd: |
