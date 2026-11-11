@@ -59,6 +59,7 @@
         dest: /boot/usercfg.txt
         owner: root
         group: root
+        mode: u=rw,g=r,o=r
         content: |
           # Needed to have an actual graphics driver, needed for Sway etc
 

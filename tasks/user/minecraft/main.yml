@@ -1,6 +1,7 @@
 - name: Create ops.json
   copy:
     dest: "{{ server.value.path }}/ops.json"
+    mode: u=rw,g=r,o=r
     content: |
       [
         {% for username, uuid in server.value.ops.items() %}
@@ -16,6 +17,7 @@
 - name: Accept EULA
   copy:
     dest: "{{ server.value.path }}/eula.txt"
+    mode: u=rw,g=r,o=r
     content: |
       eula=true
 
@@ -43,4 +45,5 @@
   get_url:
     url: "{{ item.value.url | replace('{version}', item.value.version) }}"
     dest: "{{ server.value.path }}/plugins/{{ item.key }}.jar"
+    mode: u=rw,g=r,o=r
   loop: "{{ server.value.plugins | dict2items }}"

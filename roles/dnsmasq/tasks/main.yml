@@ -7,6 +7,7 @@
   copy:
     content: address=/use-application-dns.net/
     dest: /etc/dnsmasq.d/disable-firefox-doh.conf
+    mode: u=rw,g=r,o=r
   notify: dnsmasq restart
 
 - name: Disable listening on interface by name

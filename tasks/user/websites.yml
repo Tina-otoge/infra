@@ -2,3 +2,4 @@
   copy:
     src: "./{{ inventory_hostname_short }}/websites/"
     dest: "{{ ansible_facts.user_dir }}/wwws/"
+    mode: u=rwX,g=rX,o=rX

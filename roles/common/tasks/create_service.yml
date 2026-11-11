@@ -73,6 +73,7 @@
   template:
     src: systemd.service.j2
     dest: "{{ _service_directory }}/{{ _service_filename }}.service"
+    mode: u=rw,g=r,o=r
     owner: "{{ _service_owner }}"
     group: "{{ _service_owner }}"
   register: _service_file
@@ -82,6 +83,7 @@
   template:
     src: systemd.timer.j2
     dest: "{{ _service_directory }}/{{ _service_filename }}.timer"
+    mode: u=rw,g=r,o=r
   when: service_schedule is defined
   register: _timer_file
 

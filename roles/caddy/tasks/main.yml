@@ -4,6 +4,7 @@
       file:
         path: /etc/systemd/system/{{ caddy_service }}.service.d
         state: directory
+        mode: u=rwx,g=rx,o=rx
 
 
     - name: Ensure desired user is set to run Caddy
@@ -12,6 +13,7 @@
         option: "{{ item }}"
         section: Service
         value: "{{ caddy_user }}"
+        mode: u=rw,g=r,o=r
       loop:
         - User
         - Group
@@ -36,6 +38,7 @@
          if item.file else '/etc/caddy/Caddyfile' }}
     block: "{{ lookup('template', 'entry.j2') }}"
     marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.domain }}"
+    mode: u=rw,g=r,o=r
   when: item.partial | default(false)
   notify: restart caddy
 

@@ -5,6 +5,7 @@
       {{ include }}
       {% endfor %}
     dest: "{{ backups_borg_config_dir }}/{{ job.key }}.paths.txt"
+    mode: u=rw,g=r,o=r
   when: job.value.paths is defined
 
 - name: "Create backup excludes file for {{ job.key }}"
@@ -15,6 +16,7 @@
       {{ exclude }}
       {% endfor %}
     dest: "{{ backups_borg_config_dir }}/{{ job.key }}.excludes.txt"
+    mode: u=rw,g=r,o=r
 
 
 - name: "Create service files for {{ job.key }} backup"

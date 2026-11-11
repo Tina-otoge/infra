@@ -7,6 +7,7 @@
 - name: Enable registry for samba
   ini_file:
     path: /etc/samba/smb.conf
+    mode: u=rw,g=r,o=r
     section: "{{ item.section | default('global') }}"
     option: "{{ item.option }}"
     value: "{{ item.value }}"
@@ -26,6 +27,7 @@
 - name: Set Windows Discovery workgroup to address
   copy:
     dest: /etc/default/wsdd
+    mode: u=rw,g=r,o=r
     content: |
       WSDD_PARAMS="-n {{ http_domain }}"
   notify: wsdd restart
