@@ -60,6 +60,8 @@ quadlets:
       - "{{ ansible_facts.user_dir }}/.config/lms:/config"
       - "{{ ansible_facts.user_dir }}/.local/share/lms:/var/lms:rw"
       - /mnt/sakura/public/Works/Music:/music:ro
+      # Music/Soundtracks/Steam is a symlink to ../../Games/SteamLibrary/...
+      - /mnt/sakura/public/Works/Games/SteamLibrary/steamapps/music:/Games/SteamLibrary/steamapps/music:ro
     exec: /config/lms.conf
   jellyfin:
     image: jellyfin/jellyfin
