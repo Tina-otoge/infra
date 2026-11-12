@@ -3,6 +3,13 @@
     path: "{{ ansible_facts.user_dir }}/.config/systemd/user"
     state: directory
 
+- name: Install Jellyfin resume cleanup helper
+  copy:
+    src: "{{ playbook_dir }}/files/jellyfin_resume_cleanup.py"
+    dest: "{{ ansible_facts.user_dir }}/.local/bin/jellyfin_resume_cleanup.py"
+    mode: 'u=rwx,g=rx,o='
+  when: jellyfin_resume_cleanup_days is defined
+
 - name: Create user service files
   template:
     src: "systemd.service.j2"
