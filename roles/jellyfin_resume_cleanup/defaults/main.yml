@@ -1,0 +1,8 @@
+# Store jellyfin_api_key in the ignored group_vars/all/secrets.yml file.
+jellyfin_resume_cleanup_days: 30
+# Set true to report candidates without resetting resume positions.
+jellyfin_resume_cleanup_dry_run: false
+jellyfin_resume_cleanup_schedule: daily
+jellyfin_resume_cleanup_base_url: >-
+  http://{{ loopback_ip }}:{{ ports.jellyfin }}
+jellyfin_resume_cleanup_api_key_file: /etc/jellyfin-resume-cleanup/api_key

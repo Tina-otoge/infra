@@ -1,0 +1,53 @@
+- name: Validate Jellyfin resume cleanup settings
+  ansible.builtin.assert:
+    that:
+      - jellyfin_api_key is defined
+      - (jellyfin_api_key | default('') | string | length) > 0
+      - jellyfin_resume_cleanup_days | int > 0
+    fail_msg: >-
+      Set a non-empty jellyfin_api_key in group_vars/all/secrets.yml and use
+      a positive jellyfin_resume_cleanup_days value.
+
+- name: Create Jellyfin resume cleanup directory
+  ansible.builtin.file:
+    path: /etc/jellyfin-resume-cleanup
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,g=rx,o=
+
+- name: Install Jellyfin resume cleanup script
+  ansible.builtin.copy:
+    src: jellyfin_resume_cleanup.py
+    dest: /usr/local/lib/jellyfin-resume-cleanup.py
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+
+- name: Install Jellyfin API key
+  ansible.builtin.copy:
+    content: "{{ jellyfin_api_key }}"
+    dest: "{{ jellyfin_resume_cleanup_api_key_file }}"
+    owner: root
+    group: root
+    mode: u=rw,g=,o=
+  no_log: true
+
+- name: Schedule Jellyfin resume cleanup
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: create_service
+  vars:
+    service_name: jellyfin-resume-cleanup
+    service_scope: system
+    service_user: root
+    service_schedule: "{{ jellyfin_resume_cleanup_schedule }}"
+    service_state: started
+    service_type: oneshot
+    service_description: Clear stale Jellyfin resume positions
+    service_script: >-
+      exec /usr/bin/python3 /usr/local/lib/jellyfin-resume-cleanup.py
+      --base-url {{ jellyfin_resume_cleanup_base_url | quote }}
+      --days {{ jellyfin_resume_cleanup_days }}
+      --api-key-file {{ jellyfin_resume_cleanup_api_key_file | quote }}
+      {{ '--dry-run' if jellyfin_resume_cleanup_dry_run else '' }}

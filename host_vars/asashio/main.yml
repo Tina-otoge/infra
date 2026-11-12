@@ -8,6 +8,9 @@
 server_roles_extra:
   - dnsmasq
   - lms
+  - jellyfin_resume_cleanup
+
+jellyfin_resume_cleanup_days: 30
 
 packages:
   - acl
