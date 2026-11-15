@@ -96,3 +96,15 @@ sus_http_fails:
   - .npmrc
   - .pypirc
   - settings.*
+
+raphael_user:
+  name: raphael
+  sudo_nopasswd: true
+  linger: false
+  ssh_keys_only: true
+  authorized_keys:
+    - key: >-
+        ssh-ed25519
+        AAAAC3NzaC1lZDI1NTE5AAAAIM0FIVSLeAuJwzt15VSrOXdHWJHnOw38RKC7azFhIShK
+        raphael-privileged
+      options: restrict

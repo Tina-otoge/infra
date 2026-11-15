@@ -1,0 +1,111 @@
+- name: Normalize users
+  set_fact:
+    _users: >-
+      {%- set defaults = {
+        'admin': false,
+        'sudo_nopasswd': false,
+        'linger': true,
+        'ssh_keys_only': false,
+        'ssh_from': [],
+        'authorized_keys': [],
+      } -%}
+      {%- set out = {} -%}
+      {%- for user in users_base + users -%}
+        {%- set user = {'name': user} if user is string else user -%}
+        {%- set _ = out.update({
+          user.name: out.get(user.name, defaults) | combine(user)
+        }) -%}
+      {%- endfor -%}
+      {{ out.values() | list }}
+
+- name: Create directories in skeleton directory
+  file:
+    path: "/etc/skel/{{ item }}"
+    state: directory
+    mode: u=rwX,g=rX,o=rX
+  loop: "{{ skel }}"
+
+- set_fact:
+    _admin_group: wheel
+  when: ansible_facts.os_family == 'RedHat'
+
+- set_fact:
+    _admin_group: sudo
+  when: ansible_facts.os_family == 'Debian'
+
+- name: Create users
+  user:
+    name: "{{ item.name }}"
+    groups: "{{ _admin_group if item.admin else '' }}"
+    append: true
+    generate_ssh_key: true
+    shell: "{{ item.shell | default(user_shell) | default(omit) }}"
+  loop: "{{ _users }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Check the lingering state of users
+  stat:
+    path: "/var/lib/systemd/linger/{{ item.name }}"
+  register: user_linger_status
+  loop: "{{ _users | selectattr('linger') }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Enable lingering for users
+  command: "loginctl enable-linger {{ item }}"
+  loop: |
+    {{
+      user_linger_status.results
+      | rejectattr('stat.exists')
+      | map(attribute='item.name')
+      | list
+    }}
+
+- name: Read existing users
+  getent:
+    database: passwd
+  when: ansible_check_mode
+
+- name: Authorize SSH keys
+  authorized_key:
+    user: "{{ item.0.name }}"
+    key: "{{ item.1.key | default(item.1) }}"
+    key_options: "{{ item.1.options | default(omit) }}"
+  loop: "{{ _users | subelements('authorized_keys') }}"
+  loop_control:
+    label: "{{ item.0.name }}"
+  when: not ansible_check_mode or item.0.name in ansible_facts.getent_passwd
+
+- name: Grant passwordless sudo
+  community.general.sudoers:
+    name: "{{ item.name }}"
+    user: "{{ item.name }}"
+    commands: ALL
+    nopassword: true
+  loop: "{{ _users | selectattr('sudo_nopasswd') }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- set_fact:
+    _users_sshd: >-
+      {{
+        _users | selectattr('ssh_keys_only') | list
+        + _users | selectattr('ssh_from') | list
+      }}
+
+- name: Configure SSH restrictions
+  template:
+    src: sshd.conf.j2
+    dest: "{{ users_sshd_config }}"
+    mode: u=rw,g=,o=
+    validate: /usr/sbin/sshd -t -f %s
+  when: _users_sshd | length > 0
+  notify: sshd reload
+
+- name: Remove SSH restrictions
+  file:
+    path: "{{ users_sshd_config }}"
+    state: absent
+  when: _users_sshd | length == 0
+  notify: sshd reload

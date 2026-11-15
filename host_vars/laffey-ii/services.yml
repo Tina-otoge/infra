@@ -51,7 +51,7 @@ user_services:
       mkdir -p {{ ansible_facts.user_dir }}/.local/share/raphael
       && podman build --file Containerfile --tag localhost/raphael:latest .
       && exec podman run --rm --name raphael
-      --log-driver=passthrough
+      --log-driver=none
       --userns=keep-id:uid=10001,gid=10001
       --publish {{ loopback_ip }}:{{ ports.raphael }}:{{ ports.raphael }}
       --volume {{ repositories_dir }}/raphael:/workspace:Z

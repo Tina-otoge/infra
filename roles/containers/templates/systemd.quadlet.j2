@@ -4,6 +4,14 @@
 After={{ item.value.depend }}
 Requires={{ item.value.depend }}
 {% endif %}
+{# Requires= alone never retries a dependent whose start job failed because
+   this unit failed to start (e.g. image pull timeout), so keep it upheld. #}
+{% set _unit = item.key | replace('_', '-') ~ '.service' %}
+{% for other in _quadlet_items
+   if other.value.enabled | default(true)
+   and _unit in (other.value.depend | default('')).split() %}
+Upholds={{ other.key | replace('_', '-') }}.service
+{% endfor %}
 
 [Container]
 Image={{ item.value.image }}{% if item.value.tag is defined %}:{{ item.value.tag }}{% endif %}
@@ -115,7 +123,7 @@ ExecStartPre=/bin/bash -c "{{ item.value.exec_pre | split('\n') | join(' ') | re
 RestartSec=5s
 StartLimitBurst=15
 StartLimitInterval=5m
-TimeoutStartSec={{ item.value.start_timeout | default(300) }}
+TimeoutStartSec={{ item.value.start_timeout | default(900) }}
 
 {% if item.value.enabled | default(true) %}
 [Install]

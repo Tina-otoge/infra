@@ -1,0 +1,28 @@
+# users_base + users: user names, or dicts with the following keys (all optional but name):
+#   name: str
+#   admin: bool  # member of the admin group (wheel/sudo), sudo with password
+#   sudo_nopasswd: bool  # passwordless sudo
+#   linger: bool  # default true
+#   shell: str  # default user_shell
+#   ssh_keys_only: bool  # deny password/keyboard-interactive SSH logins
+#   ssh_from: str | list  # only accept SSH keys from these sshd Match Address patterns
+#   authorized_keys: list[str | {key: str, options: str}]  # not exclusive
+users_base:
+  - name: tina
+    admin: true
+users: []
+
+skel: []
+
+user_shell: /bin/zsh
+
+# Addresses of the machine itself, for ssh_from (also covers rootless containers,
+# whose connections reach sshd from the host's own addresses)
+users_local_addresses: >-
+  {{
+    ['127.0.0.0/8', '::1']
+    + ansible_facts.all_ipv4_addresses
+    + ansible_facts.all_ipv6_addresses | reject('match', 'fe80:') | list
+  }}
+
+users_sshd_config: /etc/ssh/sshd_config.d/60-users.conf

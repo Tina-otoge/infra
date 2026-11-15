@@ -1,4 +1,117 @@
 model_list:
+  # Mistral
+  - model_name: mistral/large-latest
+    model_info:
+      display_name: Mistral Large
+    litellm_params:
+      model: mistral/mistral-large-latest
+      api_key: os.environ/MISTRAL_API_KEY
+  - model_name: mistral/small-latest
+    model_info:
+      display_name: Mistral Small
+    litellm_params:
+      model: mistral/mistral-small-latest
+      api_key: os.environ/MISTRAL_API_KEY
+  - model_name: mistral/ministral-14b-latest
+    model_info:
+      display_name: Ministral 14B
+    litellm_params:
+      model: mistral/ministral-14b-latest
+      api_key: os.environ/MISTRAL_API_KEY
+  - model_name: mistral/ministral-8b-latest
+    model_info:
+      display_name: Ministral 8B
+    litellm_params:
+      model: mistral/ministral-8b-latest
+      api_key: os.environ/MISTRAL_API_KEY
+  - model_name: mistral/ministral-3b-latest
+    model_info:
+      display_name: Ministral 3B
+    litellm_params:
+      model: mistral/ministral-3b-latest
+      api_key: os.environ/MISTRAL_API_KEY
+  - model_name: mistral/codestral-latest
+    model_info:
+      display_name: Codestral
+    litellm_params:
+      model: mistral/codestral-latest
+      api_key: os.environ/MISTRAL_API_KEY
+  - model_name: mistral/zai-glm-latest
+    model_info:
+      display_name: GLM (Mistral)
+    litellm_params:
+      model: mistral/zai-glm-latest
+      api_key: os.environ/MISTRAL_API_KEY
+  - model_name: mistral/zai-glm-flash
+    model_info:
+      display_name: GLM Flash (Mistral)
+    litellm_params:
+      model: mistral/zai-glm-5-3-flash
+      api_key: os.environ/MISTRAL_API_KEY
+  - model_name: mistral/deepseek-flash
+    model_info:
+      display_name: DeepSeek Flash (Mistral)
+    litellm_params:
+      model: mistral/deepseek-v4-1-flash-1017
+      api_key: os.environ/MISTRAL_API_KEY
+
+  # Mistral Vibe
+  - model_name: vibe/large-latest
+    model_info:
+      display_name: Mistral Large (Vibe)
+    litellm_params:
+      model: mistral/mistral-large-latest
+      api_key: os.environ/MISTRAL_VIBE_API_KEY
+  - model_name: vibe/mistral-small-latest
+    model_info:
+      display_name: Mistral Small (Vibe)
+    litellm_params:
+      model: mistral/mistral-small-latest
+      api_key: os.environ/MISTRAL_VIBE_API_KEY
+  - model_name: vibe/ministral-14b-latest
+    model_info:
+      display_name: Ministral 14B (Vibe)
+    litellm_params:
+      model: mistral/ministral-14b-latest
+      api_key: os.environ/MISTRAL_VIBE_API_KEY
+  - model_name: vibe/ministral-8b-latest
+    model_info:
+      display_name: Ministral 8B (Vibe)
+    litellm_params:
+      model: mistral/ministral-8b-latest
+      api_key: os.environ/MISTRAL_VIBE_API_KEY
+  - model_name: vibe/ministral-3b-latest
+    model_info:
+      display_name: Ministral 3B (Vibe)
+    litellm_params:
+      model: mistral/ministral-3b-latest
+      api_key: os.environ/MISTRAL_VIBE_API_KEY
+  - model_name: vibe/codestral-latest
+    model_info:
+      display_name: Codestral (Vibe)
+    litellm_params:
+      model: mistral/codestral-latest
+      api_key: os.environ/MISTRAL_VIBE_API_KEY
+  - model_name: vibe/zai-glm-latest
+    model_info:
+      display_name: GLM (Vibe)
+    litellm_params:
+      model: mistral/zai-glm-latest
+      api_key: os.environ/MISTRAL_VIBE_API_KEY
+  - model_name: vibe/zai-glm-flash
+    model_info:
+      display_name: GLM Flash (Vibe)
+    litellm_params:
+      model: mistral/zai-glm-5-3-flash
+      api_key: os.environ/MISTRAL_VIBE_API_KEY
+  - model_name: vibe/deepseek-flash
+    model_info:
+      display_name: DeepSeek Flash (Vibe)
+    litellm_params:
+      model: mistral/deepseek-v4-1-flash-1017
+      api_key: os.environ/MISTRAL_VIBE_API_KEY
+
+  # Bedrock
   - model_name: Minimax M2.5 (AWS)
     litellm_params:
       model: bedrock/minimax.minimax-m2.5
@@ -12,21 +125,30 @@ model_list:
       model: bedrock/moonshotai.kimi-k2.5
       aws_region_name: eu-west-2
 
+  # DeepSeek
   - model_name: deepseek-flash
     model_info:
       display_name: Cheap (DeepSeek Flash)
     litellm_params:
       model: deepseek/deepseek-flash
       api_key: os.environ/DEEPSEEK_API_KEY
+  - model_name: deepseek-v4-pro
+    litellm_params:
+      model: deepseek/deepseek-v4-pro
+      api_key: os.environ/DEEPSEEK_API_KEY
+
+  # Z.AI GLM
   # - model_name: Smart (GLM 5.2)
   #   litellm_params:
   #     model: zai/glm-5.2
   #     api_key: os.environ/ZAI_API_KEY
-  - model_name: kimi-k3
+
+  # Moonshot Kimi
+  - model_name: kimi-k3.1-pro
     model_info:
-      display_name: Max (Kimi K3)
+      display_name: Max (Kimi K3.1 Pro)
     litellm_params:
-      model: moonshot/kimi-k3
+      model: moonshot/kimi-k3.1-pro
       api_key: os.environ/MOONSHOT_API_KEY
 
 litellm_settings:

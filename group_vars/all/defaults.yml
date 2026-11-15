@@ -39,7 +39,7 @@ server_roles_base:
   - disk_use_report
   - smart
   - caddy
-  - alloy
+  # - alloy
   - homeassistant
   - nfs
 
@@ -77,12 +77,6 @@ pkgmgr_dnf_deltarpm: true
 pkgmgr_dnf_metadata_expire: 604800 # 1 week
 
 
-users: []
-users_admins:
-  - tina
-skel: []
-
-
 hostname: null
 
 timezone: Europe/Paris
@@ -107,8 +101,6 @@ cockpit_allow_unencrypted: "{{ not caddy_https }}"
 cockpit_login_to: true
 
 user_mounts: []
-
-user_shell: /bin/zsh
 
 
 containers_registries:

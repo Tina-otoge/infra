@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+{% for user in _users | selectattr('ssh_keys_only') %}
+
+Match User {{ user.name }}
+    AuthenticationMethods publickey
+    PasswordAuthentication no
+    KbdInteractiveAuthentication no
+{% endfor %}
+{% for user in _users | selectattr('ssh_from') %}
+{% set allowed = [user.ssh_from] if user.ssh_from is string else user.ssh_from %}
+
+Match User {{ user.name }} Address *,!{{ allowed | join(',!') }}
+    AuthorizedKeysFile none
+    AuthorizedKeysCommand none
+{% endfor %}

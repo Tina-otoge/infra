@@ -1,16 +1,29 @@
 - set_fact:
     _fzf_version: 0.67.0
 
+- name: Check whether fzf is installed
+  stat:
+    path: /usr/local/bin/fzf
+  register: _fzf_binary
+
+- name: Check installed fzf version
+  command: /usr/local/bin/fzf --version
+  register: _fzf_installed_version
+  changed_when: false
+  when: _fzf_binary.stat.exists
+  check_mode: false
+
 - name: Extract fzf package
   unarchive:
     src: https://github.com/junegunn/fzf/releases/download/v{{ _fzf_version
       }}/fzf-{{ _fzf_version }}-linux_{{ ansible_architecture | arch }}.tar.gz
     dest: /usr/local/bin
-    creates: /usr/local/bin/fzf
-    mode: o=rwx,g=rx,u=rx
+    mode: u=rwx,g=rx,o=rx
     owner: root
     group: root
     remote_src: true
+  when: not _fzf_binary.stat.exists or
+    _fzf_installed_version.stdout.split()[0] != _fzf_version
 
 - name: Clone fzf repository
   git:

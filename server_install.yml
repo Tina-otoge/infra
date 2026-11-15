@@ -48,7 +48,12 @@
         label: "{{ item.name }}"
       tags: always
     - include_tasks:
-        file: "tasks/server/{{ task }}.yml"
+        file: >-
+          {{
+            'tasks/server/' ~ task ~ '.yml'
+            if (playbook_dir ~ '/tasks/server/' ~ task ~ '.yml') is file
+            else 'tasks/server/include_role.yml'
+          }}
         apply:
           tags:
             - server

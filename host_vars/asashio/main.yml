@@ -9,6 +9,9 @@ server_roles_extra:
   - dnsmasq
   - lms
 
+users:
+  - "{{ raphael_user | combine({'ssh_from': addresses.laffey_ii}) }}"
+
 packages:
   - acl
   - cifs-utils

@@ -1,6 +1,3 @@
-users_admins:
-  - tina
-
 fail2ban_vaultwarden_users:
   - tina
   - lap
@@ -20,6 +17,7 @@ users:
   - sayaka
   - reaxt
   - lap
+  - "{{ raphael_user | combine({'ssh_from': users_local_addresses}) }}"
 
 
 skel:
