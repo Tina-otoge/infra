@@ -153,7 +153,7 @@ user_services:
     workdir: "{{ repositories_dir }}/couscous"
     cmd: "{{ compose_setup }}"
   gacha_genesis:
-    enabled: false
+    enabled: true
     workdir: "{{ repositories_dir }}/arcade-tools/sdvx-manual-card-generator"
     cmd: |
       {{ python_setup }}
