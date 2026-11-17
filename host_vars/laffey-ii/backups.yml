@@ -49,6 +49,11 @@ backups_job_machine_paths_extra:
   - /home/lap/.ssh/
   - /home/lap/.history
   - /home/lap/.local/share/vaultwarden/
+  - /home/raphael/.ssh/
+  - /home/reaxt/.ssh/
+  - /home/rocky/.ssh/
+  - /home/sayaka/.ssh/
+  - /root/.ssh/
 
   - /etc/motd_laffey_ii_lines.txt
 

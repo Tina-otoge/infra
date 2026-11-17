@@ -31,6 +31,15 @@
       }}
   tags: containers-config
 
+- name: Configure rootless container storage path
+  ini_file:
+    path: /etc/containers/storage.conf
+    section: storage
+    option: rootless_storage_path
+    value: '"$HOME/.local/share/containers/storage"'
+    mode: u=rw,g=r,o=r
+  tags: containers-config
+
 - set_fact:
     _quadlet_dir: >-
       {{

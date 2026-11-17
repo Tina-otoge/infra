@@ -1,0 +1,27 @@
+rocky_9_to_10_network_connections:
+  - filename: System-eno1.nmconnection
+    ifcfg_path: /etc/sysconfig/network-scripts/ifcfg-eno1
+    uuid: abf4c85b-57cc-4484-4fa9-b4a71689c359
+    connection_id: System eno1
+    interface_name: eno1
+    content: |
+      [connection]
+      id=System eno1
+      uuid=abf4c85b-57cc-4484-4fa9-b4a71689c359
+      type=ethernet
+      interface-name=eno1
+      autoconnect=true
+      autoconnect-priority=120
+
+      [ethernet]
+      mac-address=a4:bf:01:12:dd:16
+
+      [ipv4]
+      method=auto
+
+      [ipv6]
+      addr-gen-mode=eui64
+      address1=2001:41d0:602:2079::1/56
+      accept-ra=false
+      gateway=2001:41d0:602:20ff:ff:ff:ff:ff
+      method=manual

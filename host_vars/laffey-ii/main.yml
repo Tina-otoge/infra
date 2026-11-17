@@ -7,8 +7,10 @@ healthchecks: true
 
 packages:
   - btop # requested by reaxt 2026-01-25
+  - epel-release
   - libffi-devel # needed for msn-web@asso-msn:PyWand, needs pyenv version recompile
   - ImageMagick-devel # needed for msn-web@asso-msn:PyWand
+  - ImageMagick-libs # required by gacha-genesis: MagickWand runtime library
 
 
 cockpit_origins: https://laffey-ii.tina.moe https://laffey-ii.savatier.fr

@@ -5,9 +5,9 @@ podman_host_address: host.containers.internal
 monitoring_domain: dijiang.tina.moe
 
 python_setup: |-
-  [ -d .venv ] || python -m venv .venv
+  if [ ! -x .venv/bin/python ] || ! .venv/bin/python -m pip --version >/dev/null 2>&1; then python3 -m venv --clear .venv; fi
+  .venv/bin/python -m pip install -r requirements.txt
   source .venv/bin/activate
-  pip install -r requirements.txt
 
 bash_setup: |-
   export PATH={{ ansible_facts.user_dir }}/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin
@@ -15,15 +15,14 @@ bash_setup: |-
 compose_setup: |-
   {{ bash_setup }}
   podman-compose stop
-  rm -rfv {{ ansible_facts.user_dir }}/.local/share/containers/storage/overlay/*/merged
   podman-compose down --remove-orphans
   podman-compose build --pull
   podman-compose up
 
 sssimp_setup: |-
   {{ bash_setup }}
-  [ -d .venv ] || python -m venv .venv
-  ./.venv/bin/pip install sssimp
+  if [ ! -x .venv/bin/python ] || ! .venv/bin/python -m pip --version >/dev/null 2>&1; then python3 -m venv --clear .venv; fi
+  .venv/bin/python -m pip install sssimp
   ./.venv/bin/sssimp
 
 linuxserver_env:

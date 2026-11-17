@@ -115,6 +115,14 @@
   apt:
     cache_valid_time: 3600
 
+- name: Install EPEL release before EPEL packages
+  package:
+    name: epel-release
+    state: present
+  when:
+    - ansible_distribution == 'Rocky'
+    - "'epel-release' in packages"
+
 - name: Install packages
   package:
     name: "{{ _packages }}"

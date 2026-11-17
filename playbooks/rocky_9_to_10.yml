@@ -1,0 +1,517 @@
+---
+- name: Manually upgrade Rocky Linux 9 to Rocky Linux 10
+  hosts: all
+  become: true
+  gather_facts: true
+  serial: 1
+
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    rocky_9_to_10_backup_confirmed: false
+    rocky_9_to_10_approve_distro_sync: false
+    rocky_9_to_10_minimum_root_space_bytes: 5368709120
+    rocky_9_to_10_disable_repos: []
+    rocky_9_to_10_enable_repos: []
+    rocky_9_to_10_remove_packages:
+      - epel-release
+    rocky_9_to_10_reinstall_packages: []
+    rocky_9_to_10_reinstall_epel: false
+    rocky_9_to_10_services_to_stop: []
+    rocky_9_to_10_repo_key_updates:
+      - repo_id: gh-cli
+        repo_file: /etc/yum.repos.d/gh-cli.repo
+        package_names:
+          - gh
+        key_url: https://cli.github.com/packages/githubcli-archive-keyring.asc
+        fingerprints:
+          - 2C6106201985B60E6C7AC87323F3D4EA75716059
+          - 7F38BBB59D064DBCB3D84D725612B36462313325
+    rocky_9_to_10_release_package_dir: /var/tmp/rocky-10-release-packages
+    rocky_9_to_10_release_packages:
+      - filename: rocky-release-10.0-1.6.el10.noarch.rpm
+        checksum: sha256:4a27a1f1310dc04b931edc94744b6769f369a5ac9d978638688607f1cfd1b76d
+      - filename: rocky-repos-10.0-1.6.el10.noarch.rpm
+        checksum: sha256:efe9fd79d78bdd86f4a78785503d6e4153ea31b5597b065e9f104abaaee84849
+      - filename: rocky-gpg-keys-10.0-1.6.el10.noarch.rpm
+        checksum: sha256:606d87506fbe28599f330b4abee9f781712e97e9f481ce4c345e3c0b911f95d2
+    rocky_9_to_10_release_gpg_key_url: https://dl.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-10
+    rocky_9_to_10_release_gpg_key_fingerprints:
+      - FC226859C0860BF0DDB95B085B106C736FEDFC85
+    rocky_9_to_10_cpu_flags:
+      - avx
+      - avx2
+      - bmi1
+      - bmi2
+      - f16c
+      - fma
+      - abm
+      - movbe
+      - xsave
+
+  tasks:
+    - name: Confirm the host and recovery plan
+      assert:
+        that:
+          - ansible_facts.distribution == 'Rocky'
+          - ansible_facts.distribution_major_version | int == 9
+          - rocky_9_to_10_backup_confirmed | bool
+          - rocky_9_to_10_approve_distro_sync | bool
+        fail_msg: >-
+          This playbook performs an unsupported major-version upgrade. Confirm
+          the host is Rocky Linux 9, a restorable backup or snapshot exists,
+          and distro-sync is approved by setting the corresponding variables.
+
+    - name: Select the root filesystem
+      set_fact:
+        rocky_9_to_10_root_mount: "{{ ansible_mounts | selectattr('mount', 'equalto', '/') | first }}"
+
+    - name: Check minimum memory and root filesystem requirements
+      assert:
+        that:
+          - ansible_facts.memtotal_mb | int >= 1024
+          - rocky_9_to_10_root_mount.fstype in ['xfs', 'ext4']
+          - rocky_9_to_10_root_mount.size_available | int >= rocky_9_to_10_minimum_root_space_bytes | int
+        fail_msg: >-
+          The upgrade requires at least 1 GiB RAM, 5 GiB free on / by default,
+          and an XFS or ext4 root filesystem. Adjust the space threshold only
+          after checking the actual package requirements.
+
+    - name: Check x86-64-v3 processor support
+      command: awk '/^flags/ { print; exit }' /proc/cpuinfo
+      register: rocky_9_to_10_cpu_flags_output
+      changed_when: false
+      when: ansible_facts.architecture == 'x86_64'
+
+    - name: Require x86-64-v3 processor flags
+      assert:
+        that:
+          - rocky_9_to_10_cpu_flags | difference(rocky_9_to_10_cpu_flags_output.stdout.split()) | length == 0
+        fail_msg: Rocky Linux 10 requires x86-64-v3 CPU support on x86_64 hosts.
+      when: ansible_facts.architecture == 'x86_64'
+
+    - name: Check for legacy network-scripts configuration directory
+      stat:
+        path: /etc/sysconfig/network-scripts
+      register: rocky_9_to_10_network_scripts_dir
+
+    - name: Find legacy network interface configuration files
+      find:
+        paths: /etc/sysconfig/network-scripts
+        patterns: ifcfg-*
+        file_type: file
+      register: rocky_9_to_10_legacy_ifcfg
+      when: rocky_9_to_10_network_scripts_dir.stat.exists
+
+    - name: Ensure every legacy network profile has a keyfile mapping
+      assert:
+        that:
+          - item.path in (rocky_9_to_10_network_connections | default([]) | map(attribute='ifcfg_path') | list)
+        fail_msg: "Define a NetworkManager keyfile mapping for {{ item.path }} before upgrading."
+      loop: "{{ rocky_9_to_10_legacy_ifcfg.files | default([]) }}"
+
+    - name: Ensure network keyfile mappings are complete
+      assert:
+        that:
+          - >-
+            rocky_9_to_10_network_connections | default([])
+            | selectattr('filename', 'defined')
+            | selectattr('content', 'defined')
+            | selectattr('uuid', 'defined')
+            | selectattr('connection_id', 'defined')
+            | selectattr('interface_name', 'defined')
+            | list | length == (rocky_9_to_10_network_connections | default([]) | length)
+        fail_msg: Define all required values for each NetworkManager keyfile mapping.
+
+    - name: Validate NetworkManager keyfile names
+      assert:
+        that:
+          - item.filename | basename == item.filename
+          - item.filename.endswith('.nmconnection')
+      loop: "{{ rocky_9_to_10_network_connections | default([]) }}"
+
+    - name: Create NetworkManager keyfiles for legacy profiles
+      copy:
+        content: "{{ item.content }}"
+        dest: "/etc/NetworkManager/system-connections/{{ item.filename }}"
+        owner: root
+        group: root
+        mode: 'u=rw,g=,o='
+      loop: "{{ rocky_9_to_10_network_connections | default([]) }}"
+
+    - name: Remove converted legacy network profiles
+      file:
+        path: "{{ item.ifcfg_path }}"
+        state: absent
+      loop: "{{ rocky_9_to_10_network_connections | default([]) }}"
+
+    - name: Reload NetworkManager profiles without restarting interfaces
+      command: nmcli connection reload
+      when: rocky_9_to_10_network_connections | default([]) | length > 0
+      changed_when: false
+
+    - name: Verify the converted NetworkManager profiles
+      command:
+        argv:
+          - nmcli
+          - --get-values
+          - connection.id,connection.interface-name
+          - connection
+          - show
+          - "{{ item.uuid }}"
+      loop: "{{ rocky_9_to_10_network_connections | default([]) }}"
+      register: rocky_9_to_10_network_profile_checks
+      changed_when: false
+
+    - name: Confirm the converted profiles match their mappings
+      assert:
+        that:
+          - item.stdout_lines[0] == item.item.connection_id
+          - item.stdout_lines[1] == item.item.interface_name
+        fail_msg: "NetworkManager did not load the expected keyfile for {{ item.item.interface_name }}."
+      loop: "{{ rocky_9_to_10_network_profile_checks.results | default([]) }}"
+
+    - name: Stop services selected for the maintenance window
+      systemd:
+        name: "{{ item }}"
+        state: stopped
+        enabled: false
+      loop: "{{ rocky_9_to_10_services_to_stop }}"
+
+    - name: Install DNF download support
+      dnf:
+        name: dnf-plugins-core
+        state: present
+
+    - name: Gather installed packages before repository key updates
+      package_facts:
+        manager: auto
+
+    - name: List enabled repositories
+      command: dnf repolist --enabled --quiet
+      register: rocky_9_to_10_enabled_repo_output
+      changed_when: false
+
+    - name: Parse enabled repository IDs
+      set_fact:
+        rocky_9_to_10_enabled_repo_ids: >-
+          {{ rocky_9_to_10_enabled_repo_output.stdout_lines
+             | map('split')
+             | map('first')
+             | reject('equalto', 'repo')
+             | list }}
+
+    - name: Find configured repository files
+      find:
+        paths: /etc/yum.repos.d
+        patterns: '*.repo'
+        file_type: file
+      register: rocky_9_to_10_repo_files
+
+    - name: Require existing repository files for applicable key updates
+      assert:
+        that:
+          - >-
+            not (
+              item.repo_id in rocky_9_to_10_enabled_repo_ids or
+              item.package_names | intersect(ansible_facts.packages.keys() | list) | length > 0
+            ) or
+            item.repo_file in (rocky_9_to_10_repo_files.files | map(attribute='path') | list)
+        fail_msg: "Repository file {{ item.repo_file }} is missing for {{ item.repo_id }}."
+      loop: "{{ rocky_9_to_10_repo_key_updates }}"
+
+    - name: Import verified signing keys for applicable repositories
+      rpm_key:
+        key: "{{ item.key_url }}"
+        fingerprint: "{{ item.fingerprints }}"
+        state: present
+      loop: "{{ rocky_9_to_10_repo_key_updates }}"
+      when: >-
+        item.repo_id in rocky_9_to_10_enabled_repo_ids or
+        item.package_names | intersect(ansible_facts.packages.keys() | list) | length > 0
+
+    - name: Update GPG key URLs for applicable repositories
+      ini_file:
+        path: "{{ item.repo_file }}"
+        section: "{{ item.repo_id }}"
+        option: gpgkey
+        value: "{{ item.key_url }}"
+      loop: "{{ rocky_9_to_10_repo_key_updates }}"
+      when: >-
+        item.repo_id in rocky_9_to_10_enabled_repo_ids or
+        item.package_names | intersect(ansible_facts.packages.keys() | list) | length > 0
+
+    - name: Update Rocky Linux 9 packages
+      dnf:
+        name: '*'
+        state: latest
+        update_cache: true
+
+    - name: Reboot into the updated Rocky Linux 9 system
+      reboot:
+        reboot_timeout: 1800
+
+    - name: Disable configured third-party repositories
+      command:
+        argv:
+          - dnf
+          - config-manager
+          - --set-disabled
+          - "{{ item }}"
+      loop: "{{ rocky_9_to_10_disable_repos }}"
+      changed_when: true
+
+    - name: Remove configured packages that must not cross the major upgrade
+      dnf:
+        name: "{{ item }}"
+        state: absent
+      loop: "{{ rocky_9_to_10_remove_packages }}"
+
+    - name: Recreate the Rocky 10 release package download directory
+      file:
+        path: "{{ rocky_9_to_10_release_package_dir }}"
+        state: absent
+
+    - name: Create the Rocky 10 release package download directory
+      file:
+        path: "{{ rocky_9_to_10_release_package_dir }}"
+        state: directory
+        mode: 'u=rwx,go=rx'
+
+    - name: Download pinned Rocky Linux 10.0 release packages
+      get_url:
+        url: "https://dl.rockylinux.org/vault/rocky/10.0/BaseOS/{{ ansible_facts.architecture }}/os/Packages/r/{{ item.filename }}"
+        dest: "{{ rocky_9_to_10_release_package_dir }}/{{ item.filename }}"
+        checksum: "{{ item.checksum }}"
+        mode: 'u=rw,go=r'
+      loop: "{{ rocky_9_to_10_release_packages }}"
+
+    - name: Find downloaded Rocky Linux 10 release packages
+      find:
+        paths: "{{ rocky_9_to_10_release_package_dir }}"
+        patterns: rocky-*.rpm
+        file_type: file
+      register: rocky_9_to_10_release_rpms
+
+    - name: Verify the pinned Rocky Linux 10.0 release packages were downloaded
+      assert:
+        that:
+          - rocky_9_to_10_release_rpms.files | length == rocky_9_to_10_release_packages | length
+          - >-
+            rocky_9_to_10_release_rpms.files | map(attribute='path') | map('basename') | sort
+            == rocky_9_to_10_release_packages | map(attribute='filename') | sort
+        fail_msg: The pinned Rocky Linux 10.0 release package set is incomplete.
+
+    - name: Import the verified Rocky Linux 10 signing key
+      rpm_key:
+        key: "{{ rocky_9_to_10_release_gpg_key_url }}"
+        fingerprint: "{{ rocky_9_to_10_release_gpg_key_fingerprints }}"
+        state: present
+
+    - name: Install pinned Rocky Linux 10.0 release packages
+      dnf:
+        name: "{{ rocky_9_to_10_release_rpms.files | map(attribute='path') | list }}"
+        state: present
+        disable_gpg_check: false
+
+    - name: Check for the Rocky repository replacement file
+      stat:
+        path: /etc/yum.repos.d/rocky.repo.rpmnew
+      register: rocky_9_to_10_rocky_repo_rpmnew
+
+    - name: Read repository sections from the Rocky replacement file
+      command:
+        argv:
+          - awk
+          - -F
+          - '[][]'
+          - '/^\[/ { print $2 }'
+          - /etc/yum.repos.d/rocky.repo.rpmnew
+      register: rocky_9_to_10_rocky_repo_sections
+      changed_when: false
+      when: rocky_9_to_10_rocky_repo_rpmnew.stat.exists
+
+    - name: Verify the Rocky replacement file contains repository sections
+      assert:
+        that:
+          - rocky_9_to_10_rocky_repo_sections.stdout_lines | length > 0
+        fail_msg: The Rocky repository replacement file contains no sections.
+      when: rocky_9_to_10_rocky_repo_rpmnew.stat.exists
+
+    - name: Merge Rocky Linux 10 signing-key paths into existing repositories
+      ini_file:
+        path: /etc/yum.repos.d/rocky.repo
+        section: "{{ item }}"
+        option: gpgkey
+        value: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-Rocky-10
+      loop: "{{ rocky_9_to_10_rocky_repo_sections.stdout_lines | default([]) }}"
+      when: rocky_9_to_10_rocky_repo_rpmnew.stat.exists
+
+    - name: Remove the merged Rocky repository replacement file
+      file:
+        path: /etc/yum.repos.d/rocky.repo.rpmnew
+        state: absent
+      when: rocky_9_to_10_rocky_repo_rpmnew.stat.exists
+
+    - name: Find repository files requiring manual rpmnew review
+      find:
+        paths: /etc/yum.repos.d
+        patterns: '*.rpmnew'
+        file_type: file
+      register: rocky_9_to_10_repo_rpmnew
+
+    - name: Require repository configuration conflicts to be resolved
+      assert:
+        that:
+          - rocky_9_to_10_repo_rpmnew.files | length == 0
+        fail_msg: >-
+          Review and merge the .repo.rpmnew files in /etc/yum.repos.d, then
+          rerun the playbook. Do not continue with unresolved repository changes.
+
+    - name: Clean DNF caches
+      command: dnf clean all
+      changed_when: true
+
+    - name: Synchronize installed packages to Rocky Linux 10
+      command:
+        argv:
+          - dnf
+          - distro-sync
+          - --releasever=10
+          - --allowerasing
+          - --noautoremove
+          - --setopt=deltarpm=false
+          - -y
+      changed_when: true
+
+    - name: Check for legacy Dracut network configuration
+      stat:
+        path: /etc/dracut.conf.d/50-network-legacy.conf
+      register: rocky_9_to_10_legacy_dracut_config
+
+    - name: Remove legacy Dracut network configuration
+      file:
+        path: /etc/dracut.conf.d/50-network-legacy.conf
+        state: absent
+      when: rocky_9_to_10_legacy_dracut_config.stat.exists
+
+    - name: Regenerate initramfs after removing legacy network configuration
+      command: dracut --regenerate-all
+      when: rocky_9_to_10_legacy_dracut_config.stat.exists
+      changed_when: true
+
+    - name: Reboot into Rocky Linux 10
+      reboot:
+        reboot_timeout: 1800
+
+    - name: Refresh facts after the major-version upgrade
+      setup:
+
+    - name: Verify the host booted Rocky Linux 10
+      assert:
+        that:
+          - ansible_facts.distribution == 'Rocky'
+          - ansible_facts.distribution_major_version | int == 10
+        fail_msg: The host did not report Rocky Linux 10 after reboot.
+
+    - name: Restore SELinux labels
+      command: restorecon -R /
+      changed_when: true
+
+    - name: Rebuild the RPM database
+      command: rpm --rebuilddb
+      changed_when: true
+
+    - name: Enable repositories selected for Rocky Linux 10
+      command:
+        argv:
+          - dnf
+          - config-manager
+          - --set-enabled
+          - "{{ item }}"
+      loop: "{{ rocky_9_to_10_enable_repos }}"
+      changed_when: true
+
+    - name: Reinstall EPEL when requested
+      dnf:
+        name: epel-release
+        state: present
+      when: rocky_9_to_10_reinstall_epel | bool
+
+    - name: Reinstall packages removed during the upgrade when requested
+      dnf:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ rocky_9_to_10_reinstall_packages }}"
+
+    - name: Upgrade packages from enabled Rocky Linux 10 repositories
+      dnf:
+        name: '*'
+        state: latest
+        update_cache: true
+
+    - name: List unsatisfied package dependencies
+      command: dnf repoquery --unsatisfied
+      register: rocky_9_to_10_unsatisfied_packages
+      changed_when: false
+
+    - name: Show unsatisfied package dependencies
+      debug:
+        var: rocky_9_to_10_unsatisfied_packages.stdout_lines
+
+    - name: List obsoleted packages
+      command: dnf list obsoleted
+      register: rocky_9_to_10_obsoleted_packages
+      changed_when: false
+      failed_when: >-
+        rocky_9_to_10_obsoleted_packages.rc != 0 and
+        not (
+          rocky_9_to_10_obsoleted_packages.rc == 1 and
+          rocky_9_to_10_obsoleted_packages.stderr_lines == ['Error: No matching Packages to list']
+        )
+
+    - name: Show obsoleted packages
+      debug:
+        msg: >-
+          {{
+            'No obsoleted packages found.'
+            if rocky_9_to_10_obsoleted_packages.rc == 1
+            else rocky_9_to_10_obsoleted_packages.stdout_lines
+          }}
+
+    - name: List DNF modules requiring manual review
+      command: dnf module list
+      register: rocky_9_to_10_modules
+      changed_when: false
+
+    - name: Show DNF modules requiring manual review
+      debug:
+        var: rocky_9_to_10_modules.stdout_lines
+
+    - name: List remaining EL9 packages for manual review
+      shell: rpm -qa --qf '%{NAME} %{RELEASE}\n' | awk 'index($0, "el9")'
+      register: rocky_9_to_10_remaining_el9_packages
+      changed_when: false
+
+    - name: Show remaining EL9 packages
+      debug:
+        var: rocky_9_to_10_remaining_el9_packages.stdout_lines
+
+    - name: Reboot after cleanup and package updates
+      reboot:
+        reboot_timeout: 1800
+
+    - name: Check for critical boot messages
+      command: journalctl -p 3 -xb
+      register: rocky_9_to_10_critical_boot_messages
+      changed_when: false
+
+    - name: Show critical boot messages
+      debug:
+        var: rocky_9_to_10_critical_boot_messages.stdout_lines
+
+    - name: Restart services selected for the maintenance window
+      systemd:
+        name: "{{ item }}"
+        state: started
+        enabled: true
+      loop: "{{ rocky_9_to_10_services_to_stop }}"
