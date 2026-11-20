@@ -25,3 +25,11 @@ user_services:
       {{ python_setup }}
       pip install gunicorn
       gunicorn -w 1 -k gthread --threads 8 --timeout 600 'app:create_app()' -b {{ loopback_ip }}:{{ ports.overdrive_backups_frontend }}
+  jellyfin_resume_cleanup:
+    script: |
+      exec python3 "{{ ansible_facts.user_dir }}/.local/bin/jellyfin_resume_cleanup.py" \
+        --days {{ jellyfin_resume_cleanup_days }} \
+        --base-url "http://{{ loopback_ip }}:{{ ports.jellyfin }}"
+    calendar: daily
+
+jellyfin_resume_cleanup_days: 30
